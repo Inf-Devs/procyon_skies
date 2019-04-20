@@ -2,7 +2,6 @@ var express = require("express");
 var app     = express();
 var http    = require("http");
 var server  = http.createServer(app);
-var qs      = require("querystring");
 
 server.listen(3000, function() {
     log("==== NEW SERVER SESSION ====");
@@ -31,7 +30,6 @@ app.post('/', function(req, res) {
     });
 
     req.on('end', function() {
-        //var post   = qs.parse(body);
         var colour = random_colour();
         var name   = body.trim();
         var id     = randomHexString(6);
@@ -56,8 +54,23 @@ io.on("connection", function(socket) {
     var player = null;
     
     //state change event
-    socket.on("update", function(data) {
+    socket.on("client_update", function(data) {
+        if (player == null) {
+            player = Players.get_player(data.id);
+            log("", "info");
+        }
         
+        player.keys = data.keys;
+        
+        //figure out how to get and send some data back to the player
+        socket.emit("server_update", /*figure this out*/);
+    });
+    
+    //when a player leaves
+    socket.on("disconnect", function() {
+        io.emit("notification", Players.get_player(player.id).name + " has disconnected.");
+        
+        Players.remove_player(player.id);
     });
 });
 
@@ -77,8 +90,51 @@ var Players = {
         this.count--;
     },
     
+    get all_player_ids() {
+        return Object.getOwnPropertyNames(this).filter((r) => {
+            return !(
+                r == "add" || r == "get_player" || r == "remove_player" ||
+                r == "count" || r == "all_player_ids"
+            );
+        });
+    },
+    
     count: 0,
 };
+
+//the "game"
+var World = {
+    get time() { return new Date().getTime(); },
+    get lapse() {
+        var lapse;
+        if (this.last_time == null) {
+            lapse = 0;
+        } else {
+            lapse = this.time - this.last_time;
+        }
+        this.last_time = this.time;
+        return lapse;
+    },
+    
+    last_time: null,
+    
+    update: function() {
+        var lapse       = this.lapse;
+        var all_players = Players.all_player_ids;
+        
+        all_players.forEach((f) => {
+            //update each player
+            
+        });
+    },
+    
+    keep_in_bounds: function(object) {
+        
+    },
+    
+    width: 5000, height: 5000,
+    friction: 0.03,
+}
 
 //custom log function
 var fs         = require("fs");
@@ -154,6 +210,12 @@ function Player(name, colour) {
     };
 }
 
+Player.prototype.engine_thrust = 0.05;
+
+Player.prototype.update = function(lapse) {
+    var vx = 0, vy = 0;
+}
+
 //pick a colour. any colour.
 var colours = [
     //from red to purple, plus white and silver
@@ -184,58 +246,11 @@ function random_colour() {
 //i've done this before. first time something i've done in the past benefits me.
 function randomHexString(n) {
     var hexString = "";
-    
+    var hexDigits = [
+        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f",
+    ];
     while (n > 0) {
-        switch (Math.floor(Math.random() * 16)) {
-            case 0:
-                hexString = hexString + "0";
-                break;
-            case 1:
-                hexString = hexString + "1";
-                break;
-            case 2:
-                hexString = hexString + "2";
-                break;
-            case 3:
-                hexString = hexString + "3";
-                break;
-            case 4:
-                hexString = hexString + "4";
-                break;
-            case 5:
-                hexString = hexString + "5";
-                break;
-            case 6:
-                hexString = hexString + "6";
-                break;
-            case 7:
-                hexString = hexString + "7";
-                break;
-            case 8:
-                hexString = hexString + "8";
-                break;
-            case 9:
-                hexString = hexString + "9";
-                break;
-            case 10:
-                hexString = hexString + "a";
-                break;
-            case 11:
-                hexString = hexString + "b";
-                break;
-            case 12:
-                hexString = hexString + "c";
-                break;
-            case 13:
-                hexString = hexString + "d";
-                break;
-            case 14:
-                hexString = hexString + "e";
-                break;
-            case 15:
-                hexString = hexString + "f";
-                break;
-        }
+        hexString += hexDigits[Math.floor(Math.random() * 16)];
         n = n - 1;
     }
     
