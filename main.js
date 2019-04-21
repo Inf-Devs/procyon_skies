@@ -52,32 +52,57 @@ app.use(express.static(__dirname + "/webpage"));
 //the socket part
 io.on("connection", function(socket) {
     var player = null;
+    var id     = null;
     
+    var last_update = null;
     //state change event
     socket.on("client_update", function(data) {
+        if (last_update != null && last_update > data.time) {
+            return; //update not required, since we already got a newer one
+        }
         if (player == null) {
-            player = Players.get_player(data.id);
-            log("", "info");
+            id     = data.id;
+            player = new Player(data.name, data.colour);
+            Players.add(id, player);
+            log("new player => name: " + player.name + ", id: " + data.id + ", colour: " + JSON.stringify(player.colour), "info");
         }
         
         player.keys = data.keys;
         
+        //time, for updating purposes.
+        var time = new Date().getTime();
+        
+        var p_x = player.x - (data.viewport.width / 2);
+        var p_y = player.y - (data.viewport.height / 2);
+        var p_w = data.viewport.width;
+        var p_h = data.viewport.height;
+        
         //figure out how to get and send some data back to the player
-        socket.emit("server_update", /*figure this out*/);
+        //data to send:
+        //    [x] visible objects
+        //    [x] visible players (incl. their usernames)
+        //    [x] the time
+        //    [x] the player's x and y (for later)
+        socket.emit("server_update", {
+            player: player,
+            objects: World.get_in_view(p_x, p_y, p_w, p_h), // FILL IN THE BRACKET!
+            players: Players.get_visible_players(p_x, p_y, p_w, p_h), //again, fill in the brackets
+            time: time,
+        });
     });
     
     //when a player leaves
     socket.on("disconnect", function() {
-        io.emit("notification", Players.get_player(player.id).name + " has disconnected.");
-        
-        Players.remove_player(player.id);
+        io.emit("notification", player.name + " has disconnected.");
+        log(player.name + ", " + id + " has disconnected.", "info");
+        Players.remove_player(id);
     });
 });
 
 //to keep track of players
 var Players = {
-    add: function(name, colour, id) {
-        this[id] = new Player(name, colour);
+    add: function(player, id) {
+        this[id] = player;
         this.count++;
     },
     
@@ -99,6 +124,19 @@ var Players = {
         });
     },
     
+    get_visible_players: function(x, y, w, h) {
+        var visible = [];
+        
+        this.all_player_ids.forEach((id) => {
+            var p = this[id];
+            if (p.x > x && p.y > y && p.x < x + w && p.y < y + h) {
+                visible.push(p);
+            }
+        });
+        
+        return visible;
+    },
+    
     count: 0,
 };
 
@@ -115,6 +153,8 @@ var World = {
         this.last_time = this.time;
         return lapse;
     },
+    
+    objects: [], //holds all of the objects
     
     last_time: null,
     
@@ -134,6 +174,13 @@ var World = {
     
     width: 5000, height: 5000,
     friction: 0.03,
+    
+    get_in_view: function(x, y, w, h) {
+        return this.objects.filter((obj) => {
+            return (obj.x > x && obj.x < x + w && obj.y > y && obj.y < y + h);
+            //</sigh...>
+        });
+    },
 }
 
 //custom log function
@@ -256,3 +303,11 @@ function randomHexString(n) {
     
     return hexString;
 }
+
+// the blaster type, for the players' blasters!
+
+// the torpedo type, for the players' torpedos!
+
+// the asteroid type, for fun!
+
+// the resource type, for now, just useless...

@@ -60,3 +60,34 @@ function keydown_handler(e) {
 function keyup_handler(e) {
     Game.keys[key_codes[e.keyCode]] = true;
 }
+
+function send_update() {
+    //data to send:
+    //    [x] player's name
+    //    [x] player's id
+    //    [x] player's colour
+    //    [x] player's keys' states
+    //    [x] the time
+    //    [x] the viewport's size
+    socket.emit("client_update", {
+        name: Game.name,
+        id: Game.id,
+        colour: Game.colour,
+        keys: Game.keys,
+        viewport: { width: Camera.width, height: Camera.height },
+        time: new Date().getTime();
+    });
+}
+
+var last_update = new Date().getTime();
+
+function receive_update(data) {
+    if (data.time < last_update) {
+        //we got an earlier update, so just ignore it.
+        return;
+    }
+    
+    last_update = data.time;
+    
+    
+}

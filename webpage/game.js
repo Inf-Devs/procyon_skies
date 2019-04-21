@@ -19,5 +19,5 @@ function setup_game() {
     //specifically: start a connection, update, then start when the information comes
     socket = io();
     
-    socket.emit("update", {id: Game.id, keys: Game.keys});
+    socket.emit("client_update", { name: Game.name, id: Game.id, keys: Game.keys, colour: Game.colour});
 }
