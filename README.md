@@ -39,3 +39,41 @@ On the client side...
 * draw on the screen
 
 * nag the server for updates
+
+## To-do list
+
+### Client side
+
+* drawing
+
+* resolve dependencies and clean up code
+
+* smoother transition between logging in and playing
+
+* figure out how not to hog resources
+
+### Server side
+
+* finish up the game, dammit
+
+    - let the players move around
+    
+    - test the game (and hope it doesn't crash)
+
+* figure out how to use modules &mdash; this means splitting up the code into more files, for comprehensibility's sake
+
+* figure out how to make it efficient &mdash; even if Javascript is not
+
+* more features for the clients, such as:
+
+    - global chat
+    
+    - weapons, and let the players blast each other
+    
+    - various planets for players to stop over
+    
+    - save server state, so that players can come back to where they left off
+    
+    - more efficient updating, for less lag
+    
+    - notifications for players

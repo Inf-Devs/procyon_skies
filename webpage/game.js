@@ -19,5 +19,16 @@ function setup_game() {
     //specifically: start a connection, update, then start when the information comes
     socket = io();
     
-    socket.emit("client_update", { name: Game.name, id: Game.id, keys: Game.keys, colour: Game.colour});
+    send_update();
+    //socket.emit("client_update", { name: Game.name, id: Game.id, keys: Game.keys, colour: Game.colour});
+    
+    //set up our event listeners
+    addEventListener("keyup", keyup_handler);
+    addEventListener("keydown", keydown_handler);
+    socket.on("server_update", receive_update);
+    
+    document.body.appendChild(canvas);
+    Camera.resize();
+    
+    requestAnimationFrame(animate);
 }

@@ -1,7 +1,6 @@
 var canvas, context;
 var form;
 var socket;
-var playing = false;
 
 function init() {
     form = document.querySelector("form");
@@ -12,15 +11,6 @@ function init() {
     
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
-}
-
-//animation loop. sort of.
-function animate() {
-    if (playing) {
-        Camera.draw_frame(context);
-    }
-    
-    requestAnimationFrame(animate);
 }
 
 //custom logging, since console.log will drive us insane
@@ -35,5 +25,3 @@ window.onresize = function(e) {
     
     Camera.resize();
 };
-
-init();

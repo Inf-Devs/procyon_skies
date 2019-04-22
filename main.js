@@ -1,3 +1,6 @@
+//this server's gonna crash immediately. i swear, it'll crash immediately.
+//i'm going to be running this on my 5.5 year old laptop.
+// 6 gb ram, amd 4400m. wish me luck!
 var express = require("express");
 var app     = express();
 var http    = require("http");
@@ -9,6 +12,9 @@ server.listen(3000, function() {
 });
 
 var io = require("socket.io").listen(server);
+
+//set up express resources
+app.use(express.static(__dirname + "/webpage"));
 
 //express app
 app.get('/', function(req, res) {
@@ -46,9 +52,6 @@ app.post('/', function(req, res) {
     });
 });
 
-//set up express resources
-app.use(express.static(__dirname + "/webpage"));
-
 //the socket part
 io.on("connection", function(socket) {
     var player = null;
@@ -63,8 +66,9 @@ io.on("connection", function(socket) {
         if (player == null) {
             id     = data.id;
             player = new Player(data.name, data.colour);
-            Players.add(id, player);
+            Players.add(player, id);
             log("new player => name: " + player.name + ", id: " + data.id + ", colour: " + JSON.stringify(player.colour), "info");
+            player.spawn();
         }
         
         player.keys = data.keys;
@@ -82,55 +86,68 @@ io.on("connection", function(socket) {
         //    [x] visible objects
         //    [x] visible players (incl. their usernames)
         //    [x] the time
-        //    [x] the player's x and y (for later)
+        //    [x] the player's x and y
+        //    [x] the player's viewport's offset
         socket.emit("server_update", {
             player: player,
-            objects: World.get_in_view(p_x, p_y, p_w, p_h), // FILL IN THE BRACKET!
-            players: Players.get_visible_players(p_x, p_y, p_w, p_h), //again, fill in the brackets
+            objects: World.get_in_view(p_x, p_y, p_w, p_h),
+            players: Players.get_visible_players(p_x, p_y, p_w, p_h),
             time: time,
+            offset: { x: p_x, y: p_y, },
         });
     });
     
     //when a player leaves
     socket.on("disconnect", function() {
-        io.emit("notification", player.name + " has disconnected.");
-        log(player.name + ", " + id + " has disconnected.", "info");
-        Players.remove_player(id);
+        if (player != null) {
+            io.emit("notification", player.name + " has disconnected.");
+            log(player.name + ", " + id + " has disconnected.", "info");
+            Players.remove_player(id);
+        }
     });
 });
 
 //to keep track of players
 var Players = {
     add: function(player, id) {
-        this[id] = player;
-        this.count++;
+        Players[id] = player;
+        Players.count++;
     },
     
     get_player: function(id) {
-        return this[id];
+        return Players[id];
     },
     
     remove_player: function(id) {
-        delete this[id];
-        this.count--;
+        delete Players[id];
+        Players.count--;
     },
     
     get all_player_ids() {
         return Object.getOwnPropertyNames(this).filter((r) => {
-            return !(
+            /*return !(
                 r == "add" || r == "get_player" || r == "remove_player" ||
-                r == "count" || r == "all_player_ids"
-            );
+                r == "count" || r == "all_player_ids" || r == "get_visible_players"
+            );*/
+            
+            return r.length == 6;
         });
     },
     
     get_visible_players: function(x, y, w, h) {
         var visible = [];
-        
+        debugger;
         this.all_player_ids.forEach((id) => {
-            var p = this[id];
+            var p = Players[id];
             if (p.x > x && p.y > y && p.x < x + w && p.y < y + h) {
-                visible.push(p);
+                //send a watered-down version, since the client doesn't need everything
+                visible.push({
+                    x: p.x,
+                    y: p.y,
+                    colour: p.colour,
+                    name: p.name,
+                    angle: p.angle,
+                });
             }
         });
         
@@ -145,12 +162,12 @@ var World = {
     get time() { return new Date().getTime(); },
     get lapse() {
         var lapse;
-        if (this.last_time == null) {
+        if (World.last_time == null) {
             lapse = 0;
         } else {
-            lapse = this.time - this.last_time;
+            lapse = Math.min(World.time - World.last_time, 100); // maximum lapse: 100ms, since anything above that would be choppy.
         }
-        this.last_time = this.time;
+        World.last_time = World.time;
         return lapse;
     },
     
@@ -159,24 +176,30 @@ var World = {
     last_time: null,
     
     update: function() {
-        var lapse       = this.lapse;
+        var lapse       = World.lapse;
         var all_players = Players.all_player_ids;
         
-        all_players.forEach((f) => {
+        all_players.forEach((p) => {
             //update each player
-            
+            debugger;
+            Players[p].update(lapse);
         });
-    },
-    
-    keep_in_bounds: function(object) {
         
+        //clean out whatever's not active
+        World.objects = World.objects.filter((f) => { return f.active; });
+        World.objects.forEach((f) => {
+            // ...and update.
+            f.update(lapse);
+        });
+        
+        setImmediate(World.update); //WHY!?
     },
     
     width: 5000, height: 5000,
     friction: 0.03,
     
     get_in_view: function(x, y, w, h) {
-        return this.objects.filter((obj) => {
+        return World.objects.filter((obj) => {
             return (obj.x > x && obj.x < x + w && obj.y > y && obj.y < y + h);
             //</sigh...>
         });
@@ -255,13 +278,74 @@ function Player(name, colour) {
         blasters: false,
         torpedos: false,
     };
+    
+    this.last_fire = 0;
+    
+    this.v = {x: 0, y: 0};
 }
 
-Player.prototype.engine_thrust = 0.05;
+Player.prototype.engine_thrust  = 0.005;
+Player.prototype.deceleration   = 0.0125;
+Player.prototype.rotation_speed = 0.003;
+
+Player.prototype.reload        = 250;
+Player.prototype.exhaust_delay = 125; // 125 ms for each exhuast bubble
 
 Player.prototype.update = function(lapse) {
-    var vx = 0, vy = 0;
-}
+    debugger;
+    //update the angle
+    this.angle += (this.keys.left ? -this.rotation_speed * lapse : 0) + (this.keys.right ? this.rotation_speed * lapse : 0);
+    
+    //get the friction
+    var friction = { x: -this.v.x * this.deceleration, y: -this.v.y * this.deceleration };
+    //get the thrust
+    var thrust = {
+        x: this.keys.up ? Math.cos(this.angle) * this.engine_thrust : 0,
+        y: this.keys.up ? Math.sin(this.angle) * this.engine_thrust : 0,
+    };
+    //...and now add them together!
+    this.v.x += friction.x + thrust.x;
+    this.v.y += friction.y + thrust.y;
+    
+    this.x += this.v.x * lapse;
+    this.y += this.v.y * lapse;
+    
+    //keep it within the world
+    if (this.x < 0 || this.x > World.width) {
+        this.x   = Math.max(0, Math.min(World.width, this.x));
+        this.v.x = 0;
+    }
+    
+    if (this.y < 0 || this.y > World.height) {
+        this.y   = Math.max(0, Math.min(World.height, this.y));
+        this.v.y = 0;
+    }
+    
+    //now that the position's updated... you'd think we'd be done, but NOPE!
+    
+    //if the thrust key is pressed, make a bubble.
+    if (this.keys.up) {
+        World.objects.push(new Bubble(this.x, this.y, this.angle + Math.PI, lighten_colour(this.colour)));
+    }
+    
+    //then update the blasters and torpedos.
+    //finish for later.
+};
+
+Player.prototype.spawn = function() {
+    //spawn at the center of the world
+    var spawn_radius = Math.random() * 100;
+    var spawn_angle  = Math.random() * 2 * Math.PI;
+    var spawn_x      = World.width / 2;
+    var spawn_y      = World.height / 2;
+    
+    this.x = Math.cos(spawn_angle) * spawn_radius + spawn_x;
+    this.y = Math.sin(spawn_angle) * spawn_radius + spawn_y;
+    
+    this.angle = Math.random() * Math.PI * 2;
+    
+    log("player " + this.name + " has spawned at (" + this.x + ", " + this.y + ").");
+};
 
 //pick a colour. any colour.
 var colours = [
@@ -311,3 +395,54 @@ function randomHexString(n) {
 // the asteroid type, for fun!
 
 // the resource type, for now, just useless...
+
+// the bubble type, for the players' exhaust
+function Bubble(x, y, angle, colour) {
+    this.x = x;
+    this.y = y;
+    
+    this.angle  = angle;
+    this.colour = colour || { r: 255, g: 255, b: 255 };
+    
+    this.max_lifetime = Math.random() * 500 + 1500;
+    this.lifetime     = 0;
+    this.alpha        = 1; // dependent on lifetime
+    this.active       = true;
+    
+    this.type = "bubble";
+}
+
+Bubble.prototype.speed = 0.1;
+
+Bubble.prototype.update = function(lapse) {
+    this.lifetime += lapse;
+    if (this.lifetime >= this.max_lifetime) { //its time is up...
+        this.active = false;
+        this.alpha  = 0;
+        return;
+    }
+    
+    this.x += Math.cos(this.angle) * this.speed * lapse;
+    this.y += Math.sin(this.angle) * this.speed * lapse;
+    
+    this.alpha = (this.max_lifetime - this.lifetime) / this.max_lifetime;
+};
+
+//for colours
+function lighten_colour(c) {
+    return {
+        r: Math.min(c.r * 1.5, 255),
+        g: Math.min(c.g * 1.5, 255),
+        b: Math.min(c.b * 1.5, 255),
+    };
+}
+
+function darken_colour(c) {
+    return {
+        r: c.r / 1.5,
+        g: c.g / 1.5,
+        b: c.b / 1.5,
+    };
+}
+
+World.update();
