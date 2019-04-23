@@ -53,6 +53,15 @@ var Camera = {
                     cxt.closePath();
                     cxt.fill();
                     break;
+                case "blaster bullet":
+                    //draw a laser beam!
+                    cxt.strokeStyle = get_colour(f.colour);
+                    cxt.lineWidth   = 2;
+                    cxt.beginPath();
+                    cxt.moveTo(draw_x, draw_y);
+                    cxt.lineTo(Math.cos(f.angle) * 5 + draw_x, Math.sin(f.angle) * 5 + draw_y);
+                    cxt.closePath();
+                    cxt.stroke();
                 default:
                     log("unrecognized type: " + f.type);
                 //what else?

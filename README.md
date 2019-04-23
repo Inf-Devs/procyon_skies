@@ -44,8 +44,6 @@ On the client side...
 
 ### Client side
 
-* drawing
-
 * resolve dependencies and clean up code
 
 * smoother transition between logging in and playing
@@ -53,12 +51,6 @@ On the client side...
 * figure out how not to hog resources
 
 ### Server side
-
-* finish up the game, dammit
-
-    - let the players move around
-    
-    - test the game (and hope it doesn't crash)
 
 * figure out how to use modules &mdash; this means splitting up the code into more files, for comprehensibility's sake
 
