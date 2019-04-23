@@ -79,6 +79,8 @@ var Camera = {
             //at 14pt, VT323 is about 7.5 by 14 pixels (it's a monospace font)
             cxt.textAlign = "center";
             cxt.fillText(p.name, draw_x, draw_y - 29);
+            //draw their health bar
+            cxt.fillRect(draw_x - 15, draw_y - 20, p.health * 30, 5);
             cxt.save();
             cxt.translate(draw_x, draw_y);
             cxt.rotate(p.angle);

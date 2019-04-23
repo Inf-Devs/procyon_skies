@@ -42,7 +42,7 @@ app.post('/', function(req, res) {
         
         log("post request from: " + (req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress) + ", with name: " + name, "notification");
         
-        Players.add(name, colour);
+        // don't need this anymore Players.add(name, colour);
         
         //respond, too, telling the user their colour
         
@@ -65,7 +65,7 @@ io.on("connection", function(socket) {
         }
         if (player == null) {
             id     = data.id;
-            player = new Player(data.name, data.colour);
+            player = new Player(data.name, data.colour, id);
             Players.add(player, id);
             log("new player => name: " + player.name + ", id: " + data.id + ", colour: " + JSON.stringify(player.colour), "info");
             player.spawn();
@@ -138,7 +138,7 @@ var Players = {
         var visible = [];
         this.all_player_ids.forEach((id) => {
             var p = Players[id];
-            if (p.x > x && p.y > y && p.x < x + w && p.y < y + h) {
+            if (p.x > x && p.y > y && p.x < x + w && p.y < y + h && p.health > 0) {
                 //send a watered-down version, since the client doesn't need everything
                 visible.push({
                     x: p.x,
@@ -146,6 +146,7 @@ var Players = {
                     colour: p.colour,
                     name: p.name,
                     angle: p.angle,
+                    health: p.health,
                 });
             }
         });
@@ -260,9 +261,10 @@ function get_date() {
 }
 
 //user type
-function Player(name, colour) {
+function Player(name, colour, id) {
     this.colour = colour;
     this.name   = name;
+    this.id     = id;
     
     this.x     = null;
     this.y     = null;
@@ -295,6 +297,10 @@ Player.prototype.torpedo_reload = 1000;
 Player.prototype.exhaust_delay  = 125; // 125 ms for each exhuast bubble
 
 Player.prototype.update = function(lapse) {
+    if (this.health <= 0) {
+        return;
+    }
+    
     //update the angle
     this.angle += (this.keys.left ? -this.rotation_speed * lapse : 0) + (this.keys.right ? this.rotation_speed * lapse : 0);
     
@@ -337,12 +343,24 @@ Player.prototype.update = function(lapse) {
     
     //if the blasters key is pressed, make some blasters!
     if (this.keys.blasters && this.last_blaster >= this.blaster_reload) {
-        World.objects.push(new Blaster_bullet(this.x, this.y, this.angle, lighten_colour(this.colour)));
+        World.objects.push(new Blaster_bullet(this.x, this.y, this.angle, lighten_colour(this.colour), this.id));
         this.last_blaster = this.last_blaster % this.blaster_reload;
     }
     
     //same goes for torpedo
     // ...finish.
+    
+    //check collision with any projectiles...lag machine!!!
+    if (World.objects.length > 0) {
+        World.objects.filter((obj) => {
+            return !(obj.type == "bubble" || obj.owner == this.id);
+        }).forEach((obj) => {
+            if (Math.hypot(obj.x - this.x, obj.y - this.y) < 5) {
+                obj.active = false;
+                this.health -= obj.damage;
+            }
+        });
+    }
 };
 
 Player.prototype.spawn = function() {
@@ -402,7 +420,7 @@ function randomHexString(n) {
 }
 
 // the blaster type, for the players' blasters!
-function Blaster_bullet(x, y, angle, colour) {
+function Blaster_bullet(x, y, angle, colour, owner) {
     this.x = x;
     this.y = y;
     
@@ -410,13 +428,15 @@ function Blaster_bullet(x, y, angle, colour) {
     this.colour   = colour || { r: 255, g: 255, b: 255 };
     this.active   = true;
     this.lifetime = 0;
+    this.owner    = owner;
     
     this.type = "blaster bullet";
 }
 
-Blaster_bullet.prototype.speed = 0.4;
+Blaster_bullet.prototype.speed  = 0.4;
+Blaster_bullet.prototype.damage = 0.1;
 
-Blaster_bullet.prototype.max_lifetime = 2500;
+Blaster_bullet.prototype.max_lifetime = 1500;
 
 Blaster_bullet.prototype.update = function(lapse) {
     this.lifetime += lapse;

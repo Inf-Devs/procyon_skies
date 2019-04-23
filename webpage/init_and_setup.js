@@ -9,6 +9,8 @@ function init() {
     canvas  = document.createElement("canvas");
     context = canvas.getContext("2d");
     
+    canvas.innerHTML = "loading...";
+    
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
 }
