@@ -11,10 +11,39 @@
                 background-color: black;
                 text-align: center;
             }
+            
+            canvas#mini_map {
+                position: absolute;
+                top: 5px; left: 5px;
+                padding: 0px;
+                width: 150px; height: 150px;
+                background-color: black;
+                border: 1px solid white; /* will be modified by the script */
+            }
+            
+            canvas#status_panel {
+                position: absolute;
+                top: 160px; left: 5px;
+                width: 150px; height: 65px;
+                padding: 0px;
+                border: 1px solid white; /* will be modified by the script */
+            }
+            
+            div#infos {
+                position: absolute;
+                top: 225px; left: 5px;
+                width: 150px;
+                padding: 5px;
+                font-family: "VT323";
+                font-size: 14pt;
+                color: white; /* will be modified by the script */
+                border: 1px solid white; /* will be modified by script */
+            }
         </style>
     </head>
     <body>
         <p>welcome! we're doing some node.js server testing. enter a name, for science!</p>
+        <p>arrow keys to move. z for blasters. x for torpedos (coming soon).</p> 
         <form>
             <p>name: <input type="text" name="name_field"/></p>
             <button type="submit">submit</button>

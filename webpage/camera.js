@@ -91,11 +91,7 @@ var Camera = {
             cxt.restore();
         });
         
-        //draw in the player's coordinates at the top left corner
-        cxt.textAlign = "left";
-        cxt.fillStyle = get_colour(Game.colour);
-        cxt.fillText("x: " + Math.round(this.width / 2 + this.offset_x), 5, 15);
-        cxt.fillText("y: " + Math.round(this.height / 2 + this.offset_y), 5, 30);
+        Info_display.draw_mini_map(5000, 5000, this.offset_x + this.width / 2, this.offset_y + this.height / 2, get_colour(Game.colour));
     },
     
     resize: function() {
@@ -115,6 +111,9 @@ var Info_display = {
     status_canvas: null,
     status_context: null,
     
+    ammo: null,
+    health: null,
+    
     init: function(mini_map_canvas, status_canvas) {
         this.mini_map_canvas  = mini_map_canvas;
         this.mini_map_context = this.mini_map_canvas.getContext("2d");
@@ -130,15 +129,30 @@ var Info_display = {
     },
     
     draw_mini_map: function(map_width, map_height, x, y, colour) {
+        this.mini_map_context.clearRect(0, 0, this.mini_map_width, this.mini_map_height);
+        
         this.mini_map_context.fillStyle = colour;
         
         var draw_x = this.mini_map_width * (x / map_width);
         var draw_y = this.mini_map_height * (y / map_height);
         
         this.mini_map_context.beginPath();
-        this.mini_map_context.arc(draw_x, draw_y, 1, 0, Math.PI * 2);
+        this.mini_map_context.arc(draw_x, draw_y, 3, 0, Math.PI * 2);
         this.mini_map_context.closePath();
         this.mini_map_context.fill();
+    },
+    
+    draw_status: function(colour) {
+        this.status_context.clearRect(0, 0, 150, 65);
+        this.status_context.fillStyle = colour;
+        
+        //icons will be 25 by 25 pixels, with 5 pixels of padding between each.
+        
+        //draw a heart, for health
+        //start with two arcs
+        this.status_context.arc();
+        
+        //draw some shells, for ammo
     },
 };
 

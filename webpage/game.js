@@ -29,9 +29,27 @@ function setup_game() {
     addEventListener("keydown", keydown_handler);
     socket.on("server_update", receive_update);
     
+    //set up the main canvas
     document.body.appendChild(canvas);
-    
     Camera.resize();
+    
+    //set up the mini map and infos
+    var mini_map               = document.createElement("canvas");
+    mini_map.id                = "mini_map";
+    mini_map.style.borderColor = get_colour(Game.colour);
+    document.body.appendChild(mini_map);
+    
+    var status               = document.createElement("canvas");
+    status.id                = "status_panel";
+    status.style.borderColor = get_colour(Game.colour);
+    document.body.appendChild(status);
+    
+    var info               = document.createElement("div");
+    info.id                = "infos";
+    info.style.borderColor = get_colour(Game.colour);
+    document.body.appendChild(info);
+    
+    Info_display.init(mini_map, status);
     
     requestAnimationFrame(animate);
 }

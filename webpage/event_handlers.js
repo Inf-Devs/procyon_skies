@@ -95,6 +95,9 @@ function receive_update(data) {
     Camera.offset_x = data.offset.x;
     Camera.offset_y = data.offset.y;
     
+    Info_display.health = data.health;
+    Info_display.ammo   = data.ammo;
+    
     playing = true;
 }
 

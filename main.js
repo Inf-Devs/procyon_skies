@@ -94,6 +94,8 @@ io.on("connection", function(socket) {
             players: Players.get_visible_players(p_x, p_y, p_w, p_h),
             time: time,
             offset: { x: p_x, y: p_y, },
+            health: player.health,
+            ammo: player.ammo,
         });
     });
     
