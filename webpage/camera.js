@@ -104,6 +104,44 @@ var Camera = {
     },
 };
 
+//for player's state, such as a minimap, ammo, health, etc.
+var Info_display = {
+    //minimap stuff
+    mini_map_canvas: null,
+    mini_map_context: null,
+    mini_map_width: null,
+    mini_map_height: null,
+    
+    status_canvas: null,
+    status_context: null,
+    
+    init: function(mini_map_canvas, status_canvas) {
+        this.mini_map_canvas  = mini_map_canvas;
+        this.mini_map_context = this.mini_map_canvas.getContext("2d");
+        this.resize_mini_map();
+        
+        this.status_canvas  = status_canvas;
+        this.status_context = this.status_canvas.getContext("2d");
+    },
+    
+    resize_mini_map: function() {
+        this.mini_map_width  = this.mini_map_canvas.width;
+        this.mini_map_height = this.mini_map_canvas.height;
+    },
+    
+    draw_mini_map: function(map_width, map_height, x, y, colour) {
+        this.mini_map_context.fillStyle = colour;
+        
+        var draw_x = this.mini_map_width * (x / map_width);
+        var draw_y = this.mini_map_height * (y / map_height);
+        
+        this.mini_map_context.beginPath();
+        this.mini_map_context.arc(draw_x, draw_y, 1, 0, Math.PI * 2);
+        this.mini_map_context.closePath();
+        this.mini_map_context.fill();
+    },
+};
+
 function get_colour(c, alpha) {
     if (alpha) {
         return "rgba(" + c.r + ", " + c.g + ", " + c.b + ", " + alpha + ")";

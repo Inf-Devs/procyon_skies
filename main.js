@@ -286,6 +286,14 @@ function Player(name, colour, id) {
     this.last_blaster = 0;
     this.last_exhaust = 0;
     this.last_torpedo = 0;
+    
+    this.ammo = 1;
+    
+    this.healing           = false;
+    this.ammo_replenishing = false;
+    
+    this.time_to_heal           = 0;
+    this.time_to_ammo_replenish = 0;
 }
 
 Player.prototype.engine_thrust  = 0.0005;
@@ -295,6 +303,9 @@ Player.prototype.rotation_speed = 0.003;
 Player.prototype.blaster_reload = 250;
 Player.prototype.torpedo_reload = 1000;
 Player.prototype.exhaust_delay  = 125; // 125 ms for each exhuast bubble
+
+Player.prototype.ammo_replenish_delay   = 500; // 500 ms for ammo to start being replenished
+Player.prototype.health_replenish_delay = 2000; // 2000 ms for health to start recovering
 
 Player.prototype.update = function(lapse) {
     if (this.health <= 0) {
@@ -342,9 +353,10 @@ Player.prototype.update = function(lapse) {
     }
     
     //if the blasters key is pressed, make some blasters!
-    if (this.keys.blasters && this.last_blaster >= this.blaster_reload) {
+    if (this.keys.blasters && this.last_blaster >= this.blaster_reload && this.ammo > 0.1) {
         World.objects.push(new Blaster_bullet(this.x, this.y, this.angle, lighten_colour(this.colour), this.id));
         this.last_blaster = this.last_blaster % this.blaster_reload;
+        this.ammo -= 0.1;
     }
     
     //same goes for torpedo
@@ -356,8 +368,8 @@ Player.prototype.update = function(lapse) {
             return !(obj.type == "bubble" || obj.owner == this.id);
         }).forEach((obj) => {
             if (Math.hypot(obj.x - this.x, obj.y - this.y) < 5) {
-                obj.active = false;
-                this.health -= obj.damage;
+                obj.active  = false;
+                this.health = this.health - obj.damage;
             }
         });
     }
@@ -460,7 +472,7 @@ function Bubble(x, y, angle, colour) {
     this.x = x;
     this.y = y;
     
-    this.angle  = angle;
+    this.angle  = (Math.random() * Math.PI / 6) + (angle - Math.PI / 12);
     this.colour = colour || { r: 255, g: 255, b: 255 };
     
     this.max_lifetime = Math.random() * 500 + 1500;

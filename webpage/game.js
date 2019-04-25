@@ -30,6 +30,7 @@ function setup_game() {
     socket.on("server_update", receive_update);
     
     document.body.appendChild(canvas);
+    
     Camera.resize();
     
     requestAnimationFrame(animate);
