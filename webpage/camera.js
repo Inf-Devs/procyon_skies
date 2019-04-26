@@ -92,6 +92,7 @@ var Camera = {
         });
         
         Info_display.draw_mini_map(5000, 5000, this.offset_x + this.width / 2, this.offset_y + this.height / 2, get_colour(Game.colour));
+        Info_display.draw_status(get_colour(Game.colour));
     },
     
     resize: function() {
@@ -119,8 +120,10 @@ var Info_display = {
         this.mini_map_context = this.mini_map_canvas.getContext("2d");
         this.resize_mini_map();
         
-        this.status_canvas  = status_canvas;
-        this.status_context = this.status_canvas.getContext("2d");
+        this.status_canvas        = status_canvas;
+        this.status_canvas.height = 65;
+        this.status_canvas.width  = 150;
+        this.status_context       = this.status_canvas.getContext("2d");
     },
     
     resize_mini_map: function() {
@@ -146,13 +149,51 @@ var Info_display = {
         this.status_context.clearRect(0, 0, 150, 65);
         this.status_context.fillStyle = colour;
         
+        this.status_context.save();
+        
         //icons will be 25 by 25 pixels, with 5 pixels of padding between each.
         
         //draw a heart, for health
-        //start with two arcs
-        this.status_context.arc();
+        this.status_context.translate(5, 5);
+        this.status_context.beginPath();
+        this.status_context.arc(6.25, 6.25, 6.25, -Math.PI, 0);
+        this.status_context.arc(18.75, 6.25, 6.25, -Math.PI, 0);
+        this.status_context.moveTo(25, 6.25);
+        this.status_context.lineTo(12.5, 25);
+        this.status_context.lineTo(0, 6.25);
+        this.status_context.closePath();
+        this.status_context.fill();
+        
+        //draw the health bar
+        this.status_context.translate(30, 0);
+        this.status_context.fillRect(0, 0, this.health * 110, 25);
         
         //draw some shells, for ammo
+        this.status_context.translate(-30, 30);
+        this.status_context.beginPath();
+        this.status_context.moveTo(0, 3);
+        this.status_context.lineTo(0, 24);
+        this.status_context.lineTo(6, 24);
+        this.status_context.lineTo(6, 3);
+        this.status_context.lineTo(3, 0);
+        this.status_context.moveTo(8, 3);
+        this.status_context.lineTo(8, 24);
+        this.status_context.lineTo(14, 24);
+        this.status_context.lineTo(14, 3);
+        this.status_context.lineTo(11, 0);
+        this.status_context.moveTo(16, 3);
+        this.status_context.lineTo(16, 24);
+        this.status_context.lineTo(22, 24);
+        this.status_context.lineTo(22, 3);
+        this.status_context.lineTo(19, 0);
+        this.status_context.closePath();
+        this.status_context.fill();
+        
+        //draw the ammo bar
+        this.status_context.translate(30, 0);
+        this.status_context.fillRect(0, 0, this.ammo * 110, 25);
+        
+        this.status_context.restore();
     },
 };
 
