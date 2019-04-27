@@ -28,6 +28,7 @@ function setup_game() {
     addEventListener("keyup", keyup_handler);
     addEventListener("keydown", keydown_handler);
     socket.on("server_update", receive_update);
+    socket.on("notification", receive_notification);
     
     //set up the main canvas
     document.body.appendChild(canvas);

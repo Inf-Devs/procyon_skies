@@ -5,6 +5,7 @@ var express = require("express");
 var app     = express();
 var http    = require("http");
 var server  = http.createServer(app);
+var event   = require("events");
 
 server.listen(3000, function() {
     log("==== NEW SERVER SESSION ====");
@@ -42,10 +43,7 @@ app.post('/', function(req, res) {
         
         log("post request from: " + (req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress) + ", with name: " + name, "notification");
         
-        // don't need this anymore Players.add(name, colour);
-        
         //respond, too, telling the user their colour
-        
         res.status(200);
         res.send({colour: colour, name: name, id: id});
         res.end();
@@ -105,6 +103,18 @@ io.on("connection", function(socket) {
             io.emit("notification", player.name + " has disconnected.");
             log(player.name + ", " + id + " has disconnected.", "info");
             Players.remove_player(id);
+        }
+    });
+    
+    Game_events.on("kill", (data) => {
+        if (data.killer == id) {
+            //player killed someone! congrats!
+            socket.emit("notification", "you have killed " + Players.get_player(data.victim).name);
+        }
+        
+        if (data.victim == id) {
+            //player got killed! gotta warn them!
+            socket.emit("notification", "you have been killed by " + Players.get_player(data.killer).name);
         }
     });
 });
@@ -309,6 +319,9 @@ Player.prototype.exhaust_delay  = 125; // 125 ms for each exhuast bubble
 Player.prototype.ammo_replenish_delay   = 500; // 500 ms for ammo to start being replenished
 Player.prototype.health_replenish_delay = 2000; // 2000 ms for health to start recovering
 
+Player.prototype.blaster_cost = 0.05;
+Player.prototype.torpedo_cost = 0.3;
+
 Player.prototype.update = function(lapse) {
     if (this.health <= 0) {
         return;
@@ -355,10 +368,10 @@ Player.prototype.update = function(lapse) {
     }
     
     //if the blasters key is pressed, make some blasters!
-    if (this.keys.blasters && this.last_blaster >= this.blaster_reload && this.ammo > 0.1) {
+    if (this.keys.blasters && this.last_blaster >= this.blaster_reload && this.ammo >= this.blaster_cost) {
         World.objects.push(new Blaster_bullet(this.x, this.y, this.angle, lighten_colour(this.colour), this.id));
         this.last_blaster = this.last_blaster % this.blaster_reload;
-        this.ammo -= 0.1;
+        this.ammo -= this.blaster_cost;
     }
     
     //same goes for torpedo
@@ -372,6 +385,10 @@ Player.prototype.update = function(lapse) {
             if (Math.hypot(obj.x - this.x, obj.y - this.y) < 5) {
                 obj.active  = false;
                 this.health = this.health - obj.damage;
+                
+                if (this.health <= 0) {
+                    Game_events.emit("kill", { killer: obj.owner, victim: this.id });
+                }
             }
         });
     }
@@ -517,6 +534,9 @@ function darken_colour(c) {
         b: c.b / 1.5,
     };
 }
+
+//event emitter stuff. yes, i know i should split this up...
+var Game_events = new event.EventEmitter();
 
 //KICKSTART!!!!!!!
 World.update();

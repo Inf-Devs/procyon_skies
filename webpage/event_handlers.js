@@ -101,6 +101,26 @@ function receive_update(data) {
     playing = true;
 }
 
+function receive_notification(message) {
+    log('notification received: "' + message + '"');
+    
+    //to-do: take a notification and render it on the player's screen.
+    //[ ] the notification should be an HTML element at the top center of
+    //      the player's screen.
+    //[ ] style it with CSS
+    //[ ] and make it disappear after some time.
+    //[ ] the notification itself comes as a string, ready to be inserted.
+    
+    //you can check off each list item as you finish it
+}
+
+function on_death() {
+    log("player has been killed.");
+    //to-do:
+    //[ ] a death screen
+    //[ ] give the player an option to respawn (don't worry about respawning logic)
+}
+
 var need_update = true;
 var playing = false;
 function animate() {
