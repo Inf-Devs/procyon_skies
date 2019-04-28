@@ -166,7 +166,7 @@ var Info_display = {
         
         //draw the health bar
         this.status_context.translate(30, 0);
-        this.status_context.fillRect(0, 0, this.health * 110, 25);
+        this.status_context.fillRect(0, 0, Math.max(this.health * 110, 0), 25);
         
         //draw some shells, for ammo
         this.status_context.translate(-30, 30);

@@ -299,6 +299,8 @@ function Player(name, colour, id) {
     this.last_exhaust = 0;
     this.last_torpedo = 0;
     
+    this.last_damage = 0;
+    
     this.ammo = 1;
     
     this.healing           = false;
@@ -360,6 +362,7 @@ Player.prototype.update = function(lapse) {
     this.last_blaster += lapse;
     this.last_torpedo += lapse;
     this.last_exhaust += lapse;
+    this.last_damage  += lapse;
     
     //if the thrust key is pressed, make a bubble.
     if (this.keys.up && this.last_exhaust >= this.exhaust_delay) {
@@ -372,6 +375,8 @@ Player.prototype.update = function(lapse) {
         World.objects.push(new Blaster_bullet(this.x, this.y, this.angle, lighten_colour(this.colour), this.id));
         this.last_blaster = this.last_blaster % this.blaster_reload;
         this.ammo -= this.blaster_cost;
+        
+        this.ammo_replenishing = false;
     }
     
     //same goes for torpedo
@@ -386,11 +391,34 @@ Player.prototype.update = function(lapse) {
                 obj.active  = false;
                 this.health = this.health - obj.damage;
                 
+                this.last_damage = 0;
+                this.healing     = false;
+                
                 if (this.health <= 0) {
                     Game_events.emit("kill", { killer: obj.owner, victim: this.id });
                 }
             }
         });
+    }
+    
+    //ammo replenishing
+    if (this.last_blaster > this.ammo_replenish_delay &&
+        this.last_torpedo > this.ammo_replenish_delay &&
+        this.ammo < 1 && !this.keys.blasters && !this.keys.torpedos) {
+        this.ammo_replenishing = true;
+    }
+    
+    if (this.ammo_replenishing) {
+        this.ammo = Math.min(this.ammo + 0.005, 1);
+    }
+    
+    //healing
+    if (this.last_damage > this.health_replenish_delay && this.health < 1) {
+        this.healing = true;
+    }
+    
+    if (this.healing) {
+        this.health = Math.min(this.health + 0.005, 1);
     }
 };
 
