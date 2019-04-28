@@ -27,3 +27,8 @@ window.onresize = function(e) {
     
     Camera.resize();
 };
+
+//util function to help us remove nodes
+function remove_element(element) {
+	element && element.parentNode && element.parentNode.removeChild(element);
+}
