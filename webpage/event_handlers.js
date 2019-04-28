@@ -102,16 +102,17 @@ function receive_update(data) {
 }
 
 function receive_notification(message) {
-    log('notification received: "' + message + '"');
+    var NOTIFICATION_TIME = 3000;
+	log('notification received: "' + message + '"');
     
-    //to-do: take a notification and render it on the player's screen.
-    //[ ] the notification should be an HTML element at the top center of
-    //      the player's screen.
-    //[ ] style it with CSS
-    //[ ] and make it disappear after some time.
-    //[ ] the notification itself comes as a string, ready to be inserted.
-    
-    //you can check off each list item as you finish it
+	var message_box = document.createElement('div');
+	message_box.classList.add('notification');
+	
+	var text = document.createTextNode(message);
+	message_box.append(text);
+	document.body.appendChild(message_box);
+	
+	setTimeout(function(){remove_element(message_box)},NOTIFICATION_TIME);
 }
 
 function on_death() {
