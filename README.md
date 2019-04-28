@@ -62,7 +62,9 @@ On the client side...
 
     - global chat
     
-    - weapons, and let the players blast each other
+    - more weapons, such as torpedos
+    
+    - reloading weapons!
     
     - various planets for players to stop over
     
@@ -70,4 +72,7 @@ On the client side...
     
     - more efficient updating, for less lag
     
-    - notifications for players
+    - asteroids and resources
+    
+    - upgrades and healing
+    
