@@ -62,6 +62,23 @@ var Camera = {
                     cxt.lineTo(Math.cos(f.angle) * 5 + draw_x, Math.sin(f.angle) * 5 + draw_y);
                     cxt.closePath();
                     cxt.stroke();
+                    break;
+                case "rocket":
+                    cxt.fillStyle = get_colour(f.colour);
+                    cxt.save();
+                    cxt.translate(draw_x, draw_y);
+                    cxt.rotate(f.angle);
+                    cxt.beginPath();
+                    cxt.moveTo(0, 0);
+                    cxt.lineTo(-3, -3);
+                    cxt.lineTo(0, -3);
+                    cxt.lineTo(3, 0);
+                    cxt.lineTo(0, 3);
+                    cxt.lineTo(-3, 3);
+                    cxt.closePath();
+                    cxt.fill();
+                    cxt.restore();
+                    break;
                 default:
                     log("unrecognized type: " + f.type);
                 //what else?

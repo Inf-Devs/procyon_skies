@@ -103,16 +103,16 @@ function receive_update(data) {
 
 function receive_notification(message) {
     var NOTIFICATION_TIME = 3000;
-	log('notification received: "' + message + '"');
+    log('notification received: "' + message + '"');
     
-	var message_box = document.createElement('div');
-	message_box.classList.add('notification');
-	
-	var text = document.createTextNode(message);
-	message_box.append(text);
-	document.body.appendChild(message_box);
-	
-	setTimeout(function(){remove_element(message_box)},NOTIFICATION_TIME);
+    var message_box = document.createElement('div');
+    message_box.classList.add('notification');
+    
+    message_box.innerHTML = message;
+    
+    document.body.appendChild(message_box);
+    
+    setTimeout(function(){remove_element(message_box)},NOTIFICATION_TIME);
 }
 
 function on_death() {

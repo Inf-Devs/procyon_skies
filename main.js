@@ -321,6 +321,9 @@ Player.prototype.exhaust_delay  = 125; // 125 ms for each exhuast bubble
 Player.prototype.ammo_replenish_delay   = 500; // 500 ms for ammo to start being replenished
 Player.prototype.health_replenish_delay = 2000; // 2000 ms for health to start recovering
 
+Player.prototype.ammo_replenish_rate = 0.0005;
+Player.prototype.heal_rate           = 0.000125;
+
 Player.prototype.blaster_cost = 0.05;
 Player.prototype.torpedo_cost = 0.3;
 
@@ -380,7 +383,13 @@ Player.prototype.update = function(lapse) {
     }
     
     //same goes for torpedo
-    // ...finish.
+    if (this.keys.torpedos && this.last_torpedo >= this.torpedo_reload && this.ammo >= this.torpedo_cost) {
+        World.objects.push(new Torpedo_rocket(this.x, this.y, this.angle, lighten_colour(this.colour), this.id));
+        this.last_torpedo = this.last_torpedo % this.torpedo_reload;
+        this.ammo -= this.torpedo_cost;
+        
+        this.ammo_replenishing = false;
+    }
     
     //check collision with any projectiles...lag machine!!!
     if (World.objects.length > 0) {
@@ -409,7 +418,7 @@ Player.prototype.update = function(lapse) {
     }
     
     if (this.ammo_replenishing) {
-        this.ammo = Math.min(this.ammo + 0.005, 1);
+        this.ammo = Math.min(this.ammo + this.ammo_replenish_rate * lapse, 1);
     }
     
     //healing
@@ -418,7 +427,7 @@ Player.prototype.update = function(lapse) {
     }
     
     if (this.healing) {
-        this.health = Math.min(this.health + 0.005, 1);
+        this.health = Math.min(this.health + this.heal_rate * lapse, 1);
     }
 };
 
@@ -509,6 +518,42 @@ Blaster_bullet.prototype.update = function(lapse) {
 };
 
 // the torpedo type, for the players' torpedos!
+function Torpedo_rocket(x, y, angle, colour, owner) {
+    this.colour = colour || {r: 255, g: 255, b: 255};
+    this.angle  = angle;
+    
+    this.x = x; this.y = y;
+    
+    this.active = true;
+    this.type   = "rocket";
+    this.owner  = owner;
+    
+    this.last_exhaust = 0;
+}
+
+Torpedo_rocket.prototype.speed  = 0.6;
+Torpedo_rocket.prototype.damage = 0.6;
+
+Torpedo_rocket.prototype.exhaust_delay = 125;
+
+Torpedo_rocket.prototype.update = function(lapse) {
+    //update the position
+    this.x += Math.cos(this.angle) * lapse * this.speed;
+    this.y += Math.sin(this.angle) * lapse * this.speed;
+    
+    //exhaust, since we don't have to care about pollution.
+    this.last_exhaust += lapse;
+    
+    if (this.last_exhaust >= this.exhaust_delay) {
+        World.objects.push(new Bubble(this.x, this.y, this.angle + Math.PI, lighten_colour(this.colour)));
+        this.last_exhaust = this.last_exhaust % this.exhaust_delay;
+    }
+    
+    //add detection for colliding with the edge of the map
+    if (this.x > World.width || this.y > World.height || this.x < 0 || this.y < 0) {
+        this.active = false;
+    }
+};
 
 // the asteroid type, for fun!
 
