@@ -122,6 +122,23 @@ function on_death() {
     //[ ] give the player an option to respawn (don't worry about respawning logic)
 }
 
+var kills = 0;
+
+function on_kill() {
+    log("player has a kill.");
+    //to-do:
+    //[ ] update the ui.
+    
+    kills++;
+    document.getElementById("infos").innerHTML = "kills: " + kills;
+}
+
+function update_leaderboard(data) {
+    //to-do:
+    //[ ] actually add the leaderboard (yeah, i thought this was done, too)
+    //[ ] update it (also on server side)
+}
+
 var need_update = true;
 var playing = false;
 function animate() {

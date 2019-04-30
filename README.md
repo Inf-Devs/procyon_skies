@@ -1,8 +1,10 @@
-# Real-time server demo
+# Procyon Skies
 
 ## What is this?
 
-I've built a "small" demo that has players connect to a server, enter their name, and fly around a bit as tiny little spaceships.
+We've built a "small" game server where players connect, enter their name, and fly around as tiny little spaceships.
+
+This project grew out of an experimental game server. It's now going to be actively developed and improved.
 
 ## Dependencies
 
@@ -16,7 +18,7 @@ To run, just type
 
 and then
 
-`node main.js`.
+`node main.js`. (alternatively, `run start_server.bat`.)
 
 Go into a browser, and type `localhost:3000` to view the result.
 
@@ -58,13 +60,11 @@ On the client side...
 
 * figure out how to make it efficient &mdash; even if Javascript is not
 
+    - [ ] `kill` event listeners should be removed when the player disconnects
+
 * more features for the clients, such as:
 
     - global chat
-    
-    - more weapons, such as torpedos
-    
-    - reloading weapons!
     
     - various planets for players to stop over
     
@@ -74,5 +74,4 @@ On the client side...
     
     - asteroids and resources
     
-    - upgrades and healing
-    
+    - upgrades

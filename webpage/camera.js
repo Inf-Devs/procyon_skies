@@ -79,6 +79,14 @@ var Camera = {
                     cxt.fill();
                     cxt.restore();
                     break;
+                case "asteroid":
+                    break;
+                case "resource":
+                    break;
+                case "planet":
+                    break;
+                case "star":
+                    break;
                 default:
                     log("unrecognized type: " + f.type);
                 //what else?

@@ -29,6 +29,9 @@ function setup_game() {
     addEventListener("keydown", keydown_handler);
     socket.on("server_update", receive_update);
     socket.on("notification", receive_notification);
+    socket.on("death", on_death);
+    socket.on("kill", on_kill);
+    socket.on("leaderboard_update", update_leaderboard);
     
     //set up the main canvas
     document.body.appendChild(canvas);
@@ -46,8 +49,10 @@ function setup_game() {
     document.body.appendChild(status);
     
     var info               = document.createElement("div");
+    info.innerHTML         = "kills: 0";
     info.id                = "infos";
     info.style.borderColor = get_colour(Game.colour);
+    info.style.color       = get_colour(Game.colour);
     document.body.appendChild(info);
     
     Info_display.init(mini_map, status);

@@ -97,26 +97,32 @@ io.on("connection", function(socket) {
         });
     });
     
+    var kill_event_listener = function(data) {
+        if (data.killer == id) {
+            //player killed someone! congrats!
+            socket.emit("notification", "you have killed " + Players.get_player(data.victim).name);
+            socket.emit("kill");
+        }
+        
+        if (data.victim == id) {
+            //player got killed! gotta warn them!
+            socket.emit("notification", "you have been killed by " + Players.get_player(data.killer).name);
+            socket.emit("death");
+        }
+    }
+    
     //when a player leaves
     socket.on("disconnect", function() {
         if (player != null) {
             io.emit("notification", player.name + " has disconnected.");
             log(player.name + ", " + id + " has disconnected.", "info");
             Players.remove_player(id);
+            
+            Game_events.removeListener("kill", kill_event_listener);
         }
     });
     
-    Game_events.on("kill", (data) => {
-        if (data.killer == id) {
-            //player killed someone! congrats!
-            socket.emit("notification", "you have killed " + Players.get_player(data.victim).name);
-        }
-        
-        if (data.victim == id) {
-            //player got killed! gotta warn them!
-            socket.emit("notification", "you have been killed by " + Players.get_player(data.killer).name);
-        }
-    });
+    Game_events.on("kill", kill_event_listener);
 });
 
 //to keep track of players
@@ -137,11 +143,6 @@ var Players = {
     
     get all_player_ids() {
         return Object.getOwnPropertyNames(this).filter((r) => {
-            /*return !(
-                r == "add" || r == "get_player" || r == "remove_player" ||
-                r == "count" || r == "all_player_ids" || r == "get_visible_players"
-            );*/
-            
             return r.length == 6;
         });
     },
@@ -396,7 +397,7 @@ Player.prototype.update = function(lapse) {
         World.objects.filter((obj) => {
             return !(obj.type == "bubble" || obj.owner == this.id);
         }).forEach((obj) => {
-            if (Math.hypot(obj.x - this.x, obj.y - this.y) < 5) {
+            if (Math.hypot(obj.x - this.x, obj.y - this.y) < 7.5) {
                 obj.active  = false;
                 this.health = this.health - obj.damage;
                 
@@ -449,23 +450,20 @@ Player.prototype.spawn = function() {
 //pick a colour. any colour.
 var colours = [
     //from red to purple, plus white and silver
-    {r: 255, g: 192, b: 203}, //pink
+    {r: 255, g: 105, b: 180}, //hot pink
     {r: 220, g:  20, b:  60}, //crimson, or red
     {r: 255, g:  69, b:   0}, //redorange, or just orange
     {r: 255, g: 165, b:   0}, //brighter orange
     {r: 255, g: 255, b:   0}, //yellow
     {r: 255, g: 215, b:   0}, //gold
-    {r: 240, g: 230, b: 130}, //khaki
     {r: 124, g: 252, b:   0}, //lawngreen
-    {r: 152, g: 251, b: 152}, //palegreen
+    {r:   0, g: 255, b: 127}, //springgreen
     {r:   0, g: 206, b: 209}, //darkturquoise
     {r: 102, g: 205, b: 170}, //mediumaquamarine
-    {r: 176, g: 224, b: 230}, //powderblue
+    {r:   0, g: 191, b: 255}, //deepskyblue
     {r: 221, g: 160, b: 221}, //violet
     {r: 216, g: 191, b: 216}, //thistle
     {r: 255, g: 255, b: 255}, //white
-    {r: 255, g: 248, b: 220}, //cornsilk
-    {r: 220, g: 220, b: 220}, //gainsboro
     {r: 192, g: 192, b: 192}, //silver
 ];
 
