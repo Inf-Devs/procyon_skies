@@ -18,7 +18,7 @@ To run, just type
 
 and then
 
-`node main.js`. (alternatively, `run start_server.bat`.)
+`node main.js`. (alternatively, run `start_server.bat`.)
 
 Go into a browser, and type `localhost:3000` to view the result.
 
@@ -60,13 +60,13 @@ On the client side...
 
 * figure out how to make it efficient &mdash; even if Javascript is not
 
-    - [ ] `kill` event listeners should be removed when the player disconnects
-
 * more features for the clients, such as:
 
     - global chat
     
     - various planets for players to stop over
+    
+    - leaderboard
     
     - save server state, so that players can come back to where they left off
     
