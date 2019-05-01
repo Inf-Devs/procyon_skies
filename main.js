@@ -174,7 +174,7 @@ var Players = {
         
         return Players.all_player_ids.map((id) => {
             return Players[id];
-        }).sort(a, b) => {
+        }).sort((a, b) => {
             return Math.hypot(x - a.x, y - a.y) - Math.hypot(x - b.x, y - b.y);
         })[0];
     },
