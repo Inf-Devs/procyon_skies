@@ -167,6 +167,18 @@ var Players = {
         return visible;
     },
     
+    get_nearest: function(x, y) {
+        if (Players.count == 0) {
+            return undefined;
+        }
+        
+        return Players.all_player_ids.map((id) => {
+            return Players[id];
+        }).sort(a, b) => {
+            return Math.hypot(x - a.x, y - a.y) - Math.hypot(x - b.x, y - b.y);
+        })[0];
+    },
+    
     count: 0,
 };
 
@@ -554,8 +566,62 @@ Torpedo_rocket.prototype.update = function(lapse) {
 };
 
 // the asteroid type, for fun!
+function Asteroid_rock(x, y, size) {
+    this.x = x;
+    this.y = y;
+    
+    this.angle    = Math.random() * Math.PI * 2;
+    this.rotation = Math.random() * Math.PI * 2;
+    this.rot_dir  = Math.random() < 0.5 ? 1 : -1;
+    
+    this.size   = size || Math.floor(Math.random() * 4);
+    this.radius = this.radii[this.size];
+    
+    this.active = true;
+    this.type   = "asteroid";
+}
 
-// the resource type, for now, just useless...
+Asteroid_rock.prototype.radii = [5, 8, 13, 21];
+
+Asteroid_rock.prototype.rotate_speed = 0.003;
+Asteroid_rock.prototype.move_speed   = 0.2;
+
+Asteroid_rock.prototype.update = function(lapse) {
+    //fill in, let it drift!
+};
+
+// the resource type, to reward players for helping with the asteroid clearing!
+function Resource_item(x, y) {
+    this.x = x;
+    this.y = y;
+    
+    this.active   = true;
+    this.lifetime = 0;
+    this.type     = "resource";
+}
+
+Resource_item.prototype.attraction_radius = 25;
+Resource_item.prototype.max_lifetime      = 1e4;
+
+Resource_item.prototype.speed = 0.3;
+
+Resource_item.prototype.update = function(lapse) {
+    this.lifetime += lapse;
+    if (this.lifetime >= this.max_lifetime) {
+        this.active = false;
+        return;
+    }
+    
+    //check for any nearby players?
+    var nearest = Players.get_nearest(this.x, this.y);
+    
+    if (nearest == undefined || Math.hypot(nearest.x - this.x, nearest.y - this.y) > this.attraction_radius) {
+        return;
+    } else if (Math.hypot(nearest.x - this.x, nearest.y - this.y) < 7.5) {
+        this.active = false;
+        //fill in the rest...
+    }
+};
 
 // the bubble type, for the players' exhaust
 function Bubble(x, y, angle, colour) {
