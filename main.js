@@ -174,9 +174,21 @@ var Players = {
         
         return Players.all_player_ids.map((id) => {
             return Players[id];
-        }).sort((a, b) => {
-            return Math.hypot(x - a.x, y - a.y) - Math.hypot(x - b.x, y - b.y);
+        }).sort(function(a, b) {
+            return get_distance(x, y, a.x, a.y) - get_distance(x, y, b.x, b.y);
         })[0];
+    },
+    
+    distance_to_nearest: function(x, y) {
+        if (Players.count == 0) {
+            return Infinity;
+        }
+        
+        var distances = Players.all_player_ids.map((id) => {
+            return get_distance(x, y, Players[id].x, Players[id].y);
+        });
+        
+        return Math.min(...distances);
     },
     
     count: 0,
@@ -197,6 +209,16 @@ var World = {
     },
     
     objects: [], //holds all of the objects
+    
+    count_type: function(type) {
+        return World.objects.filter((obj) => {
+            return obj.type == type;
+        }).length;
+    },
+    
+    get_all: function(func) {
+        return World.objects.filter(func);
+    },
     
     last_time: null,
     
@@ -327,7 +349,7 @@ Player.prototype.engine_thrust  = 0.0005;
 Player.prototype.deceleration   = 0.00125;
 Player.prototype.rotation_speed = 0.003;
 
-Player.prototype.blaster_reload = 250;
+Player.prototype.blaster_reload = 200;
 Player.prototype.torpedo_reload = 1000;
 Player.prototype.exhaust_delay  = 125; // 125 ms for each exhuast bubble
 
@@ -335,7 +357,7 @@ Player.prototype.ammo_replenish_delay   = 500; // 500 ms for ammo to start being
 Player.prototype.health_replenish_delay = 2000; // 2000 ms for health to start recovering
 
 Player.prototype.ammo_replenish_rate = 0.0005;
-Player.prototype.heal_rate           = 0.000125;
+Player.prototype.heal_rate           = 0.0000625;
 
 Player.prototype.blaster_cost = 0.05;
 Player.prototype.torpedo_cost = 0.3;
@@ -407,7 +429,7 @@ Player.prototype.update = function(lapse) {
     //check collision with any projectiles...lag machine!!!
     if (World.objects.length > 0) {
         World.objects.filter((obj) => {
-            return !(obj.type == "bubble" || obj.owner == this.id);
+            return !(!obj.is_projectile || obj.owner == this.id);
         }).forEach((obj) => {
             if (Math.hypot(obj.x - this.x, obj.y - this.y) < 7.5) {
                 obj.active  = false;
@@ -514,7 +536,8 @@ function Blaster_bullet(x, y, angle, colour, owner) {
 Blaster_bullet.prototype.speed  = 0.4;
 Blaster_bullet.prototype.damage = 0.1;
 
-Blaster_bullet.prototype.max_lifetime = 1500;
+Blaster_bullet.prototype.max_lifetime  = 1500;
+Blaster_bullet.prototype.is_projectile = true;
 
 Blaster_bullet.prototype.update = function(lapse) {
     this.lifetime += lapse;
@@ -544,6 +567,7 @@ function Torpedo_rocket(x, y, angle, colour, owner) {
 Torpedo_rocket.prototype.speed  = 0.6;
 Torpedo_rocket.prototype.damage = 0.6;
 
+Torpedo_rocket.prototype.is_projectile = true;
 Torpedo_rocket.prototype.exhaust_delay = 125;
 
 Torpedo_rocket.prototype.update = function(lapse) {
@@ -570,7 +594,10 @@ function Asteroid_rock(x, y, size) {
     this.x = x;
     this.y = y;
     
-    this.angle    = Math.random() * Math.PI * 2;
+    var angle = Math.random() * Math.PI * 2;
+    
+    this.v = { x: Math.cos(angle), y: Math.sin(angle), };
+    
     this.rotation = Math.random() * Math.PI * 2;
     this.rot_dir  = Math.random() < 0.5 ? 1 : -1;
     
@@ -579,16 +606,95 @@ function Asteroid_rock(x, y, size) {
     
     this.active = true;
     this.type   = "asteroid";
+    
+    this.health = 1;
 }
 
 Asteroid_rock.prototype.radii = [5, 8, 13, 21];
 
 Asteroid_rock.prototype.rotate_speed = 0.003;
-Asteroid_rock.prototype.move_speed   = 0.2;
+Asteroid_rock.prototype.move_speed   = 0.02;
+Asteroid_rock.prototype.is_body      = true;
+
+Asteroid_rock.prototype.freeze_radius = 1000;
 
 Asteroid_rock.prototype.update = function(lapse) {
+    //no need to update if players not nearby
+    if (Players.distance_to_nearest(this.x, this.y) > this.freeze_radius) {
+        return;
+    }
+    
     //fill in, let it drift!
+    this.x += this.v.x * this.move_speed * lapse;
+    this.y += this.v.y * this.move_speed * lapse;
+    
+    this.rotation += this.rot_dir * this.rotate_speed * lapse;
+    
+    //detect any projectiles hitting it?
+    World.objects.filter((f) => {
+        return f.is_projectile;
+    }).forEach((p) => {
+        if (get_distance(this.x, this.y, p.x, p.y) < this.radius) {
+            this.health -= p.damage;
+            p.active = false;
+        }
+    });
+    
+    if (this.health <= 0) {
+        this.active = false;
+        return;
+    }
+    
+    //collision detection, with each other and with the edge of the map
+    if (this.x < this.radius || this.x > World.width - this.radius) {
+        this.v.x *= -1;
+    }
+    
+    if (this.y < this.radius || this.y > World.height - this.radius) {
+        this.v.y *= -1;
+    }
+    
+    var bodies = World.get_all(function(o) { return o.is_body; });
+    
+    //everyone's sky, after all.
+    bodies.forEach((body) => {
+        if (body === this) return;
+        
+        var min_dist = this.radius + body.radius;
+        var overlap  = min_dist - get_distance(this.x, this.y, body.x, body.y);
+        
+        if (overlap > 0) {
+            //push it away
+            var angle = angle_from(this, body);
+            this.x    = body.x + Math.cos(angle) * min_dist;
+            this.y    = body.y * Math.sin(angle) * min_dist;
+          
+            this.v.x += Math.cos(angle) * (overlap + Player.prototype.deceleration * 2);
+            this.v.y += Math.sin(angle) * (overlap + Player.prototype.deceleration * 2);
+        }
+    });
 };
+
+function spawn_asteroid() {
+    if (World.count_type("asteroid") > 10) {
+        return;
+    }
+    
+    //pick a spot
+    var spawn = {
+        x: Math.floor(Math.random() * 1000) + 500,
+        y: Math.floor(Math.random() * 1000) + 500,
+    };
+    
+    //player nearby?
+    if (Players.distance_to_nearest(spawn.x, spawn.y) < 1000) {
+        //don't spawn!
+        return;
+    } else {
+        log("spawning asteroid at: (" + spawn.x + ", " + spawn.y + ")", "info");
+        World.objects.push(new Asteroid_rock(spawn.x, spawn.y));
+    }
+}
 
 // the resource type, to reward players for helping with the asteroid clearing!
 function Resource_item(x, y) {
@@ -620,6 +726,8 @@ Resource_item.prototype.update = function(lapse) {
     } else if (Math.hypot(nearest.x - this.x, nearest.y - this.y) < 7.5) {
         this.active = false;
         //fill in the rest...
+    } else {
+        
     }
 };
 
@@ -675,5 +783,22 @@ function darken_colour(c) {
 //event emitter stuff. yes, i know i should split this up...
 var Game_events = new event.EventEmitter();
 
+function get_distance(x1, y1, x2, y2) {
+    return Math.hypot(x1 - x2, y1 - y2);
+}
+
+function angle_from(start, end) {
+    var hypot = Math.hypot((end.x - start.x), (end.y - start.y));
+    var opp   = end.y - start.y;
+    
+    var angle = Math.asin(opp / hypot);
+    
+    if (end.x < start.x) angle = Math.PI - angle;
+    
+    return angle;
+}
+
 //KICKSTART!!!!!!!
+setInterval(spawn_asteroid, 1000);
+
 World.update();
