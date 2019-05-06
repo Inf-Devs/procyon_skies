@@ -603,14 +603,14 @@ function Asteroid_rock(x, y, size) {
     
     this.size   = size || Math.floor(Math.random() * 4);
     this.radius = this.radii[this.size];
+    this.health = this.healths[this.size];
     
     this.active = true;
     this.type   = "asteroid";
-    
-    this.health = 1;
 }
 
-Asteroid_rock.prototype.radii = [5, 8, 13, 21];
+Asteroid_rock.prototype.radii   = [5, 8, 13, 21];
+Asteroid_rock.prototype.healths = [0.3, 0.5, 1, 1.5];
 
 Asteroid_rock.prototype.rotate_speed = 0.003;
 Asteroid_rock.prototype.move_speed   = 0.02;
@@ -642,6 +642,16 @@ Asteroid_rock.prototype.update = function(lapse) {
     
     if (this.health <= 0) {
         this.active = false;
+        
+        //EXPLODE!!
+        
+        //create two smaller asteroids...
+        if (this.size > 0) {
+            var new_size = this.size - 1;
+            World.objects.push(new Asteroid_rock(this.x + this.radius, this.y + this.radius, new_size));
+            World.objects.push(new Asteroid_rock(this.x - this.radius, this.y - this.radius, new_size));
+        }
+        
         return;
     }
     
@@ -665,9 +675,9 @@ Asteroid_rock.prototype.update = function(lapse) {
         
         if (overlap > 0) {
             //push it away
-            var angle = angle_from(this, body);
+            var angle = angle_from(this, body) + Math.PI;
             this.x    = body.x + Math.cos(angle) * min_dist;
-            this.y    = body.y * Math.sin(angle) * min_dist;
+            this.y    = body.y + Math.sin(angle) * min_dist;
           
             this.v.x += Math.cos(angle) * (overlap + Player.prototype.deceleration * 2);
             this.v.y += Math.sin(angle) * (overlap + Player.prototype.deceleration * 2);
