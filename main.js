@@ -345,6 +345,9 @@ function Player(name, colour, id) {
     this.time_to_ammo_replenish = 0;
 }
 
+Player.prototype.is_body = true;
+Player.prototype.radius  = 7.5;
+
 Player.prototype.engine_thrust  = 0.0005;
 Player.prototype.deceleration   = 0.00125;
 Player.prototype.rotation_speed = 0.003;
@@ -601,7 +604,7 @@ function Asteroid_rock(x, y, size) {
     this.rotation = Math.random() * Math.PI * 2;
     this.rot_dir  = Math.random() < 0.5 ? 1 : -1;
     
-    this.size   = size || Math.floor(Math.random() * 4);
+    this.size   = size == undefined ? Math.floor(Math.random() * 4) : size;
     this.radius = this.radii[this.size];
     this.health = this.healths[this.size];
     
@@ -656,11 +659,11 @@ Asteroid_rock.prototype.update = function(lapse) {
     }
     
     //collision detection, with each other and with the edge of the map
-    if (this.x < this.radius || this.x > World.width - this.radius) {
+    if ((this.x < this.radius && this.v.x < 0) || (this.x > World.width - this.radius && this.v.x > 0)) {
         this.v.x *= -1;
     }
     
-    if (this.y < this.radius || this.y > World.height - this.radius) {
+    if ((this.y < this.radius && this.v.y < 0) || (this.y > World.height - this.radius && this.v.y > 0)) {
         this.v.y *= -1;
     }
     
