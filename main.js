@@ -542,6 +542,9 @@ Blaster_bullet.prototype.damage = 0.1;
 Blaster_bullet.prototype.max_lifetime  = 1500;
 Blaster_bullet.prototype.is_projectile = true;
 
+Blaster_bullet.prototype.is_body = true;
+Blaster_bullet.prototype.radius  = 0.05;
+
 Blaster_bullet.prototype.update = function(lapse) {
     this.lifetime += lapse;
     if (this.lifetime >= this.max_lifetime) {
@@ -569,6 +572,9 @@ function Torpedo_rocket(x, y, angle, colour, owner) {
 
 Torpedo_rocket.prototype.speed  = 0.6;
 Torpedo_rocket.prototype.damage = 0.6;
+
+Torpedo_rocket.prototype.is_body = true;
+Torpedo_rocket.prototype.radius  = 0.3;
 
 Torpedo_rocket.prototype.is_projectile = true;
 Torpedo_rocket.prototype.exhaust_delay = 125;
@@ -647,13 +653,7 @@ Asteroid_rock.prototype.update = function(lapse) {
         this.active = false;
         
         //EXPLODE!!
-        
-        //create two smaller asteroids...
-        if (this.size > 0) {
-            var new_size = this.size - 1;
-            World.objects.push(new Asteroid_rock(this.x + this.radius, this.y + this.radius, new_size));
-            World.objects.push(new Asteroid_rock(this.x - this.radius, this.y - this.radius, new_size));
-        }
+        this.explode();
         
         return;
     }
@@ -668,6 +668,12 @@ Asteroid_rock.prototype.update = function(lapse) {
     }
     
     var bodies = World.get_all(function(o) { return o.is_body; });
+    
+    Players.all_player_ids.forEach((p) => {
+        if (Players[p].health > 0) {
+            bodies.push(Players[p]);
+        }
+    });
     
     //everyone's sky, after all.
     bodies.forEach((body) => {
@@ -686,6 +692,28 @@ Asteroid_rock.prototype.update = function(lapse) {
             this.v.y += Math.sin(angle) * (overlap + Player.prototype.deceleration * 2);
         }
     });
+};
+
+Asteroid_rock.prototype.explode = function() {
+    //create two smaller asteroids...
+    if (this.size > 0) {
+        var new_size = this.size - 1;
+        World.objects.push(new Asteroid_rock(this.x + this.radius, this.y + this.radius, new_size));
+        World.objects.push(new Asteroid_rock(this.x - this.radius, this.y - this.radius, new_size));
+    }
+    
+    //create some resources
+    var resource_count = random_number(Math.ceil(this.radius / 2), this.radius + 1);
+    
+    while (resource_count > 0) {
+        var angle  = Math.random() * Math.PI * 2;
+        var radius = Math.random() * this.radius * 2;
+        World.objects.push(new Resource_item(
+            Math.cos(angle) * radius + this.x,
+            Math.sin(angle) * radius + this.y
+        ));
+        resource_count--;
+    }
 };
 
 function spawn_asteroid() {
@@ -722,7 +750,7 @@ function Resource_item(x, y) {
 Resource_item.prototype.attraction_radius = 25;
 Resource_item.prototype.max_lifetime      = 1e4;
 
-Resource_item.prototype.speed = 0.3;
+Resource_item.prototype.speed = 0.007;
 
 Resource_item.prototype.update = function(lapse) {
     this.lifetime += lapse;
@@ -739,8 +767,10 @@ Resource_item.prototype.update = function(lapse) {
     } else if (Math.hypot(nearest.x - this.x, nearest.y - this.y) < 7.5) {
         this.active = false;
         //fill in the rest...
+        //give the player a resource...
     } else {
-        
+        this.x += (nearest.x - this.x) * this.speed * lapse;
+        this.y += (nearest.y - this.y) * this.speed * lapse;
     }
 };
 
@@ -800,6 +830,7 @@ function get_distance(x1, y1, x2, y2) {
     return Math.hypot(x1 - x2, y1 - y2);
 }
 
+//math helper functions
 function angle_from(start, end) {
     var hypot = Math.hypot((end.x - start.x), (end.y - start.y));
     var opp   = end.y - start.y;
@@ -809,6 +840,13 @@ function angle_from(start, end) {
     if (end.x < start.x) angle = Math.PI - angle;
     
     return angle;
+}
+
+function random_number(start, end) {
+    var adder      = Math.min(start, end);
+    var multiplier = Math.abs(start - end);
+    
+    return Math.floor(Math.random() * multiplier + adder);
 }
 
 //KICKSTART!!!!!!!

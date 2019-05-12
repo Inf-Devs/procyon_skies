@@ -87,6 +87,25 @@ var Camera = {
                     cxt.fill();
                     break;
                 case "resource":
+                    cxt.fillStyle = get_colour(Game.colour);
+                    cxt.save();
+                    cxt.translate(draw_x, draw_y);
+                    cxt.beginPath();
+                    cxt.moveTo(1, 0);
+                    cxt.lineTo(4, 3);
+                    cxt.lineTo(7, 0);
+                    cxt.lineTo(4, -3);
+                    cxt.moveTo(-1, 0);
+                    cxt.lineTo(-4, 3);
+                    cxt.lineTo(-7, 0);
+                    cxt.lineTo(-4, -3);
+                    cxt.moveTo(3, 5);
+                    cxt.lineTo(0, 2);
+                    cxt.lineTo(-3, 5);
+                    cxt.lineTo(0, 8);
+                    cxt.closePath();
+                    cxt.fill();
+                    cxt.restore();
                     break;
                 case "planet":
                     break;
