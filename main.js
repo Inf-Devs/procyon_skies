@@ -717,7 +717,7 @@ Asteroid_rock.prototype.explode = function() {
 };
 
 function spawn_asteroid() {
-    if (World.count_type("asteroid") > 10) {
+    if (World.count_type("asteroid") > 10 || Players.all_player_ids.length == 0) {
         return;
     }
     
