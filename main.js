@@ -650,7 +650,7 @@ function Asteroid_rock(x, y, size) {
 Asteroid_rock.prototype.radii   = [5, 8, 13, 21];
 Asteroid_rock.prototype.healths = [0.3, 0.5, 1, 1.5];
 
-Asteroid_rock.prototype.rotate_speed = 0.003;
+Asteroid_rock.prototype.rotate_speed = 0.0003;
 Asteroid_rock.prototype.move_speed   = 0.02;
 Asteroid_rock.prototype.is_body      = true;
 
