@@ -134,9 +134,28 @@ function on_kill() {
 }
 
 function update_leaderboard(data) {
-    //to-do:
-    //[ ] actually add the leaderboard (yeah, i thought this was done, too)
-    //[ ] update it (also on server side)
+    //to-do: update on client side
+	
+    var leaderboard = document.getElementById("leaderboard")
+	leaderboard.innerHTML = "<h1>Top Players</h1>";
+
+	for(var i = 0; i < data.length; i++)
+	{
+		var player = document.createElement("div");
+		
+		var name_counter = document.createElement("span");
+		name_counter.innerHTML = data[i].name;
+		name_counter.classList.add("name_counter");
+		player.appendChild(name_counter);
+		
+		var kill_counter = document.createElement("span");
+		kill_counter.innerHTML = data[i].kills
+		kill_counter.classList.add("kill_counter");
+		player.appendChild(kill_counter);
+		
+		leaderboard.appendChild(player);
+	}
+	
 }
 
 var need_update = true;

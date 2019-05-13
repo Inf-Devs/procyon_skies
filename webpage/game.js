@@ -55,6 +55,13 @@ function setup_game() {
     info.style.color       = get_colour(Game.colour);
     document.body.appendChild(info);
     
+	var leaderboard					= document.createElement("div");
+	leaderboard.innerHTML			= "<h1>Top Players</h1>";
+	leaderboard.id					= "leaderboard";
+	leaderboard.style.borderColor	= get_colour(Game.colour);
+	leaderboard.style.color			= get_colour(Game.colour);
+	document.body.appendChild(leaderboard);
+	
     Info_display.init(mini_map, status);
     
     requestAnimationFrame(animate);

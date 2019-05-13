@@ -101,7 +101,8 @@ io.on("connection", function(socket) {
         if (data.killer == id) {
             //player killed someone! congrats!
             socket.emit("notification", "you have killed " + Players.get_player(data.victim).name);
-            socket.emit("kill");
+            Players[id].kills+=1;
+			socket.emit("kill");
         }
 
         if (data.victim == id) {
@@ -221,11 +222,15 @@ var World = {
     },
 
     last_time: null,
-
+	pulse_interval: 4000,
+	pulse_elapsed: 0,
+	
+	leaderboard_max: 10,
+	
     update: function() {
         var lapse       = World.lapse;
         var all_players = Players.all_player_ids;
-
+		
         all_players.forEach((p) => {
             //update each player
             Players[p].update(lapse);
@@ -237,7 +242,27 @@ var World = {
             // ...and update.
             f.update(lapse);
         });
-
+		
+		// send out not so urgent pulses
+		
+		World.pulse_elapsed += lapse;
+		if(World.pulse_elapsed > World.pulse_interval)
+		{
+			debugger;
+			World.pulse_elapsed = 0;
+			// leaderboards!
+			var leaderboard = all_players.sort((a,b) => Players[b].kills - Players[a].kills).slice(0,World.leaderboard_max);
+			// unfolding the array, making each player name into an object of name and kills
+			for(var i = 0; i < leaderboard.length; i++)
+			{
+				leaderboard[i] = {"name":Players[leaderboard[i]].name
+					,"kills":Players[leaderboard[i]].kills};
+				
+			}
+			
+			io.emit("leaderboard_update",leaderboard);
+		}
+		
         setImmediate(World.update); //WHY!?
     },
 
@@ -351,6 +376,8 @@ function Player(name, colour, id) {
 
     this.time_to_heal           = 0;
     this.time_to_ammo_replenish = 0;
+	
+	this.kills = 0; // stats!
 }
 
 Player.prototype.is_body = true;
@@ -650,7 +677,7 @@ function Asteroid_rock(x, y, size) {
 Asteroid_rock.prototype.radii   = [5, 8, 13, 21];
 Asteroid_rock.prototype.healths = [0.3, 0.5, 1, 1.5];
 
-Asteroid_rock.prototype.rotate_speed = 0.0003;
+Asteroid_rock.prototype.rotate_speed = 0.003;
 Asteroid_rock.prototype.move_speed   = 0.02;
 Asteroid_rock.prototype.is_body      = true;
 
