@@ -65,9 +65,7 @@ On the client side...
     - global chat
     
     - various planets for players to stop over
-    
-    - leaderboard
-    
+        
     - save server state, so that players can come back to where they left off
     
     - more efficient updating, for less lag
