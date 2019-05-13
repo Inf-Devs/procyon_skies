@@ -108,8 +108,18 @@ var Camera = {
                     cxt.restore();
                     break;
                 case "planet":
+                    cxt.fillStyle = "dodgerblue";
+                    cxt.beginPath();
+                    cxt.arc(draw_x, draw_y, f.radius, 0, Math.PI * 2);
+                    cxt.closePath();
+                    cxt.fill();
                     break;
                 case "star":
+                    cxt.fillStyle = "orange";
+                    cxt.beginPath();
+                    cxt.arc(draw_x, draw_y, f.radius, 0, Math.PI * 2);
+                    cxt.closePath();
+                    cxt.fill();
                     break;
                 default:
                     log("unrecognized type: " + f.type);
