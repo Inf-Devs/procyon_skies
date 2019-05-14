@@ -224,13 +224,13 @@ var World = {
     last_time: null,
 	pulse_interval: 4000,
 	pulse_elapsed: 0,
-	
+
 	leaderboard_max: 10,
-	
+
     update: function() {
         var lapse       = World.lapse;
         var all_players = Players.all_player_ids;
-		
+
         all_players.forEach((p) => {
             //update each player
             Players[p].update(lapse);
@@ -242,9 +242,9 @@ var World = {
             // ...and update.
             f.update(lapse);
         });
-		
+
 		// send out not so urgent pulses
-		
+
 		World.pulse_elapsed += lapse;
 		if(World.pulse_elapsed > World.pulse_interval)
 		{
@@ -257,12 +257,12 @@ var World = {
 			{
 				leaderboard[i] = {"name":Players[leaderboard[i]].name
 					,"kills":Players[leaderboard[i]].kills};
-				
+
 			}
-			
+
 			io.emit("leaderboard_update",leaderboard);
 		}
-		
+
         setImmediate(World.update); //WHY!?
     },
 
@@ -376,7 +376,7 @@ function Player(name, colour, id) {
 
     this.time_to_heal           = 0;
     this.time_to_ammo_replenish = 0;
-	
+
 	this.kills = 0; // stats!
 }
 
@@ -502,7 +502,7 @@ Player.prototype.update = function(lapse) {
     if (this.healing) {
         this.health = Math.min(this.health + this.heal_rate * lapse, 1);
     }
-    
+
     //collision
     var bodies = World.get_all(function(o) { return o.is_body; });
 
@@ -531,7 +531,7 @@ Player.prototype.spawn = function() {
     var spawn_angle  = Math.random() * 2 * Math.PI;
     var spawn_x      = Alpha.x;
     var spawn_y      = Alpha.y;
-    
+
     this.x = Math.floor(Math.cos(spawn_angle) * spawn_radius + spawn_x);
     this.y = Math.floor(Math.sin(spawn_angle) * spawn_radius + spawn_y);
 
@@ -677,7 +677,7 @@ function Asteroid_rock(x, y, size) {
 Asteroid_rock.prototype.radii   = [5, 8, 13, 21];
 Asteroid_rock.prototype.healths = [0.3, 0.5, 1, 1.5];
 
-Asteroid_rock.prototype.rotate_speed = 0.003;
+Asteroid_rock.prototype.rotate_speed = 0.0003;
 Asteroid_rock.prototype.move_speed   = 0.02;
 Asteroid_rock.prototype.is_body      = true;
 
@@ -779,13 +779,13 @@ function spawn_asteroid() {
 
     var angle  = Math.random() * Math.PI * 2;
     var radius = Math.random() * 100 + 800;
-    
+
     //pick a spot
     var spawn = {
         x: Math.floor(Math.cos(angle) * radius) + Sun.x,
         y: Math.floor(Math.sin(angle) * radius) + Sun.y,
     };
-    
+
     //player nearby?
     if (Players.distance_to_nearest(spawn.x, spawn.y) < 1000) {
         //don't spawn!
@@ -839,7 +839,7 @@ function Star(name, x, y) {
     this.type   = "star";
     this.active = true;
     this.radius = 125;
-    
+
     this.x = x;
     this.y = y;
 }
@@ -857,12 +857,14 @@ function Planet(name, orbit_radius, parent_star) {
     this.name   = name;
     this.type   = "planet";
     this.active = true;
-    
+
     this.parent_star  = parent_star;
     this.orbit_radius = orbit_radius;
-    
+
+    this.rotation = Math.random() * Math.PI * 2;
+
     this.radius = 32;
-    
+
     this.x = Math.cos(this.angle) * this.orbit_radius + this.parent_star.x;
     this.y = Math.sin(this.angle) * this.orbit_radius + this.parent_star.y;
 };
@@ -870,16 +872,19 @@ function Planet(name, orbit_radius, parent_star) {
 Planet.prototype.is_body = true;
 Planet.prototype.radius  = 32;
 
-Planet.prototype.orbit_speed = 0.03;
+Planet.prototype.orbit_speed    = 0.03;
+Planet.prototype.rotation_speed = 0.00015;
 
 Planet.prototype.update = function(lapse) {
     //FORMULA: arc length / radius = angle
     var arc = lapse * this.orbit_speed;
-    
+
     this.angle += arc / this.orbit_radius;
-    
+
     this.x = Math.cos(this.angle) * this.orbit_radius + this.parent_star.x;
     this.y = Math.sin(this.angle) * this.orbit_radius + this.parent_star.y;
+
+    this.rotation += this.rotation_speed * lapse;
 };
 
 // the bubble type, for the players' exhaust
@@ -933,6 +938,11 @@ function darken_colour(c) {
 
 //event emitter stuff. yes, i know i should split this up...
 var Game_events = new event.EventEmitter();
+
+//for score updates
+Game_events.on("score update", (data) => {
+
+});
 
 function get_distance(x1, y1, x2, y2) {
     return Math.hypot(x1 - x2, y1 - y2);

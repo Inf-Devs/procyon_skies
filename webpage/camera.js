@@ -80,13 +80,13 @@ var Camera = {
                     cxt.restore();
                     break;
                 case "asteroid":
-
+                    /*
                     cxt.fillStyle = "gray";
                     cxt.beginPath();
                     cxt.arc(draw_x, draw_y, f.radius, 0, Math.PI * 2);
                     cxt.closePath();
                     cxt.fill();
-
+                    */
                     cxt.save();
                     cxt.translate(draw_x, draw_y);
                     cxt.rotate(-f.rotation);
@@ -128,6 +128,18 @@ var Camera = {
                     cxt.arc(draw_x, draw_y, f.radius, 0, Math.PI * 2);
                     cxt.closePath();
                     cxt.fill();
+
+                    cxt.save();
+                    cxt.translate(draw_x, draw_y);
+                    cxt.rotate(-f.rotation);
+                    var sprite;
+                    if (f.name == "alpha") {
+                        sprite = Sprites.planets.alpha;
+                    } else if (f.name == "beta") {
+                        sprite = Sprites.planets.beta;
+                    }
+                    cxt.drawImage(sprite, -32, -32);
+                    cxt.restore();
                     break;
                 case "star":
                     cxt.fillStyle = "orange";
@@ -291,5 +303,10 @@ var Sprites = {
         medium: get_sprite("rock_medium.png"),
         large: get_sprite("rock_large.png"),
         enormous: get_sprite("rock_enormous.png"),
+    },
+
+    planets: {
+        alpha: get_sprite("planet_alpha.png"),
+        beta: get_sprite("planet_beta.png"),
     },
 };
