@@ -221,6 +221,19 @@ var World = {
         return World.objects.filter(func);
     },
 
+    get bodies() {
+        var bodies = World.objects.filter((f) => { return f.is_body; });
+        Players.all_player_ids.forEach((id) => {
+            bodies.push(Players[id]);
+        });
+
+        return bodies;
+    },
+
+    get projectiles() {
+        return World.objects.filter((f) => { return f.is_projectile; });
+    },
+
     last_time: null,
 	pulse_interval: 4000,
 	pulse_elapsed: 0,
@@ -267,7 +280,7 @@ var World = {
     },
 
     width: 5000, height: 5000,
-    friction: 0.03,
+    friction: 0.09,
 
     get_in_view: function(x, y, w, h) {
         return World.objects.filter((obj) => {
@@ -849,6 +862,15 @@ Star.prototype.radius  = 125;
 
 Star.prototype.update = function(lapse) {
     //don't do anything, really.
+
+    //except check for collision
+    World.objects.filter((f) => {
+        return f.is_projectile;
+    }).forEach((p) => {
+        if (get_distance(this.x, this.y, p.x, p.y) < this.radius) {
+            p.active = false;
+        }
+    });
 };
 
 // the planet type
@@ -885,6 +907,15 @@ Planet.prototype.update = function(lapse) {
     this.y = Math.sin(this.angle) * this.orbit_radius + this.parent_star.y;
 
     this.rotation += this.rotation_speed * lapse;
+
+    //collision
+    World.objects.filter((f) => {
+        return f.is_projectile;
+    }).forEach((p) => {
+        if (get_distance(this.x, this.y, p.x, p.y) < this.radius) {
+            p.active = false;
+        }
+    });
 };
 
 // the bubble type, for the players' exhaust
