@@ -6,6 +6,7 @@ var app     = express();
 var http    = require("http");
 var server  = http.createServer(app);
 var event   = require("events");
+var log     = require("./logging.js");
 
 server.listen(3000, function() {
     log("==== NEW SERVER SESSION ====");
@@ -102,7 +103,7 @@ io.on("connection", function(socket) {
             //player killed someone! congrats!
             socket.emit("notification", "you have killed " + Players.get_player(data.victim).name);
             Players[id].kills+=1;
-			socket.emit("kill");
+            socket.emit("kill");
         }
 
         if (data.victim == id) {
@@ -235,10 +236,10 @@ var World = {
     },
 
     last_time: null,
-	pulse_interval: 4000,
-	pulse_elapsed: 0,
+    pulse_interval: 4000,
+    pulse_elapsed: 0,
 
-	leaderboard_max: 10,
+    leaderboard_max: 10,
 
     update: function() {
         var lapse       = World.lapse;
@@ -256,25 +257,25 @@ var World = {
             f.update(lapse);
         });
 
-		// send out not so urgent pulses
+        // send out not so urgent pulses
 
-		World.pulse_elapsed += lapse;
-		if(World.pulse_elapsed > World.pulse_interval)
-		{
-			debugger;
-			World.pulse_elapsed = 0;
-			// leaderboards!
-			var leaderboard = all_players.sort((a,b) => Players[b].kills - Players[a].kills).slice(0,World.leaderboard_max);
-			// unfolding the array, making each player name into an object of name and kills
-			for(var i = 0; i < leaderboard.length; i++)
-			{
-				leaderboard[i] = {"name":Players[leaderboard[i]].name
-					,"kills":Players[leaderboard[i]].kills};
+        World.pulse_elapsed += lapse;
+        if(World.pulse_elapsed > World.pulse_interval)
+        {
+            debugger;
+            World.pulse_elapsed = 0;
+            // leaderboards!
+            var leaderboard = all_players.sort((a,b) => Players[b].kills - Players[a].kills).slice(0,World.leaderboard_max);
+            // unfolding the array, making each player name into an object of name and kills
+            for(var i = 0; i < leaderboard.length; i++)
+            {
+                leaderboard[i] = {"name":Players[leaderboard[i]].name
+                    ,"kills":Players[leaderboard[i]].kills};
 
-			}
+            }
 
-			io.emit("leaderboard_update",leaderboard);
-		}
+            io.emit("leaderboard_update",leaderboard);
+        }
 
         setImmediate(World.update); //WHY!?
     },
@@ -296,61 +297,6 @@ var World = {
             }
         });
     },
-}
-
-//custom log function
-var fs         = require("fs");
-var log_stream = fs.createWriteStream("logs\\log" + get_date() + ".txt", {'flags': 'a'});
-
-function log(msg, type) {
-    msg  = msg.trim();
-    type = type || "info";
-    if (msg == "") {
-        return;
-    }
-
-    var log_message = get_date_time() + " [" + type + "] " + msg;
-    console.log(log_message);
-    log_stream.write(log_message + "\n");
-}
-
-//gets the date and the time
-function get_date_time() {
-    var date = new Date();
-
-    var hour = date.getHours();
-    hour = (hour < 10 ? "0" : "") + hour;
-
-    var min  = date.getMinutes();
-    min = (min < 10 ? "0" : "") + min;
-
-    var sec  = date.getSeconds();
-    sec = (sec < 10 ? "0" : "") + sec;
-
-    var year = date.getFullYear();
-
-    var month = date.getMonth() + 1;
-    month = (month < 10 ? "0" : "") + month;
-
-    var day  = date.getDate();
-    day = (day < 10 ? "0" : "") + day;
-
-    return year + "/" + month + "/" + day + " " + hour + ":" + min + ":" + sec;
-}
-
-//gets the date only.
-function get_date() {
-    var date = new Date();
-
-    var year = date.getFullYear();
-
-    var month = date.getMonth() + 1;
-    month = (month < 10 ? "0" : "") + month;
-
-    var day  = date.getDate();
-    day = (day < 10 ? "0" : "") + day;
-
-    return year + "-" + month + "-" + day;
 }
 
 //user type
@@ -390,7 +336,7 @@ function Player(name, colour, id) {
     this.time_to_heal           = 0;
     this.time_to_ammo_replenish = 0;
 
-	this.kills = 0; // stats!
+    this.kills = 0; // stats!
 }
 
 Player.prototype.is_body = true;
