@@ -3,7 +3,7 @@ var form;
 var socket;
 
 function init() {
-    form = document.querySelector("form");
+    form = document.getElementById("join_form");
     form.addEventListener("submit", form_submit);
     
     canvas  = document.createElement("canvas");

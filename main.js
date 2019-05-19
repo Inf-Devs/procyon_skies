@@ -111,7 +111,12 @@ io.on("connection", function(socket) {
             socket.emit("death");
         }
     }
-
+	
+	// regular time insensitive score updating
+	var update_leaderboard = function(data) {
+		socket.emit("leaderboard_update",data);
+	}
+	
     //when a player leaves
     socket.on("disconnect", function() {
         if (player != null) {
@@ -124,6 +129,7 @@ io.on("connection", function(socket) {
     });
 
     Game_events.on("kill", kill_event_listener);
+    Game_events.on("leaderboard_update", update_leaderboard);
 });
 
 //to keep track of players
@@ -257,12 +263,11 @@ var World = {
         });
 
 		// send out not so urgent pulses
-
 		World.pulse_elapsed += lapse;
 		if(World.pulse_elapsed > World.pulse_interval)
 		{
-			debugger;
-			World.pulse_elapsed = 0;
+			// we set to 0 because we only need to update once. unlike ticking, updating 10 times in a row is useless.
+			World.pulse_elapsed = 0; 
 			// leaderboards!
 			var leaderboard = all_players.sort((a,b) => Players[b].kills - Players[a].kills).slice(0,World.leaderboard_max);
 			// unfolding the array, making each player name into an object of name and kills
@@ -272,8 +277,7 @@ var World = {
 					,"kills":Players[leaderboard[i]].kills};
 
 			}
-
-			io.emit("leaderboard_update",leaderboard);
+			Game_events.emit("leaderboard_update",leaderboard);
 		}
 
         setImmediate(World.update); //WHY!?
