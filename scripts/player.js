@@ -54,9 +54,6 @@ Player.prototype.health_replenish_delay = 2000; // 2000 ms for health to start r
 Player.prototype.ammo_replenish_rate = 0.0005;
 Player.prototype.heal_rate           = 0.0000625;
 
-Player.prototype.blaster_cost = 0.05;
-Player.prototype.torpedo_cost = 0.3;
-
 Player.prototype.get_info = function() {
     return {
         name: this.name,
