@@ -6,7 +6,7 @@ var app     = express();
 var http    = require("http");
 var server  = http.createServer(app);
 var event   = require("events");
-var log     = require("./logging.js");
+var log     = require("./scripts/logging.js");
 
 server.listen(3000, function() {
     log("==== NEW SERVER SESSION ====");
