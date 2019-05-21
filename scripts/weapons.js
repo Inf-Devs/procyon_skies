@@ -1,4 +1,4 @@
-var World = require("./world.js");
+var Universe = require("./universe.js");
 
 var Weapons = {
     /*
