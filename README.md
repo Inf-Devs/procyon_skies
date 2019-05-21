@@ -52,8 +52,6 @@ On the client side...
 
 * figure out how not to hog resources
 
-* figure out how to tell the player when they kill and get killed
-
 ### Server side
 
 * figure out how to use modules &mdash; this means splitting up the code into more files, for comprehensibility's sake
