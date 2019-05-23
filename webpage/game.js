@@ -32,11 +32,31 @@ function setup_game() {
     socket.on("death", on_death);
     socket.on("kill", on_kill);
     socket.on("leaderboard_update", update_leaderboard);
-    
+	
     //set up the main canvas
     document.body.appendChild(canvas);
     Camera.resize();
     
+	//set up overlays
+	var death_screen			= document.createElement("div");
+	death_screen.style.colour 	= get_colour(Game.colour);
+	death_screen.id 			= "death_screen";
+	death_screen.hidden			= true;
+	document.body.appendChild(death_screen);
+	
+	var restart_box 				= document.createElement("div");
+	restart_box.innerHTML 			= "<p>You have died!</p>";
+	restart_box.style.color 		= get_colour(Game.colour);
+	restart_box.style.borderColor 	= get_colour(Game.colour);
+	restart_box.id					= "restart_box";
+	death_screen.appendChild(restart_box);
+	
+	var restart_button 					= document.createElement("button");
+	restart_button.innerHTML 			= "Restart";
+	restart_button.style.color 			= get_colour(Game.colour);
+	restart_button.style.borderColor 	= get_colour(Game.colour);
+	restart_button.onclick = function() {location.reload()};
+	restart_box.appendChild(restart_button);
     //set up the mini map and infos
     var mini_map               = document.createElement("canvas");
     mini_map.id                = "mini_map";

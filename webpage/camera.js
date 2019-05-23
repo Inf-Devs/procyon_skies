@@ -47,7 +47,7 @@ var Camera = {
             switch (f.type) {
                 case "bubble":
                     //draw a circle
-                    cxt.fillStyle = get_colour(f.colour, f.colour.alpha);
+                    cxt.fillStyle = get_colour(f.colour, f.alpha);
                     cxt.beginPath();
                     cxt.arc(draw_x, draw_y, 2, 0, Math.PI * 2);
                     cxt.closePath();
@@ -80,13 +80,6 @@ var Camera = {
                     cxt.restore();
                     break;
                 case "asteroid":
-                    /*
-                    cxt.fillStyle = "gray";
-                    cxt.beginPath();
-                    cxt.arc(draw_x, draw_y, f.radius, 0, Math.PI * 2);
-                    cxt.closePath();
-                    cxt.fill();
-                    */
                     cxt.save();
                     cxt.translate(draw_x, draw_y);
                     cxt.rotate(-f.rotation);
