@@ -414,7 +414,7 @@ Player.prototype.update = function(lapse) {
         World.objects.push(new Blaster_bullet(this.x, this.y, this.angle, lighten_colour(this.colour), this.id));
         this.last_blaster = this.last_blaster % this.blaster_reload;
         this.ammo -= this.blaster_cost;
-        debugger;
+        
         this.ammo_replenishing = false;
     }
 

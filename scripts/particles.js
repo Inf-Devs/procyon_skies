@@ -2,7 +2,7 @@ var Particles = module.exports = {};
 
 //VARIOUS PARTICLES
 
-// the bubble type, for the players' exhaust
+// the bubble type, for the players' exhaust -----------------------------------
 function Bubble(x, y, angle, colour) {
     this.x = x;
     this.y = y;
@@ -35,3 +35,41 @@ Bubble.prototype.update = function(lapse) {
 };
 
 Particles.Bubble = Bubble;
+
+// EXPLOSIONS! -----------------------------------------------------------------
+function Explosion(x, y, colour) {
+    this.x = x;
+    this.y = y;
+    
+    this.active   = true;
+    this.lifetime = 0;
+    
+    this.alpha  = 1;
+    this.colour = colour || { r: 255, g: 255, b: 255 };
+    
+    this.radius = 0.01; //prevent any shenanigans with zero
+    
+    this.type = "explosion";
+}
+
+Explosion.prototype.max_lifetime = 750;
+
+//for now, both linear
+Explosion.prototype.expansion_rate = 0.02;
+Explosion.prototype.fade_rate      = 1 / 750;
+Explosion.prototype.is_body        = true;
+
+Explosion.prototype.update = function(lapse) {
+    this.lifetime += lapse;
+    if (this.lifetime >= this.max_lifetime) {
+        this.active = false;
+        return;
+    }
+    
+    //update alpha...
+    this.alpha = 1 - this.lifetime * this.fade_rate;
+    // ...and radius
+    this.radius = this.lifetime * this.expansion_rate;
+};
+
+Particles.Explosion = Explosion;
