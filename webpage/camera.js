@@ -195,8 +195,10 @@ var Info_display = {
     health: null,
 
     init: function(mini_map_canvas, status_canvas) {
-        this.mini_map_canvas  = mini_map_canvas;
-        this.mini_map_context = this.mini_map_canvas.getContext("2d");
+        this.mini_map_canvas   = mini_map_canvas;
+        mini_map_canvas.width  = 150;
+        mini_map_canvas.height = 150;
+        this.mini_map_context  = this.mini_map_canvas.getContext("2d");
         this.resize_mini_map();
 
         this.status_canvas        = status_canvas;
