@@ -179,3 +179,58 @@ Torpedo_rocket.prototype.collision = function() {
     
     return this.damage;
 };
+
+Torpedo_rocket.prototype.explode = function() {
+    //KABOOM!
+    
+};
+
+// my new secret weapon... ------------------------------------------
+function Grenade(x, y, angle, colour) {
+    this.x = x;
+    this.y = y;
+    this.v = {
+        x: Math.cos(angle) * this.initial_force,
+        y: Math.sin(angle) * this.initial_force,
+    };
+    
+    this.angle  = angle;
+    this.colour = colour || { r: 255, g: 255, b: 255 };
+    
+    this.active   = true;
+    this.lifetime = 0;
+}
+
+Grenade.prototype.max_lifetime = 3000;
+
+Grenade.prototype.is_body = true;
+Grenade.prototype.radius  = 3.5;
+
+Grenade.prototype.deceleration  = 0.0125;
+Grenade.prototype.initial_force = 1.5; //adjust as necessary
+
+Grenade.prototype.update = function(lapse) {
+    this.lifetime += lapse;
+    if (this.lifetime >= this.max_lifetime) {
+        this.active = false;
+        this.explode();
+    }
+    
+    //update velocity and position
+    var friction = {
+        x: -this.v.x * this.deceleration * lapse,
+        y: -this.v.y * this.deceleration * lapse,
+    };
+    
+    this.v.x += friction.x;
+    this.v.y += friction.y;
+    
+    this.x += this.v.x * lapse;
+    this.y += this.v.y * lapse;
+    
+    //add collision detection
+};
+
+Grenade.prototype.explode = function(lapse) {
+    //KABOOM!
+};

@@ -1,5 +1,6 @@
 var Misc_math = require("./misc_math.js");
 var Universe  = require("./universe.js");
+var Weapons   = require("./weapons.js");
 
 function Player(name, colour, id) {
     this.colour = colour;
@@ -21,6 +22,8 @@ function Player(name, colour, id) {
         weapon1: false,
         weapon2: false,
     };
+    
+    this.weapons = [Weapons["blaster"], Weapons["torpedo"]];
 
     //health related stuff
     this.health       = 1;
@@ -115,6 +118,10 @@ Player.prototype.update = function(lapse) {
     }
     
     //more to come... see main.js, line 412.
+};
+
+Player.prototype.set_weapon = function(number, weapon) {
+    this.weapons[number] = weapon;
 };
 
 module.exports = Player;
