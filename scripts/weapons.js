@@ -1,6 +1,6 @@
-var Universe  = require("./universe.js");
-var Particles = require("./particles.js");
-var Colours   = require("./colours.js");
+var Universe  = require(__dirname + "/universe.js");
+var Particles = require(__dirname + "/particles.js");
+var Colours   = require(__dirname + "/colours.js");
 
 //some constants
 var player_radius = 8.5;
@@ -70,6 +70,36 @@ var Weapons = {
             ));
             
             //easy. just copy and paste from above! that's how coding is done, y'all!
+        },
+    },
+    
+    "machine gun blaster": { //like a blaster, but faster!
+        name: "machine gun blaster",
+        cost: 0.03,
+        cooldown: 75,
+        fire: function(p) {
+            var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
+            var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
+            
+            Universe.objects.push(new Blaster_bullet(fire_x, fire_y, p.angle,
+                Colours.lighten(p.colour), p.id
+            ));
+        },
+    },
+    
+    "wide shot blaster": {
+        name: "wide shot blaster",
+        cost: 0.1,
+        cooldown: 500,
+        fire: function(p) {
+            //fire five blaster bullets!
+            //angles: -30, -15, 0, 15, 30 (degrees)
+            //translation: -PI/12, -PI/24, 0, PI/24, PI/12
+            var angles = [
+                p.angle - Math.PI / 12,
+                p.angle - Math.PI / 24,
+                p.angle
+            ];
         },
     },
     

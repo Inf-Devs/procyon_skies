@@ -1,6 +1,7 @@
-var Misc_math = require("./misc_math.js");
-var Universe  = require("./universe.js");
-var Weapons   = require("./weapons.js");
+var Misc_math = require(__dirname + "/misc_math.js");
+var Universe  = require(__dirname + "/universe.js");
+var Particles = require(__dirname + "/particles.js");
+var Weapons   = require(__dirname + "/weapons.js");
 
 function Player(name, colour, id) {
     this.colour = colour;
@@ -42,14 +43,14 @@ function Player(name, colour, id) {
     
     this.active = true;
 
-    this.kills = 0; // stats!
+    this.score = 0; // stats!
 }
 
 Player.prototype.is_body = true;
 Player.prototype.radius  = 7.5;
 
-Player.prototype.engine_thrust  = 0.0005;
-Player.prototype.deceleration   = 0.00125;
+//Player.prototype.deceleration   = 0.00125;
+Player.prototype.engine_thrust  = 0.0125;
 Player.prototype.rotation_speed = 0.003;
 
 Player.prototype.exhaust_delay = 125; // 125 ms for each exhuast bubble
@@ -81,7 +82,7 @@ Player.prototype.update = function(lapse) {
     this.angle += (this.keys.left ? -this.rotation_speed * lapse : 0) + (this.keys.right ? this.rotation_speed * lapse : 0);
 
     //get the friction
-    var friction = { x: -this.v.x * this.deceleration * lapse, y: -this.v.y * this.deceleration * lapse};
+    var friction = { x: -this.v.x * Universe.friction * lapse, y: -this.v.y * Universe.friction * lapse};
     //get the thrust
     var thrust = {
         x: this.keys.up ? Math.cos(this.angle) * this.engine_thrust * lapse : 0,
@@ -113,7 +114,7 @@ Player.prototype.update = function(lapse) {
     
     //if the thrust key is pressed, make a bubble.
     if (this.keys.up && this.last_exhaust >= this.exhaust_delay) {
-        World.objects.push(new Bubble(this.x, this.y, this.angle + Math.PI, lighten_colour(this.colour)));
+        World.objects.push(new Particles.Bubble(this.x, this.y, this.angle + Math.PI, lighten_colour(this.colour)));
         this.last_exhaust = this.last_exhaust % this.exhaust_delay;
     }
     
@@ -122,6 +123,18 @@ Player.prototype.update = function(lapse) {
 
 Player.prototype.set_weapon = function(number, weapon) {
     this.weapons[number] = weapon;
+};
+
+Player.prototype.points = {
+    "kill": 10,
+    "destroy asteroid": 3,
+    "pick up resource": 2,
+};
+
+Player.prototype.update_score = function(action) {
+    if (this.points.hasOwnProperty(action)) {
+        this.score += this.points[action];
+    }
 };
 
 module.exports = Player;

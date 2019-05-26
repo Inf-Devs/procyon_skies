@@ -1,8 +1,10 @@
-var log       = require("./logging.js");
-var Misc_math = require("./misc_math.js");
+var log       = require(__dirname + "/logging.js");
+var Misc_math = require(__dirname + "/misc_math.js");
 
 var Universe = {
     width: 1e4, height: 1e4,
+    
+    friction: 0.05,
     
     //objects and accessing them
     objects: [],
