@@ -13,6 +13,7 @@ var Weapons = {
         [ ] cooldown (in milliseconds)
         [ ] name
         [ ] cost
+        [ ] description (coming soon)
         
         *** (incomplete) EXAMPLES BELOW ***
     */
@@ -221,11 +222,6 @@ Torpedo_rocket.prototype.collision = function() {
     return this.damage;
 };
 
-Torpedo_rocket.prototype.explode = function() {
-    //KABOOM!
-    
-};
-
 // my new secret weapon... ------------------------------------------
 function Grenade(x, y, angle, colour) {
     this.x = x;
@@ -274,4 +270,5 @@ Grenade.prototype.update = function(lapse) {
 
 Grenade.prototype.explode = function(lapse) {
     //KABOOM!
+    Universe.objects.push(new Particles.Explosion(this.x, this.y, this.colour));
 };

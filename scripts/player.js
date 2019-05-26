@@ -28,16 +28,15 @@ function Player(name, colour, id) {
     this.weapons = [Weapons["blaster"], Weapons["torpedo"]];
 
     //health related stuff
-    this.health       = 1;
-    this.last_damage  = 0;
-    this.healing      = false;
-    this.time_to_heal = 0;
+    this.health      = 1;
+    this.last_damage = 0;
+    //when 0, player can take damage.
+    //when >0, player invulnerable for that amount of time in ms.
+    this.invulnerable = 0;
 
     //ammo
-    this.ammo                   = 1;
-    this.last_fire              = 0;
-    this.ammo_replenishing      = false;
-    this.time_to_ammo_replenish = 0;
+    this.ammo      = 1;
+    this.last_fire = 0;
 
     //miscellaneous
     this.last_exhaust = 0;
@@ -55,8 +54,10 @@ Player.prototype.rotation_speed = 0.003;
 
 Player.prototype.exhaust_delay = 125; // 125 ms for each exhuast bubble
 
-Player.prototype.ammo_replenish_delay   = 500; // 500 ms for ammo to start being replenished
-Player.prototype.health_replenish_delay = 2000; // 2000 ms for health to start recovering
+Player.prototype.invulnerable_after_spawn = 5000;
+
+Player.prototype.ammo_replenish_delay = 500; // 500 ms for ammo to start being replenished
+Player.prototype.heal_delay           = 2000; // 2000 ms for health to start recovering
 
 Player.prototype.ammo_replenish_rate = 0.0005;
 Player.prototype.heal_rate           = 0.0000625;
@@ -71,13 +72,18 @@ Player.prototype.get_info = function() {
         ammo: this.ammo,
         angle: this.angle,
         score: this.points,
+        invinicible: (this.invulnerable > 0),
     };
 };
 
 Player.prototype.update = function(lapse) {
+    /*
     if (this.health <= 0) {
         this.active = false;
+        this.explode();
+        return;
     }
+    */
     
     //update the angle
     this.angle += (this.keys.left ? -this.rotation_speed * lapse : 0) + (this.keys.right ? this.rotation_speed * lapse : 0);
@@ -112,6 +118,10 @@ Player.prototype.update = function(lapse) {
     this.last_fire    += lapse;
     this.last_exhaust += lapse;
     this.last_damage  += lapse;
+    this.invulnerable -= lapse;
+    
+    //safeguard
+    this.invulnerable = Math.max(this.invulnerable, 0);
     
     //if the thrust key is pressed, make a bubble.
     if (this.keys.up && this.last_exhaust >= this.exhaust_delay) {
@@ -120,10 +130,89 @@ Player.prototype.update = function(lapse) {
     }
     
     //more to come... see main.js, line 412.
+    
+    //dealing with ammo and weapons
+    if (this.keys.weapon1 && this.ammo >= this.weapons[0].cost &&
+        this.last_fire >= this.weapons[0].cooldown
+    ) {
+        this.ammo -= this.weapons[0].cost;
+        this.weapons[0].fire(this.get_info());
+        
+        this.reset_ammo();
+    }
+    
+    if (this.keys.weapon2 && this.ammo >= this.weapons[1].cost
+        this.last_fire >= this.weapons[1].cooldown
+    ) {
+        this.ammo -= this.weapons[1].cost;
+        this.weapons[1].fire(this.get_info());
+        
+        this.reset_ammo();
+    }
+    
+    this.replenish_ammo(lapse);
+    
+    //now check for collision with any projectiles? LAG MACHINE!
+    Universe.projectiles.forEach((p) => {
+        if (p.owner == this.id) {
+            return;
+        }
+        
+        if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius + p.radius) {
+            this.do_damage(p.collision(), p.owner);
+        }
+    });
 };
 
-Player.prototype.set_weapon = function(number, weapon) {
-    this.weapons[number] = weapon;
+//helper functions
+Player.prototype.reset_ammo = function() {
+    this.last_fire = 0;
+};
+
+Player.prototype.replenish_ammo = function(lapse) {
+    if (this.last_fire >= this.ammo_replenish_delay &&
+        this.ammo < 1 && !this.keys.weapon1 && !this.keys.weapon2
+    ) {
+        this.ammo = Math.min(this.ammo + this.ammo_replenish_rate * lapse, 1);
+    }
+};
+
+Player.prototype.do_damage = function(damage, owner) {
+    this.health -= damage;
+    
+    if (this.health <= 0) {
+        this.active = false;
+        this.explode();
+        
+        Game_events.emit("kill", { killer: obj.owner, victim: this.id });
+    }
+    
+    this.last_damage = 0;
+};
+
+Player.prototype.heal = function(lapse) {
+    if (this.last_damage > this.heal_delay && this.health < 1) {
+        this.health = math.min(this.health + this.heal_rate * lapse, 1);
+    }
+};
+
+Player.prototype.explode = function() {
+    
+};
+
+Player.prototype.set_weapon = function(slot, weapon) {
+    this.weapons[slot] = weapon;
+};
+
+Player.prototype.spawn = function(x, y, radius) {
+    var angle = Math.random() * 2 * Math.PI;
+    
+    this.x = Math.cos(angle) * radius + x;
+    this.y = Math.sin(angle) * radius + y;
+    
+    this.angle = Math.random() * 2 * Math.PI;
+    
+    this.invulnerable = this.invulnerable_after_spawn;
 };
 
 Player.prototype.points = {

@@ -59,6 +59,9 @@ Explosion.prototype.expansion_rate = 0.02;
 Explosion.prototype.fade_rate      = 1 / 750;
 Explosion.prototype.is_body        = true;
 
+Explosion.prototype.is_projectile = true;
+Explosion.prototype.damage        = 0.5;
+
 Explosion.prototype.update = function(lapse) {
     this.lifetime += lapse;
     if (this.lifetime >= this.max_lifetime) {
@@ -70,6 +73,10 @@ Explosion.prototype.update = function(lapse) {
     this.alpha = 1 - this.lifetime * this.fade_rate;
     // ...and radius
     this.radius = this.lifetime * this.expansion_rate;
+};
+
+Explosion.prototype.collision = function() {
+    return this.damage;
 };
 
 Particles.Explosion = Explosion;
