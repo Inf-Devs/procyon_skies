@@ -1,7 +1,8 @@
-var Misc_math = require(__dirname + "/misc_math.js");
-var Universe  = require(__dirname + "/universe.js");
-var Particles = require(__dirname + "/particles.js");
-var Weapons   = require(__dirname + "/weapons.js");
+var Misc_math   = require(__dirname + "/misc_math.js");
+var Universe    = require(__dirname + "/universe.js");
+var Particles   = require(__dirname + "/particles.js");
+var Weapons     = require(__dirname + "/weapons.js");
+var Game_events = require(__dirname + "/events.js");
 
 function Player(name, colour, id) {
     this.colour = colour;
@@ -40,10 +41,9 @@ function Player(name, colour, id) {
 
     //miscellaneous
     this.last_exhaust = 0;
-    
-    this.active = true;
-
-    this.score = 0; // stats!
+    this.active       = true;
+    this.type         = "player";
+    this.score        = 0; // stats!
 }
 
 Player.prototype.is_body = true;
@@ -70,6 +70,7 @@ Player.prototype.get_info = function() {
         health: this.health,
         ammo: this.ammo,
         angle: this.angle,
+        score: this.points,
     };
 };
 
@@ -135,6 +136,8 @@ Player.prototype.update_score = function(action) {
     if (this.points.hasOwnProperty(action)) {
         this.score += this.points[action];
     }
+    
+    Game_events.emit("score changed");
 };
 
 module.exports = Player;

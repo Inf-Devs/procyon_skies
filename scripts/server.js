@@ -10,8 +10,9 @@ var log         = require(__dirname + "/logging.js"); //load logging function
 var Misc_math   = require(__dirname + "/misc_math.js");
 var Colours     = require(__dirname + "/colours.js");
 var Players     = require(__dirname + "/players.js");
+var Player      = require(__dirname + "/player.js");
 var Universe    = require(__dirname + "/universe.js");
-var Game_events = require(__dirname + "/game_events.js");
+var Game_events = require(__dirname + "/events.js");
 
 //set up express resources, assuming running from directory above
 app.use(express.static("./webpage");
@@ -40,7 +41,7 @@ app.post('/', function(req, res) {
     req.on('end', function() {
         var colour = Colours.random();
         var name   = body.trim();
-        var id     = Misc_math.random_nex_string(6);
+        var id     = Misc_math.random_hex_string(6);
         
         log("POST request from: " + (req.ip || req.headers['x-forwarded-for'] ||
             req.connection.remoteAddress) + ", with name: " + name,
@@ -58,7 +59,33 @@ app.post('/', function(req, res) {
 var io = require("socket.io").listen(server);
 
 io.on("connection", function(socket) {
+    var player      = null;
+    var id          = null;
+    var last_update = null;
     
+    //incoming update from the client
+    socket.on("client_update", function(data) {
+        if (last_update != null && last_update > data.time) {
+            return; //update is older than our last update, so this one is useless
+        }
+        if (player == null) {
+            id     = data.id;
+            player = new Player(data.name, data.colour, id);
+            Players.add(player, id);
+            log("new player => name: " + player.name +
+                ", id: " + id + 
+                ", colour: " + JSON.stringify(data.colour),
+                "notification"
+            );
+            
+            Universe.objects.push(player);
+        }
+        
+        player.keys = data.keys;
+        
+        //time, for updating purposes.
+        var time = Date.now();
+    });
 });
 
 var default_port = 3000;

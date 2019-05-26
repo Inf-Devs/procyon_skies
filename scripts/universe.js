@@ -58,6 +58,10 @@ var Universe = {
         
         return angle;
     },
+    
+    get_in_view: function(x, y, width, height) {
+        
+    },
 };
 
 module.exports = Universe;
