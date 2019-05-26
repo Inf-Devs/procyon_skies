@@ -98,8 +98,19 @@ var Weapons = {
             var angles = [
                 p.angle - Math.PI / 12,
                 p.angle - Math.PI / 24,
-                p.angle
+                p.angle,
+                p.angle + Math.PI / 24,
+                p.angle + Math.PI / 12,
             ];
+            
+            angles.forEach((a) => {
+                var fire_x = get_fire_coordinates(p.x, p.y, a, player_radius).x;
+                var fire_y = get_fire_coordinates(p.x, p.y, a, player_radius).y;
+                
+                Universe.objects.push(new Blaster_bullet(fire_x, fire_y, a,
+                    Colours.lighten(p.colour), p.id
+                ));
+            });
         },
     },
     
