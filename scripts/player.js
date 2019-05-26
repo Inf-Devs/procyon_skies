@@ -162,6 +162,24 @@ Player.prototype.update = function(lapse) {
             this.do_damage(p.collision(), p.owner);
         }
     });
+    
+    //now check for other stuff collision...MORE LAG!!!!
+    Universe.bodies.forEach((b) => {
+        if (body === this) return;
+        
+        var min_dist = this.radius + body.radius;
+        var overlap  = min_dist - Misc_math.get_distance(this.x, this.y, body.x, body.y);
+
+        if (overlap > 0) {
+            //push it away
+            var angle = Misc_math.get_angle(this, body) + Math.PI;
+            this.x    = body.x + Math.cos(angle) * min_dist;
+            this.y    = body.y + Math.sin(angle) * min_dist;
+
+            this.v.x += Math.cos(angle) * (overlap * Universe.friction * 2);
+            this.v.y += Math.sin(angle) * (overlap * Universe.friction * 2);
+        }
+    });
 };
 
 //helper functions
@@ -178,6 +196,11 @@ Player.prototype.replenish_ammo = function(lapse) {
 };
 
 Player.prototype.do_damage = function(damage, owner) {
+    if (this.invulnerable > 0) {
+        //player invulnerable, ignore damage
+        return;
+    }
+    
     this.health -= damage;
     
     if (this.health <= 0) {

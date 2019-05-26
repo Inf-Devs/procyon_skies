@@ -79,6 +79,11 @@ io.on("connection", function(socket) {
             );
             
             Universe.objects.push(player);
+            
+            //remember to spawn the player
+            
+            //register the kill event handler
+            Game_events.on('kill', create_kill_listener(player, socket));
         }
         
         player.keys = data.keys;
@@ -87,6 +92,23 @@ io.on("connection", function(socket) {
         var time = Date.now();
     });
 });
+
+function create_kill_listener(player, socket) {
+    return function(data) {
+        if (data.killer == id) {
+            //player got a kill! congrats!
+            socket.emit("notification", "you have killed " Players[data.victim].name);
+            player.update_score("kill");
+            socket.emit("kill");
+        }
+        
+        if (data.victim == id) {
+            //player got killed!
+            socket.emit("notification", "you were killed by " + Players[data.killer].name);
+            socket.emit("death");
+        }
+    };
+}
 
 var default_port = 3000;
 module.exports   = function(port) {
