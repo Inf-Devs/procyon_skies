@@ -43,12 +43,19 @@ function Player(name, colour, id) {
     this.active       = true;
     this.type         = "player";
     this.score        = 0; // stats!
+    
+    this.resources = {
+        "gold": 0,
+        "silver": 0,
+        "iron": 0,
+        "silicon": 0,
+    };
 }
 
 Player.prototype.is_body = true;
 Player.prototype.radius  = 7.5;
 
-//Player.prototype.deceleration   = 0.00125;
+//Player.prototype.deceleration = 0.00125;
 Player.prototype.engine_thrust  = 0.0125;
 Player.prototype.rotation_speed = 0.003;
 
@@ -66,6 +73,7 @@ Player.prototype.get_info = function() {
     return {
         name: this.name,
         id: this.id,
+        type: this.type,
         colour: this.colour,
         x: this.x, y: this.y,
         health: this.health,
@@ -236,6 +244,17 @@ Player.prototype.spawn = function(x, y, radius) {
     this.angle = Math.random() * 2 * Math.PI;
     
     this.invulnerable = this.invulnerable_after_spawn;
+};
+
+Player.prototype.give_resources = function(au, ag, fe, si) {
+    this.resources.gold    += au || 0;
+    this.resources.silver  += ag || 0;
+    this.resources.iron    += fe || 0;
+    this.resources.silicon += si || 0;
+    
+    if (au || ag || fe || si) {
+        this.update_score("pick up resource");
+    }
 };
 
 Player.prototype.points = {
