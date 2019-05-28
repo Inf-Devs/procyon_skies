@@ -15,6 +15,8 @@ var Players = module.exports = {
         
         return this.all_ids.map((id) => {
             return this[id].score;
+        }).sort(function(a, b){
+            return b.score - a.score;
         }).slice(0, n);
     },
     
@@ -25,7 +27,23 @@ var Players = module.exports = {
     },
     
     get count() {
-        return Object.getOwnPropertyNames(this).length - 5;
+        return Object.getOwnPropertyNames(this).length - 6;
+    },
+    
+    get_in_view: function(x, y, width, height) {
+        var in_view = [];
+        this.objects.forEach((p) => {
+            if (p.x + p.radius > x &&
+                p.y + p.radius > y &&
+                p.x - p.radius < x + width &&
+                p.y - p.radius < y + width &&
+                p.active
+            ) {
+                in_view.push(p);
+            }
+        });
+        
+        return in_view;
     },
 };
 

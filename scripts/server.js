@@ -68,6 +68,7 @@ io.on("connection", function(socket) {
         if (last_update != null && last_update > data.time) {
             return; //update is older than our last update, so this one is useless
         }
+        
         if (player == null) {
             id     = data.id;
             player = new Player(data.name, data.colour, id);
@@ -109,6 +110,15 @@ function create_kill_listener(player, socket) {
         }
     };
 }
+
+var Leaderboard = [];
+var num_scores  = 10;
+
+Game_events.on("score changed", function() {
+    Leaderboard = Players.get_highest(num_scores);
+    
+    Game_events.emit("leaderboard_update");
+});
 
 var default_port = 3000;
 module.exports   = function(port) {

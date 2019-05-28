@@ -60,7 +60,19 @@ var Universe = {
     },
     
     get_in_view: function(x, y, width, height) {
+        var in_view = [];
+        this.objects.forEach((obj) => {
+            if (obj.x + obj.radius > x &&
+                obj.y + obj.radius > y &&
+                obj.x - obj.radius < x + width &&
+                obj.y - obj.radius < y + width &&
+                obj.type != "player" //players are handled *special*
+            ) {
+                in_view.push(obj);
+            }
+        });
         
+        return in_view;
     },
 };
 
