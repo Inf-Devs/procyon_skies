@@ -95,6 +95,7 @@ var Camera = {
                     cxt.restore();
                     break;
                 case "resource":
+                    //if (!f.visible) return;
                     cxt.fillStyle = get_colour(Game.colour);
                     cxt.save();
                     cxt.translate(draw_x, draw_y);
