@@ -6,16 +6,17 @@ var app     = express();
 var server  = require("http").createServer(app);
 
 //helper modules
-var log         = require(__dirname + "/logging.js"); //load logging function
-var Misc_math   = require(__dirname + "/misc_math.js");
-var Colours     = require(__dirname + "/colours.js");
-var Players     = require(__dirname + "/players.js");
-var Player      = require(__dirname + "/player.js");
-var Universe    = require(__dirname + "/universe.js");
-var Game_events = require(__dirname + "/events.js");
+var log              = require(__dirname + "/logging.js"); //load logging function
+var Misc_math        = require(__dirname + "/misc_math.js");
+var Colours          = require(__dirname + "/colours.js");
+var Players          = require(__dirname + "/players.js");
+var Player           = require(__dirname + "/player.js");
+var Universe         = require(__dirname + "/universe.js");
+var Celestial_bodies = require(__dirname + "/celestial_bodies.js");
+var Game_events      = require(__dirname + "/events.js");
 
 //set up express resources, assuming running from directory above
-app.use(express.static("./webpage");
+app.use(express.static("./webpage"));
 
 app.get('/', function(req, res) {
     log("incoming connection from: " + 
@@ -82,6 +83,9 @@ io.on("connection", function(socket) {
             Universe.objects.push(player);
             
             //remember to spawn the player
+            player.spawn(Alpha.x, Alpha.y, 48);
+            
+            debugger;
             
             //register the kill event handler
             Game_events.on('kill', create_kill_listener(player, socket));
@@ -91,6 +95,40 @@ io.on("connection", function(socket) {
         
         //time, for updating purposes.
         var time = Date.now();
+        
+        //viewport
+        var p_x = player.x - (data.viewport.width / 2);
+        var p_y = player.y - (data.viewport.height / 2);
+        var p_w = data.viewport.width;
+        var p_h = data.viewport.height;
+        
+        //infos to the player
+        socket.emit("server_update", {
+            player: player,
+            objects: Universe.get_in_view(p_x, p_y, p_w, p_h),
+            players: Players.get_in_view(p_x, p_y, p_w, p_h),
+            time: time,
+            offset: { x: p_x, y: p_y, },
+            health: player.health,
+            ammo: player.ammo,
+        });
+    });
+    
+    var kill_event_listener  = create_kill_listener(player, socket);
+    var leaderboard_listener = create_leaderboard_listener(socket);
+    
+    Game_events.on("kill", kill_event_listener);
+    Game_events.on("leaderboard_update", leaderboard_listener);
+    
+    socket.on("disconnect", function() {
+        if (player != null) {
+            io.emit("notification", player.name + " has disconnected.");
+            log(player.name + ", " + id + " has disconnected.", "info");
+            Players.remove(id);
+
+            Game_events.removeListener("kill", kill_event_listener);
+            Game_events.removeListener("leaderboard_update", leaderboard_listener);
+        }
     });
 });
 
@@ -98,7 +136,7 @@ function create_kill_listener(player, socket) {
     return function(data) {
         if (data.killer == id) {
             //player got a kill! congrats!
-            socket.emit("notification", "you have killed " Players[data.victim].name);
+            socket.emit("notification", "you have killed " + Players[data.victim].name);
             player.update_score("kill");
             socket.emit("kill");
         }
@@ -111,6 +149,12 @@ function create_kill_listener(player, socket) {
     };
 }
 
+function create_leaderboard_listener(socket) {
+    return function() {
+        socket.emit("leaderboard_update", Leaderboard);
+    }
+}
+
 var Leaderboard = [];
 var num_scores  = 10;
 
@@ -119,6 +163,18 @@ Game_events.on("score changed", function() {
     
     Game_events.emit("leaderboard_update");
 });
+
+var Sun   = new Celestial_bodies.Star("sun", 5000, 5000);
+var Alpha = new Celestial_bodies.Planet(Sun, 600, "alpha", 32);
+var Beta  = new Celestial_bodies.Planet(Sun, 1000, "beta", 32);
+
+Universe.objects.push(Sun);
+Universe.objects.push(Alpha);
+Universe.objects.push(Beta);
+
+setInterval(Celestial_bodies.spawn_asteroid(Sun, 800, 900, 25));
+
+setImmediate(Universe.update);
 
 var default_port = 3000;
 module.exports   = function(port) {

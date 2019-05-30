@@ -38,5 +38,5 @@ Colours.colours = [
 ];
 
 Colours.random = function() {
-    return colours[Math.floor(Math.random() * colours.length)];
+    return Colours.colours[Math.floor(Math.random() * Colours.colours.length)];
 }

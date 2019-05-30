@@ -23,7 +23,7 @@ function form_submit(event) {
 
 function removeElement(element)
 {
-	element.parentNode.removeChild(element);
+    element.parentNode.removeChild(element);
 }
 
 function post_request_handler(req, callback) {
@@ -126,8 +126,8 @@ function on_death() {
     //to-do:
     //[ ] a death screen
     //[ ] give the player an option to respawn (don't worry about respawning logic)
-	document.getElementById("death_screen").style.display = "flex";
-	// Restart with forced refresh for now 
+    document.getElementById("death_screen").style.display = "flex";
+    // Restart with forced refresh for now 
 }
 
 var kills = 0;
@@ -142,27 +142,27 @@ function on_kill() {
 
 function update_leaderboard(data) {
     //to-do: update on client side
-	
+    
     var leaderboard = document.getElementById("leaderboard")
-	leaderboard.innerHTML = "<h1>Top Players</h1>";
+    leaderboard.innerHTML = "<h1>Top Players</h1>";
 
-	for(var i = 0; i < data.length; i++)
-	{
-		var player = document.createElement("div");
-		
-		var name_counter = document.createElement("span");
-		name_counter.innerHTML = data[i].name;
-		name_counter.classList.add("name_counter");
-		player.appendChild(name_counter);
-		
-		var kill_counter = document.createElement("span");
-		kill_counter.innerHTML = data[i].kills
-		kill_counter.classList.add("kill_counter");
-		player.appendChild(kill_counter);
-		
-		leaderboard.appendChild(player);
-	}
-	
+    for(var i = 0; i < data.length; i++)
+    {
+        var player = document.createElement("div");
+        
+        var name_counter = document.createElement("span");
+        name_counter.innerHTML = data[i].name;
+        name_counter.classList.add("name_counter");
+        player.appendChild(name_counter);
+        
+        var kill_counter       = document.createElement("span");
+        kill_counter.innerHTML = data[i].score;
+        kill_counter.classList.add("kill_counter");
+        player.appendChild(kill_counter);
+        
+        leaderboard.appendChild(player);
+    }
+    
 }
 
 var need_update = true;

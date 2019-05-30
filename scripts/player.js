@@ -149,7 +149,7 @@ Player.prototype.update = function(lapse) {
         this.reset_ammo();
     }
     
-    if (this.keys.weapon2 && this.ammo >= this.weapons[1].cost
+    if (this.keys.weapon2 && this.ammo >= this.weapons[1].cost &&
         this.last_fire >= this.weapons[1].cooldown
     ) {
         this.ammo -= this.weapons[1].cost;
@@ -172,7 +172,7 @@ Player.prototype.update = function(lapse) {
     });
     
     //now check for other stuff collision...MORE LAG!!!!
-    Universe.bodies.forEach((b) => {
+    Universe.bodies.forEach((body) => {
         if (body === this) return;
         
         var min_dist = this.radius + body.radius;
@@ -228,7 +228,22 @@ Player.prototype.heal = function(lapse) {
 };
 
 Player.prototype.explode = function() {
+    //create some goodies!
+    var resource_count = Misc_math.random_number(2, 4);
     
+    while (resource_count > 0) {
+        var angle  = Math.random() * Math.PI * 2;
+        var radius = Math.random() * this.radius * 2;
+        Universe.objects.push(new Pickupable.Resource_item(
+            Math.cos(angle) * radius + this.x,
+            Math.sin(angle) * radius + this.y,
+            Misc_math.random_number(0, 2), //au
+            Misc_math.random_number(0, 3), //ag
+            Misc_math.random_number(1, 5), //fe
+            Misc_math.random_number(0, 1)  //si
+        ));
+        resource_count--;
+    }
 };
 
 Player.prototype.set_weapon = function(slot, weapon) {

@@ -8,6 +8,10 @@ var Celestial_bodies = module.exports = {};
 function Asteroid_rock(x, y, size) {
     this.x = x;
     this.y = y;
+
+    var angle = Math.random() * Math.PI * 2;
+
+    this.v = { x: Math.cos(angle), y: Math.sin(angle), };
     
     this.size   = (size < 0) ? Math.floor(Math.random() * 4) : size;
     this.radius = this.radii[this.size];
@@ -32,10 +36,52 @@ Asteroid_rock.prototype.update = function(lapse) {
     //no need to update if no players nearby
     var closest = Players.get_closest(this.x, this.y);
     
+    if (closest == undefined || Misc_math.get_distance(this.x, this.y, closest.x, closest.y) > this.freeze_radius) {
+        return; //no need for update
+    }
     
+    //let it drift
+    this.x += this.v.x * this.move_speed * lapse;
+    this.y += this.v.y * this.move_speed * lapse;
+    
+    this.rotation += this.rot_dir * this.rotate_speed * lapse;
+    
+    //collision detection with projectiles
+    Universe.projectiles.forEach((p) => {
+        if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
+            this.do_damage(p.damage, p.owner);
+        }
+    });
+    
+    //collision detection with edge of map
+    if ((this.x < this.radius && this.v.x < 0) || (this.x > Universe.width - this.radius && this.v.x > 0)) {
+        this.v.x *= -1;
+    }
+
+    if ((this.y < this.radius && this.v.y < 0) || (this.y > Universe.height - this.radius && this.v.y > 0)) {
+        this.v.y *= -1;
+    }
+    
+    //collision detection with bodies
+    Universe.bodies.forEach((body) => {
+        if (body === this) return;
+
+        var min_dist = this.radius + body.radius;
+        var overlap  = min_dist - Misc_math.get_distance(this.x, this.y, body.x, body.y);
+
+        if (overlap > 0) {
+            //push it away
+            var angle = Misc_math.get_angle(this, body) + Math.PI;
+            this.x    = body.x + Math.cos(angle) * min_dist;
+            this.y    = body.y + Math.sin(angle) * min_dist;
+
+            this.v.x += Math.cos(angle) * (overlap * Universe.friction * 2);
+            this.v.y += Math.sin(angle) * (overlap * Universe.friction * 2);
+        }
+    });
 };
 
-Asteroid_rock.prototype.take_damage = function(damage, owner) {
+Asteroid_rock.prototype.do_damage = function(damage, owner) {
     this.health -= damage;
     
     if (this.health <= 0) {
@@ -87,7 +133,7 @@ function create_spawn_asteroid(star, inner, outer, limit) {
         var spawn_x = Math.floor(Math.cos(spawn_angle) * spawn_radius + x);
         var spawn_y = Math.floor(Math.sin(spawn_angle) * spawn_radius + y);
         
-        Universe.objects.push(new Asteroid(spawn_x, spawn_y));
+        Universe.objects.push(new Asteroid_rock(spawn_x, spawn_y));
     }
 }
 
@@ -97,13 +143,18 @@ Celestial_bodies.spawn_asteroid = create_spawn_asteroid;
 function Planet(star, orbit_radius, name, radius) {
     this.parent_star = star;
     
+    this.x = 0;
+    this.y = 0;
+    
     this.name = name;
     this.type = "planet";
     
     this.orbit_radius = orbit_radius;
     this.radius       = (isNaN(radius) || radius <= 0) ? 32 : radius;
     
-    this.rotation = Math.random() * Math.PI * 2;
+    this.angle = Math.random() * Math.PI * 2;
+    
+    this.update(0);
 };
 
 Planet.prototype.is_body = true;
@@ -128,7 +179,7 @@ Planet.prototype.update = function(lapse) {
         return f.is_projectile;
     }).forEach((p) => {
         if (get_distance(this.x, this.y, p.x, p.y) < this.radius) {
-            p.collision()
+            p.collision();
         }
     });
 };

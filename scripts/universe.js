@@ -34,8 +34,8 @@ var Universe = {
     
     //updating
     update: function() {
-        var lapse = this.calculate_lapse();
-        this.objects.forEach((obj) => {
+        var lapse = Universe.calculate_lapse();
+        Universe.objects.forEach((obj) => {
             obj.update(lapse);
         });
         

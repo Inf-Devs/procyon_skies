@@ -223,7 +223,7 @@ Torpedo_rocket.prototype.collision = function() {
 };
 
 // my new secret weapon... ------------------------------------------
-function Grenade(x, y, angle, colour) {
+function Grenade(x, y, angle, colour, owner) {
     this.x = x;
     this.y = y;
     this.v = {
@@ -236,6 +236,7 @@ function Grenade(x, y, angle, colour) {
     
     this.active   = true;
     this.lifetime = 0;
+    this.owner    = owner;
 }
 
 Grenade.prototype.max_lifetime = 3000;
