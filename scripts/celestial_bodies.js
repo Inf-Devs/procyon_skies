@@ -32,14 +32,45 @@ Asteroid_rock.prototype.update = function(lapse) {
     //no need to update if no players nearby
     var closest = Players.get_closest(this.x, this.y);
     
+    
 };
 
 Asteroid_rock.prototype.take_damage = function(damage, owner) {
+    this.health -= damage;
     
+    if (this.health <= 0) {
+        //explode
+        this.explode();
+        
+        //reward the player who blasted this asteroid
+        Players[owner].update_score("destroy asteroid");
+    }
 };
 
 Asteroid_rock.prototype.explode = function() {
+    //create two smaller asteroids...
+    if (this.size > 0) {
+        var new_size = this.size - 1;
+        Universe.objects.push(new Asteroid_rock(this.x + this.radius, this.y + this.radius, new_size));
+        Universe.objects.push(new Asteroid_rock(this.x - this.radius, this.y - this.radius, new_size));
+    }
     
+    //create some goodies!
+    var resource_count = Misc_math.random_number(Math.ceil(this.radius / 3), this.radius);
+    
+    while (resource_count > 0) {
+        var angle  = Math.random() * Math.PI * 2;
+        var radius = Math.random() * this.radius * 2;
+        Universe.objects.push(new Pickupable.Resource_item(
+            Math.cos(angle) * radius + this.x,
+            Math.sin(angle) * radius + this.y,
+            Misc_math.random_number(0, 2), //au
+            Misc_math.random_number(0, 3), //ag
+            Misc_math.random_number(1, 5), //fe
+            Misc_math.random_number(0, 1)  //si
+        ));
+        resource_count--;
+    }
 };
 
 Celestial_bodies.Asteroid_rock = Asteroid_rock;
@@ -48,7 +79,7 @@ function create_spawn_asteroid(star, inner, outer, limit) {
     var x = star.x, y = star.y;
     
     return function() {
-        if (Universe.get_all_of_type("asteroid") >= limit) return;
+        if (Universe.get_all_of_type("asteroid") >= limit || Players.count == 0) return;
         
         var spawn_radius = Misc_math.random_number(inner, outer);
         var spawn_angle  = Math.random() * Math.PI * 2;
