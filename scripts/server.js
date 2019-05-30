@@ -84,11 +84,6 @@ io.on("connection", function(socket) {
             
             //remember to spawn the player
             player.spawn(Alpha.x, Alpha.y, 48);
-            
-            debugger;
-            
-            //register the kill event handler
-            Game_events.on('kill', create_kill_listener(player, socket));
         }
         
         player.keys = data.keys;

@@ -3,6 +3,8 @@ var Universe    = require(__dirname + "/universe.js");
 var Particles   = require(__dirname + "/particles.js");
 var Weapons     = require(__dirname + "/weapons.js");
 var Game_events = require(__dirname + "/events.js");
+var Colours     = require(__dirname + "/colours.js");
+var log         = require(__dirname + "/logging.js");
 
 function Player(name, colour, id) {
     this.colour = colour;
@@ -93,6 +95,10 @@ Player.prototype.update = function(lapse) {
     }
     */
     
+    if (this.keys.left || this.keys.right || this.keys.up) {
+        debugger;
+    }
+    
     //update the angle
     this.angle += (this.keys.left ? -this.rotation_speed * lapse : 0) + (this.keys.right ? this.rotation_speed * lapse : 0);
 
@@ -133,7 +139,7 @@ Player.prototype.update = function(lapse) {
     
     //if the thrust key is pressed, make a bubble.
     if (this.keys.up && this.last_exhaust >= this.exhaust_delay) {
-        World.objects.push(new Particles.Bubble(this.x, this.y, this.angle + Math.PI, lighten_colour(this.colour)));
+        Universe.objects.push(new Particles.Bubble(this.x, this.y, this.angle + Math.PI, Colours.lighten(this.colour)));
         this.last_exhaust = this.last_exhaust % this.exhaust_delay;
     }
     
@@ -259,6 +265,8 @@ Player.prototype.spawn = function(x, y, radius) {
     this.angle = Math.random() * 2 * Math.PI;
     
     this.invulnerable = this.invulnerable_after_spawn;
+    
+    log(this.name + " has spawned at: " + Math.floor(this.x) + ", " + Math.floor(this.y));
 };
 
 Player.prototype.give_resources = function(au, ag, fe, si) {

@@ -1,3 +1,3 @@
 var server = require(__dirname + "/scripts/server.js");
 
-server(3000);
+server(process.argv[2]);

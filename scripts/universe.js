@@ -21,15 +21,15 @@ var Universe = {
     last_time: null,
     
     calculate_lapse: function() {
-        var lapse, time = Date.now();
-        if (this.last_time == null) {
+        var lapse = 0, time = Date.now();
+        if (Universe.last_time == null) {
             lapse = 0;
         } else {
-            lapse = time - last_time;
+            lapse = time - Universe.last_time;
         }
-        last_time = time;
+        Universe.last_time = time;
         
-        return lapse;
+        return Math.min(lapse, 100);
     },
     
     //updating

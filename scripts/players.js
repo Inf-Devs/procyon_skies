@@ -22,7 +22,7 @@ var Players = module.exports = {
         }).slice(0, n);
     },
     
-    get_closest: function() {
+    get_closest: function(x, y) {
         if (Players.count == 0) {
             return undefined;
         }
