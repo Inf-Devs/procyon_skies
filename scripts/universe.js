@@ -29,7 +29,12 @@ var Universe = {
         }
         Universe.last_time = time;
         
-        return Math.min(lapse, 100);
+        if (lapse > 100) {
+            log("lapse (" + lapse + " ms) too high! setting lapse to 100.");
+            lapse = 100;
+        }
+        
+        return lapse;
     },
     
     //updating
