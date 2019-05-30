@@ -59,6 +59,12 @@ var Universe = {
         return angle;
     },
     
+    get_all_of_type: function(type) {
+        return this.objects.filter((obj) => {
+            return obj.type == type;
+        });
+    },
+    
     get_in_view: function(x, y, width, height) {
         var in_view = [];
         this.objects.forEach((obj) => {

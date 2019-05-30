@@ -1,10 +1,11 @@
 var Players    = require(__dirname + "/players.js");
 var Universe   = require(__dirname + "/universe.js");
 var Pickupable = require(__dirname + "/pickupable.js");
+var Misc_math  = require(__dirname + "/misc_math.js");
 
 var Celestial_bodies = module.exports = {};
 
-function Asteroid(x, y, size) {
+function Asteroid_rock(x, y, size) {
     this.x = x;
     this.y = y;
     
@@ -17,25 +18,49 @@ function Asteroid(x, y, size) {
     this.rotate_dir = Math.random() < 0.5 ? 1 : -1;
 }
 
-Asteroid.prototype.radii   = [5, 8, 13, 21];
-Asteroid.prototype.healths = [0.6, 0.9, 1.3, 2.1];
+Asteroid_rock.prototype.radii   = [5, 8, 13, 21];
+Asteroid_rock.prototype.healths = [0.6, 0.9, 1.3, 2.1];
 
-Asteroid.prototype.drift_speed  = 0.2;
-Asteroid.prototype.rotate_speed = 0.0003;
+Asteroid_rock.prototype.is_body = true;
 
-Asteroid.prototype.update = function(lapse) {
+Asteroid_rock.prototype.drift_speed  = 0.02;
+Asteroid_rock.prototype.rotate_speed = 0.0003;
+
+Asteroid_rock.prototype.freeze_radius = 1000;
+
+Asteroid_rock.prototype.update = function(lapse) {
+    //no need to update if no players nearby
+    var closest = Players.get_closest(this.x, this.y);
     
 };
 
-Asteroid.prototype.take_damage = function(damage, owner) {
+Asteroid_rock.prototype.take_damage = function(damage, owner) {
     
 };
 
-Asteroid.prototype.explode = function() {
+Asteroid_rock.prototype.explode = function() {
     
 };
 
-Celestial_bodies.Asteroid = Asteroid;
+Celestial_bodies.Asteroid_rock = Asteroid_rock;
+
+function create_spawn_asteroid(star, inner, outer, limit) {
+    var x = star.x, y = star.y;
+    
+    return function() {
+        if (Universe.get_all_of_type("asteroid") >= limit) return;
+        
+        var spawn_radius = Misc_math.random_number(inner, outer);
+        var spawn_angle  = Math.random() * Math.PI * 2;
+        
+        var spawn_x = Math.floor(Math.cos(spawn_angle) * spawn_radius + x);
+        var spawn_y = Math.floor(Math.sin(spawn_angle) * spawn_radius + y);
+        
+        Universe.objects.push(new Asteroid(spawn_x, spawn_y));
+    }
+}
+
+Celestial_bodies.spawn_asteroid = create_spawn_asteroid;
 
 //PLANET --------------------------------------------------------------
 function Planet(star, orbit_radius, name, radius) {
