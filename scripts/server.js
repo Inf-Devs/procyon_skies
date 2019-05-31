@@ -64,6 +64,9 @@ io.on("connection", function(socket) {
     var id          = null;
     var last_update = null;
     
+    var kill_event_listener;
+    var leaderboard_listener;
+    
     //incoming update from the client
     socket.on("client_update", function(data) {
         if (last_update != null && last_update > data.time) {
@@ -84,6 +87,12 @@ io.on("connection", function(socket) {
             
             //remember to spawn the player
             player.spawn(Alpha.x, Alpha.y, 48);
+            
+            kill_event_listener  = create_kill_listener(player, socket);
+            leaderboard_listener = create_leaderboard_listener(socket);
+            
+            Game_events.on("kill", kill_event_listener);
+            Game_events.on("leaderboard_update", leaderboard_listener);
         }
         
         player.keys = data.keys;
@@ -109,12 +118,6 @@ io.on("connection", function(socket) {
         });
     });
     
-    var kill_event_listener  = create_kill_listener(player, socket);
-    var leaderboard_listener = create_leaderboard_listener(socket);
-    
-    Game_events.on("kill", kill_event_listener);
-    Game_events.on("leaderboard_update", leaderboard_listener);
-    
     socket.on("disconnect", function() {
         if (player != null) {
             io.emit("notification", player.name + " has disconnected.");
@@ -129,14 +132,14 @@ io.on("connection", function(socket) {
 
 function create_kill_listener(player, socket) {
     return function(data) {
-        if (data.killer == id) {
+        if (data.killer == player.id) {
             //player got a kill! congrats!
             socket.emit("notification", "you have killed " + Players[data.victim].name);
             player.update_score("kill");
             socket.emit("kill");
         }
         
-        if (data.victim == id) {
+        if (data.victim == player.id) {
             //player got killed!
             socket.emit("notification", "you were killed by " + Players[data.killer].name);
             socket.emit("death");
@@ -154,6 +157,8 @@ var Leaderboard = [];
 var num_scores  = 10;
 
 Game_events.on("score changed", function() {
+    debugger;
+    
     Leaderboard = Players.get_highest(num_scores);
     
     Game_events.emit("leaderboard_update");

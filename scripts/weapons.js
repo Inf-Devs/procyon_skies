@@ -222,7 +222,7 @@ Torpedo_rocket.prototype.update = function(lapse) {
 
 Torpedo_rocket.prototype.collision = function() {
     this.active = false;
-    Universe.objects.push(new Particles.Explosion(this.x, this.y, this.colour));
+    Universe.objects.push(new Particles.Explosion(this.x, this.y, this.colour, this.owner));
     
     return this.damage;
 };

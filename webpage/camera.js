@@ -53,6 +53,14 @@ var Camera = {
                     cxt.closePath();
                     cxt.fill();
                     break;
+                case "explosion":
+                    //draw a circle
+                    cxt.fillStyle = get_colour(f.colour, f.alpha);
+                    cxt.beginPath();
+                    cxt.arc(draw_x, draw_y, f.radius, 0, Math.PI * 2);
+                    cxt.closePath();
+                    cxt.fill();
+                    break;
                 case "blaster bullet":
                     //draw a laser beam!
                     cxt.strokeStyle = get_colour(f.colour);

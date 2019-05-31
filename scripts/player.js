@@ -5,6 +5,7 @@ var Weapons     = require(__dirname + "/weapons.js");
 var Game_events = require(__dirname + "/events.js");
 var Colours     = require(__dirname + "/colours.js");
 var log         = require(__dirname + "/logging.js");
+var Pickupable  = require(__dirname + "/pickupable.js");
 
 function Player(name, colour, id) {
     this.colour = colour;
@@ -27,7 +28,7 @@ function Player(name, colour, id) {
         weapon2: false,
     };
     
-    this.weapons = [ Weapons["twin blaster"], Weapons["wide shot blaster"] ];
+    this.weapons = [ Weapons["torpedo"], Weapons["wide shot blaster"] ];
 
     //health related stuff
     this.health      = 1;
@@ -57,8 +58,8 @@ function Player(name, colour, id) {
 Player.prototype.is_body = true;
 Player.prototype.radius  = 7.5;
 
-Player.prototype.deceleration   = 0.05;
-Player.prototype.engine_thrust  = 0.0125;
+//Player.prototype.deceleration   = 0.05;
+Player.prototype.engine_thrust  = 0.0005;
 Player.prototype.rotation_speed = 0.003;
 
 Player.prototype.exhaust_delay = 125; // 125 ms for each exhuast bubble
@@ -131,8 +132,6 @@ Player.prototype.update = function(lapse) {
         Universe.objects.push(new Particles.Bubble(this.x, this.y, this.angle + Math.PI, Colours.lighten(this.colour)));
         this.last_exhaust = this.last_exhaust % this.exhaust_delay;
     }
-    
-    debugger;
     
     //dealing with ammo and weapons
     if (this.keys.weapon1 && this.ammo >= this.weapons[0].cost &&
@@ -214,7 +213,7 @@ Player.prototype.do_damage = function(damage, owner) {
         this.active = false;
         this.explode();
         
-        Game_events.emit("kill", { killer: obj.owner, victim: this.id });
+        Game_events.emit("kill", { killer: owner, victim: this.id });
     }
     
     this.last_damage = 0;

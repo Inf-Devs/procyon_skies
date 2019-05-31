@@ -4,7 +4,7 @@ var Misc_math = require(__dirname + "/misc_math.js");
 var Universe = {
     width: 1e4, height: 1e4,
     
-    friction: 0.05,
+    friction: 0.00125,
     
     //objects and accessing them
     objects: [],

@@ -38,12 +38,13 @@ Bubble.prototype.update = function(lapse) {
 Particles.Bubble = Bubble;
 
 // EXPLOSIONS! -----------------------------------------------------------------
-function Explosion(x, y, colour) {
+function Explosion(x, y, colour, owner) {
     this.x = x;
     this.y = y;
     
     this.active   = true;
     this.lifetime = 0;
+    this.owner    = owner;
     
     this.alpha  = 1;
     this.colour = colour || { r: 255, g: 255, b: 255 };
@@ -53,11 +54,11 @@ function Explosion(x, y, colour) {
     this.type = "explosion";
 }
 
-Explosion.prototype.max_lifetime = 750;
+Explosion.prototype.max_lifetime = 250;
 
 //for now, both linear
-Explosion.prototype.expansion_rate = 0.02;
-Explosion.prototype.fade_rate      = 1 / 750;
+Explosion.prototype.expansion_rate = 0.1;
+Explosion.prototype.fade_rate      = 1 / 250;
 Explosion.prototype.is_body        = true;
 
 Explosion.prototype.is_projectile = true;
