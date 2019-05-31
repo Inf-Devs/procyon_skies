@@ -18,7 +18,8 @@ function Bubble(x, y, angle, colour) {
     this.type = "bubble";
 }
 
-Bubble.prototype.speed = 0.05;
+Bubble.prototype.speed  = 0.05;
+Bubble.prototype.radius = 2;
 
 Bubble.prototype.update = function(lapse) {
     this.lifetime += lapse;

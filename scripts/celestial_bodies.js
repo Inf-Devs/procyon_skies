@@ -154,6 +154,8 @@ function Planet(star, orbit_radius, name, radius) {
     
     this.angle = Math.random() * Math.PI * 2;
     
+    this.active = true;
+    
     this.update(0);
 };
 
@@ -178,7 +180,7 @@ Planet.prototype.update = function(lapse) {
     Universe.objects.filter((f) => {
         return f.is_projectile;
     }).forEach((p) => {
-        if (get_distance(this.x, this.y, p.x, p.y) < this.radius) {
+        if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
             p.collision();
         }
     });
@@ -207,7 +209,7 @@ Star.prototype.update = function(lapse) {
     Universe.objects.filter((f) => {
         return f.is_projectile;
     }).forEach((p) => {
-        if (get_distance(this.x, this.y, p.x, p.y) < this.radius) {
+        if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
             p.collision();
         }
     });

@@ -55,8 +55,8 @@ var key_codes = (function() {
     a[38] = "up";
     a[39] = "right";
     a[40] = "down";
-    a[90] = "blasters";
-    a[88] = "torpedos";
+    a[90] = "weapon1";
+    a[88] = "weapon2";
     return a;
 })();
 function keydown_handler(e) {

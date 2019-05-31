@@ -27,7 +27,7 @@ function Player(name, colour, id) {
         weapon2: false,
     };
     
-    this.weapons = [Weapons["blaster"], Weapons["torpedo"]];
+    this.weapons = [ Weapons["twin blaster"], Weapons["wide shot blaster"] ];
 
     //health related stuff
     this.health      = 1;
@@ -57,7 +57,7 @@ function Player(name, colour, id) {
 Player.prototype.is_body = true;
 Player.prototype.radius  = 7.5;
 
-//Player.prototype.deceleration = 0.00125;
+Player.prototype.deceleration   = 0.05;
 Player.prototype.engine_thrust  = 0.0125;
 Player.prototype.rotation_speed = 0.003;
 
@@ -87,18 +87,6 @@ Player.prototype.get_info = function() {
 };
 
 Player.prototype.update = function(lapse) {
-    /*
-    if (this.health <= 0) {
-        this.active = false;
-        this.explode();
-        return;
-    }
-    */
-    
-    if (this.keys.left || this.keys.right || this.keys.up) {
-        debugger;
-    }
-    
     //update the angle
     this.angle += (this.keys.left ? -this.rotation_speed * lapse : 0) + (this.keys.right ? this.rotation_speed * lapse : 0);
 
@@ -109,9 +97,10 @@ Player.prototype.update = function(lapse) {
         x: this.keys.up ? Math.cos(this.angle) * this.engine_thrust * lapse : 0,
         y: this.keys.up ? Math.sin(this.angle) * this.engine_thrust * lapse : 0,
     };
+    
     //...and now add them together!
-    this.v.x += friction.x + thrust.x;
-    this.v.y += friction.y + thrust.y;
+    this.v.x += (friction.x + thrust.x);
+    this.v.y += (friction.y + thrust.y);
 
     this.x += this.v.x * lapse;
     this.y += this.v.y * lapse;
@@ -143,7 +132,7 @@ Player.prototype.update = function(lapse) {
         this.last_exhaust = this.last_exhaust % this.exhaust_delay;
     }
     
-    //more to come... see main.js, line 412.
+    debugger;
     
     //dealing with ammo and weapons
     if (this.keys.weapon1 && this.ammo >= this.weapons[0].cost &&
@@ -151,6 +140,8 @@ Player.prototype.update = function(lapse) {
     ) {
         this.ammo -= this.weapons[0].cost;
         this.weapons[0].fire(this.get_info());
+        
+        //log(this.name + " has fired weapon 0.");
         
         this.reset_ammo();
     }
@@ -160,6 +151,8 @@ Player.prototype.update = function(lapse) {
     ) {
         this.ammo -= this.weapons[1].cost;
         this.weapons[1].fire(this.get_info());
+        
+        //log(this.name + " has fired weapon 1.");
         
         this.reset_ammo();
     }

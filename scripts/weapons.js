@@ -1,6 +1,7 @@
 var Universe  = require(__dirname + "/universe.js");
 var Particles = require(__dirname + "/particles.js");
 var Colours   = require(__dirname + "/colours.js");
+var log       = require(__dirname + "/logging.js");
 
 //some constants
 var player_radius = 8.5;
@@ -53,8 +54,8 @@ var Weapons = {
         cost: 0.07,
         cooldown: 300,
         fire: function(p) {
-            //launch two blaster bullets, 30 degrees apart
-            var a1 = p.angle + Math.PI / 24, a2 = p.angle - Math.PI / 24;
+            //launch two blaster bullets, 40 degrees apart
+            var a1 = p.angle + Math.PI / 15, a2 = p.angle - Math.PI / 15;
             
             var fire_x1 = get_fire_coordinates(p.x, p.y, a1, player_radius).x;
             var fire_y1 = get_fire_coordinates(p.x, p.y, a1, player_radius).y;
@@ -125,12 +126,14 @@ var Weapons = {
     },
 };
 
-function get_fire_coordinates(pos, angle, radius) {
+function get_fire_coordinates(x, y, angle, radius) {
     return {
-        x: Math.cos(angle) * radius + pos.x,
-        y: Math.sin(angle) * radius + pos.y,
+        x: Math.cos(angle) * radius + x,
+        y: Math.sin(angle) * radius + y,
     };
 }
+
+module.exports = Weapons;
 
 //various projectiles =================================================
 
@@ -146,6 +149,8 @@ function Blaster_bullet(x, y, angle, colour, owner) {
     this.owner    = owner;
 
     this.type = "blaster bullet";
+    
+    //log("blaster bullet created at: " + Math.floor(this.x) + ", " + Math.floor(this.y));
 }
 
 Blaster_bullet.prototype.speed  = 0.4;

@@ -40,6 +40,8 @@ var Universe = {
     //updating
     update: function() {
         var lapse = Universe.calculate_lapse();
+        
+        Universe.objects = Universe.objects.filter((obj) => { return obj.active; });
         Universe.objects.forEach((obj) => {
             obj.update(lapse);
         });

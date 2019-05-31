@@ -171,7 +171,7 @@ var Camera = {
             cxt.restore();
         });
 
-        Info_display.draw_mini_map(5000, 5000, this.offset_x + this.width / 2, this.offset_y + this.height / 2, get_colour(Game.colour));
+        Info_display.draw_mini_map(1e4, 1e4, this.offset_x + this.width / 2, this.offset_y + this.height / 2, get_colour(Game.colour));
         Info_display.draw_status(get_colour(Game.colour));
     },
 
