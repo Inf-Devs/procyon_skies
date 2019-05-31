@@ -30,7 +30,7 @@ var Universe = {
         Universe.last_time = time;
         
         if (lapse > 100) {
-            log("lapse (" + lapse + " ms) too high! setting lapse to 100.");
+            log("lapse (" + lapse + " ms) too high! setting lapse to 100.", "warning");
             lapse = 100;
         }
         

@@ -16,7 +16,7 @@ var Players = module.exports = {
         }
         
         return this.all_ids.map((id) => {
-            return this[id].score;
+            return this[id];
         }).sort(function(a, b){
             return b.score - a.score;
         }).slice(0, n);

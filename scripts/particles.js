@@ -32,7 +32,7 @@ Bubble.prototype.update = function(lapse) {
     this.x += Math.cos(this.angle) * this.speed * lapse;
     this.y += Math.sin(this.angle) * this.speed * lapse;
 
-    this.alpha = (this.max_lifetime - this.lifetime) / this.max_lifetime;
+    this.alpha = Math.max(((this.max_lifetime - this.lifetime) / this.max_lifetime), 0);
 };
 
 Particles.Bubble = Bubble;
