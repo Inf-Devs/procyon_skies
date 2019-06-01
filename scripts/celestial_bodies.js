@@ -2,6 +2,7 @@ var Players    = require(__dirname + "/players.js");
 var Universe   = require(__dirname + "/universe.js");
 var Pickupable = require(__dirname + "/pickupable.js");
 var Misc_math  = require(__dirname + "/misc_math.js");
+var log        = require(__dirname + "/logging.js");
 
 var Celestial_bodies = module.exports = {};
 
@@ -13,7 +14,7 @@ function Asteroid_rock(x, y, size) {
 
     this.v = { x: Math.cos(angle), y: Math.sin(angle), };
     
-    this.size   = (size < 0) ? Math.floor(Math.random() * 4) : size;
+    this.size   = (size < 0 || isNaN(size)) ? Math.floor(Math.random() * 4) : size;
     this.radius = this.radii[this.size];
     this.health = this.healths[this.size];
     this.active = true;
@@ -41,15 +42,15 @@ Asteroid_rock.prototype.update = function(lapse) {
     }
     
     //let it drift
-    this.x += this.v.x * this.move_speed * lapse;
-    this.y += this.v.y * this.move_speed * lapse;
+    this.x += this.v.x * this.drift_speed * lapse;
+    this.y += this.v.y * this.drift_speed * lapse;
     
     this.rotation += this.rot_dir * this.rotate_speed * lapse;
     
     //collision detection with projectiles
     Universe.projectiles.forEach((p) => {
         if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
-            this.do_damage(p.damage, p.owner);
+            this.do_damage(p.collision(), p.owner);
         }
     });
     
@@ -87,6 +88,7 @@ Asteroid_rock.prototype.do_damage = function(damage, owner) {
     if (this.health <= 0) {
         //explode
         this.explode();
+        this.active = false;
         
         //reward the player who blasted this asteroid
         Players[owner].update_score("destroy asteroid");
@@ -125,15 +127,21 @@ function create_spawn_asteroid(star, inner, outer, limit) {
     var x = star.x, y = star.y;
     
     return function() {
-        if (Universe.get_all_of_type("asteroid") >= limit || Players.count == 0) return;
+        if (Universe.get_all_of_type("asteroid").length >= limit || Players.count == 0) {
+            return;
+        }
         
         var spawn_radius = Misc_math.random_number(inner, outer);
         var spawn_angle  = Math.random() * Math.PI * 2;
-        
+        /*
         var spawn_x = Math.floor(Math.cos(spawn_angle) * spawn_radius + x);
         var spawn_y = Math.floor(Math.sin(spawn_angle) * spawn_radius + y);
+        */
         
+        var spawn_x = 5250, spawn_y = 5250;
         Universe.objects.push(new Asteroid_rock(spawn_x, spawn_y));
+        
+        log("asteroid has spawned at " + spawn_x + ", " + spawn_y + ".", "info");
     }
 }
 

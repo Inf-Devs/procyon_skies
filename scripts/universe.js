@@ -68,7 +68,7 @@ var Universe = {
     
     get_all_of_type: function(type) {
         return this.objects.filter((obj) => {
-            return obj.type == type;
+            return obj.type === type;
         });
     },
     
@@ -79,7 +79,7 @@ var Universe = {
                 obj.y + obj.radius > y &&
                 obj.x - obj.radius < x + width &&
                 obj.y - obj.radius < y + width &&
-                obj.type != "player" //players are handled *special*
+                obj.type !== "player" //players are handled *special*
             ) {
                 in_view.push(obj);
             }

@@ -18,13 +18,14 @@ function Resource_item(x, y, au, ag, fe, si) {
     this.type     = "resource";
 }
 
-Resource_item.prototype.flash_delay  = 750;
-Resource_item.prototype.start_flash  = 7500;
+Resource_item.prototype.flash_delay  = 100;
+Resource_item.prototype.start_flash  = 5000;
 Resource_item.prototype.max_lifetime = 1e4;
 
 Resource_item.prototype.attraction_radius = 25;
 
-Resource_item.prototype.speed = 0.007;
+Resource_item.prototype.speed  = 0.007;
+Resource_item.prototype.radius = 3;
 
 Resource_item.prototype.update = function(lapse) {
     this.lifetime += lapse;
@@ -45,7 +46,7 @@ Resource_item.prototype.update = function(lapse) {
         Misc_math.get_distance(this.x, this.y, nearest.x, nearest.y) > this.attraction_radius
     ) {
         return;
-    } else if (Misc_math.get_distance(this.x, this.y, nearest.x, nearest.y) > this.attraction_radius) {
+    } else if (Misc_math.get_distance(this.x, this.y, nearest.x, nearest.y) < 7.5) {
         this.give_to(nearest);
     } else {
         this.x += (nearest.x - this.x) * this.speed * lapse;
@@ -54,7 +55,7 @@ Resource_item.prototype.update = function(lapse) {
 };
 
 Resource_item.prototype.give_to = function(player) {
-    Player.give_resources(this.au, this.ag, this.fe, this.si);
+    player.give_resources(this.au, this.ag, this.fe, this.si);
     this.active = false;
 };
 

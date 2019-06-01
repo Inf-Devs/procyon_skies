@@ -157,8 +157,6 @@ var Leaderboard = [];
 var num_scores  = 10;
 
 Game_events.on("score changed", function() {
-    debugger;
-    
     Leaderboard = Players.get_highest(num_scores);
     
     Game_events.emit("leaderboard_update");
@@ -172,7 +170,7 @@ Universe.objects.push(Sun);
 Universe.objects.push(Alpha);
 Universe.objects.push(Beta);
 
-setInterval(Celestial_bodies.spawn_asteroid(Sun, 800, 900, 0));
+setInterval(Celestial_bodies.spawn_asteroid(Sun, 800, 900, 10), 1000);
 
 setImmediate(Universe.update);
 

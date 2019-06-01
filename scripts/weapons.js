@@ -4,7 +4,7 @@ var Colours   = require(__dirname + "/colours.js");
 var log       = require(__dirname + "/logging.js");
 
 //some constants
-var player_radius = 8.5;
+var player_radius = 9;
 
 var Weapons = {
     /*
