@@ -28,7 +28,7 @@ function Player(name, colour, id) {
         weapon2: false,
     };
     
-    this.weapons = [ Weapons["torpedo"], Weapons["wide shot blaster"] ];
+    this.weapons = [ Weapons[(Math.random() < 0.1 ? "twin blaster" : "blaster")], Weapons["torpedo"] ];
 
     //health related stuff
     this.health      = 1;

@@ -133,12 +133,10 @@ function create_spawn_asteroid(star, inner, outer, limit) {
         
         var spawn_radius = Misc_math.random_number(inner, outer);
         var spawn_angle  = Math.random() * Math.PI * 2;
-        /*
+        
         var spawn_x = Math.floor(Math.cos(spawn_angle) * spawn_radius + x);
         var spawn_y = Math.floor(Math.sin(spawn_angle) * spawn_radius + y);
-        */
         
-        var spawn_x = 5250, spawn_y = 5250;
         Universe.objects.push(new Asteroid_rock(spawn_x, spawn_y));
         
         log("asteroid has spawned at " + spawn_x + ", " + spawn_y + ".", "info");

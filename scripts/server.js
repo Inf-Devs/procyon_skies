@@ -170,7 +170,7 @@ Universe.objects.push(Sun);
 Universe.objects.push(Alpha);
 Universe.objects.push(Beta);
 
-setInterval(Celestial_bodies.spawn_asteroid(Sun, 800, 900, 10), 1000);
+setInterval(Celestial_bodies.spawn_asteroid(Sun, 800, 900, 50), 1000);
 
 setImmediate(Universe.update);
 
