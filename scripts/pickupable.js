@@ -1,16 +1,14 @@
 var Players   = require(__dirname + "/players.js");
+var Resources = require(__dirname + "/Resources.js");
 var Misc_math = require(__dirname + "/misc_math.js");
 
 var Pickupable = module.exports = {};
 
-function Resource_item(x, y, au, ag, fe, si) {
+function Resource_item(x, y, resources) {
     this.x = x;
     this.y = y;
     
-    this.au = isNaN(au) ? 0 : au;
-    this.ag = isNaN(ag) ? 0 : ag;
-    this.fe = isNaN(fe) ? 0 : fe;
-    this.si = isNaN(si) ? 0 : si;
+	this.resources = resources;
     
     this.visible  = true;
     this.lifetime = 0;
@@ -55,7 +53,11 @@ Resource_item.prototype.update = function(lapse) {
 };
 
 Resource_item.prototype.give_to = function(player) {
-    player.give_resources(this.au, this.ag, this.fe, this.si);
+	debugger
+    for(key in this.resources)
+	{
+		player.resources[key].count += this.resources[key].count;
+	}
     this.active = false;
 };
 

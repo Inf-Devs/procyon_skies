@@ -1,6 +1,7 @@
 var Players    = require(__dirname + "/players.js");
 var Universe   = require(__dirname + "/universe.js");
 var Pickupable = require(__dirname + "/pickupable.js");
+var Resources  = require(__dirname + "/resources.js");
 var Misc_math  = require(__dirname + "/misc_math.js");
 var log        = require(__dirname + "/logging.js");
 
@@ -109,13 +110,17 @@ Asteroid_rock.prototype.explode = function() {
     while (resource_count > 0) {
         var angle  = Math.random() * Math.PI * 2;
         var radius = Math.random() * this.radius * 2;
+		
+		var resources = Resources.get_resources();
+		resources["au"].count = Misc_math.random_number(0, 2);
+		resources["ag"].count = Misc_math.random_number(0, 3);
+		resources["fe"].count = Misc_math.random_number(1, 5);
+		resources["si"].count = Misc_math.random_number(0, 1);
+		
         Universe.objects.push(new Pickupable.Resource_item(
             Math.cos(angle) * radius + this.x,
             Math.sin(angle) * radius + this.y,
-            Misc_math.random_number(0, 2), //au
-            Misc_math.random_number(0, 3), //ag
-            Misc_math.random_number(1, 5), //fe
-            Misc_math.random_number(0, 1)  //si
+            resources
         ));
         resource_count--;
     }

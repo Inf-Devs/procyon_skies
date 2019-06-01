@@ -14,6 +14,7 @@ var Player           = require(__dirname + "/player.js");
 var Universe         = require(__dirname + "/universe.js");
 var Celestial_bodies = require(__dirname + "/celestial_bodies.js");
 var Game_events      = require(__dirname + "/events.js");
+// var Shop             = require(__dirname + "/shop.js");
 
 //set up express resources, assuming running from directory above
 app.use(express.static("./webpage"));

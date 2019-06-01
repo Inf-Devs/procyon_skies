@@ -6,6 +6,7 @@ var Game_events = require(__dirname + "/events.js");
 var Colours     = require(__dirname + "/colours.js");
 var log         = require(__dirname + "/logging.js");
 var Pickupable  = require(__dirname + "/pickupable.js");
+var Resources   = require(__dirname + "/resources.js");
 
 function Player(name, colour, id) {
     this.colour = colour;
@@ -47,12 +48,7 @@ function Player(name, colour, id) {
     this.type         = "player";
     this.score        = 0; // stats!
     
-    this.resources = {
-        "gold": 0,
-        "silver": 0,
-        "iron": 0,
-        "silicon": 0,
-    };
+    this.resources = Resources.get_resources();
 }
 
 Player.prototype.is_body = true;
