@@ -58,7 +58,6 @@ function Player(name, colour, id) {
 Player.prototype.is_body = true;
 Player.prototype.radius  = 7.5;
 
-//Player.prototype.deceleration   = 0.05;
 Player.prototype.engine_thrust  = 0.0005;
 Player.prototype.rotation_speed = 0.003;
 
@@ -169,6 +168,8 @@ Player.prototype.update = function(lapse) {
         }
     });
     
+    this.heal(lapse);
+    
     //now check for other stuff collision...MORE LAG!!!!
     Universe.bodies.forEach((body) => {
         if (body === this) return;
@@ -221,7 +222,7 @@ Player.prototype.do_damage = function(damage, owner) {
 
 Player.prototype.heal = function(lapse) {
     if (this.last_damage > this.heal_delay && this.health < 1) {
-        this.health = math.min(this.health + this.heal_rate * lapse, 1);
+        this.health = Math.min(this.health + this.heal_rate * lapse, 1);
     }
 };
 

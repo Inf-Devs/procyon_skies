@@ -29,6 +29,8 @@ var Players = module.exports = {
 
         return Players.all_ids.map((id) => {
             return Players[id];
+        }).filter((p) => {
+            return p.health > 0 && p.active;
         }).sort(function(a, b) {
             return Misc_math.get_distance(x, y, a.x, a.y) - Misc_math.get_distance(x, y, b.x, b.y);
         })[0];
