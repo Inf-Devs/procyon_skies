@@ -93,6 +93,8 @@ io.on("connection", function(socket) {
             
             Game_events.on("kill", kill_event_listener);
             Game_events.on("leaderboard_update", leaderboard_listener);
+            
+            Game_events.emit("score changed");
         }
         
         player.keys = data.keys;
@@ -123,7 +125,9 @@ io.on("connection", function(socket) {
             io.emit("notification", player.name + " has disconnected.");
             log(player.name + ", " + id + " has disconnected.", "info");
             Players.remove(id);
-
+            
+            Game_events.emit("score changed");
+            
             Game_events.removeListener("kill", kill_event_listener);
             Game_events.removeListener("leaderboard_update", leaderboard_listener);
         }
