@@ -76,8 +76,8 @@ Asteroid_rock.prototype.update = function(lapse) {
             this.x    = body.x + Math.cos(angle) * min_dist;
             this.y    = body.y + Math.sin(angle) * min_dist;
 
-            this.v.x += Math.cos(angle) * (overlap * Universe.friction * 2);
-            this.v.y += Math.sin(angle) * (overlap * Universe.friction * 2);
+            this.v.x += Math.cos(angle) * (overlap * Universe.bounciness * 2);
+            this.v.y += Math.sin(angle) * (overlap * Universe.bounciness * 2);
         }
     });
 };

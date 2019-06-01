@@ -5,6 +5,7 @@ var Universe = {
     width: 1e4, height: 1e4,
     
     friction: 0.00125,
+    bounciness: 0.09,
     
     //objects and accessing them
     objects: [],
