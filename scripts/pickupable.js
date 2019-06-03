@@ -53,11 +53,7 @@ Resource_item.prototype.update = function(lapse) {
 };
 
 Resource_item.prototype.give_to = function(player) {
-	debugger
-    for(key in this.resources)
-	{
-		player.resources[key].count += this.resources[key].count;
-	}
+	player.give_resources(this.resources);
     this.active = false;
 };
 
