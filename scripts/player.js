@@ -47,6 +47,7 @@ function Player(name, colour, id) {
     this.active       = true;
     this.type         = "player";
     this.score        = 0; // stats!
+    this.exhaust      = Math.random() < 0.5 ? Particles.Bubble : Particles.Shrinking_diamond;
     
     this.resources = Resources.get_resources();
 }
@@ -124,7 +125,7 @@ Player.prototype.update = function(lapse) {
     
     //if the thrust key is pressed, make a bubble.
     if (this.keys.up && this.last_exhaust >= this.exhaust_delay) {
-        Universe.objects.push(new Particles.Bubble(this.x, this.y, this.angle + Math.PI, Colours.lighten(this.colour)));
+        Universe.objects.push(new this.exhaust(this.x, this.y, this.angle + Math.PI, Colours.lighten(this.colour)));
         this.last_exhaust = this.last_exhaust % this.exhaust_delay;
     }
     
@@ -259,10 +260,10 @@ Player.prototype.spawn = function(x, y, radius) {
 };
 
 Player.prototype.give_resources = function(resources) {
-	for(var key in resources)
-	{
-		this.resources[key].count += resources[key].count;
-	}
+    for(var key in resources)
+    {
+        this.resources[key].count += resources[key].count;
+    }
     this.update_score("pick up resource");
 };
 

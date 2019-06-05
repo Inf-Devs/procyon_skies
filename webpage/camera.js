@@ -53,6 +53,20 @@ var Camera = {
                     cxt.closePath();
                     cxt.fill();
                     break;
+                case "diamond":
+                    cxt.fillStyle = get_colour(f.colour);
+                    cxt.save();
+                    cxt.translate(draw_x, draw_y);
+                    cxt.beginPath();
+                    cxt.moveTo(0, f.radius);
+                    cxt.lineTo(f.radius, 0);
+                    cxt.lineTo(0, -f.radius);
+                    cxt.lineTo(-f.radius, 0);
+                    cxt.lineTo(0, f.radius);
+                    cxt.closePath();
+                    cxt.fill();
+                    cxt.restore();
+                    break;
                 case "explosion":
                     //draw a circle
                     cxt.fillStyle = get_colour(f.colour, f.alpha);

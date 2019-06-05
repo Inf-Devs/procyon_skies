@@ -37,6 +37,42 @@ Bubble.prototype.update = function(lapse) {
 
 Particles.Bubble = Bubble;
 
+// a shrinking diamond ---------------------------------------------------------
+function Shrinking_diamond(x, y, _, colour) {
+    // _, where the angle would be, is ignored.
+    var angle  = Math.random() * Math.PI * 2;
+    var radius = Math.random() * 3;
+    
+    this.x = Math.cos(angle) * radius + x;
+    this.y = Math.sin(angle) * radius + y;
+    
+    this.max_lifetime = Math.random() * 500 + 1500;
+    
+    this.lifetime = 0;
+    this.active   = true;
+    
+    this.radius = Math.random() * 5;
+    this.base_r = this.radius;
+    this.colour = colour;
+    
+    this.type = "diamond";
+}
+
+Shrinking_diamond.prototype.update = function(lapse) {
+    this.lifetime += lapse;
+    
+    if (this.lifetime >= this.max_lifetime) {
+        //ITS TIME HAS COME!
+        this.active = false;
+        return;
+    }
+    
+    this.radius = (1 - this.lifetime / this.max_lifetime) * this.base_r;
+    this.radius = Math.max(this.radius, 0); //safety
+};
+
+Particles.Shrinking_diamond = Shrinking_diamond;
+
 // EXPLOSIONS! -----------------------------------------------------------------
 function Explosion(x, y, colour, owner) {
     this.x = x;
