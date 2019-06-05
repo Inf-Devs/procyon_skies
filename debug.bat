@@ -1,1 +1,1 @@
-node inspect main.js
+node main.js 7357

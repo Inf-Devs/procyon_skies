@@ -288,7 +288,7 @@ var Info_display = {
 };
 
 function get_colour(c, alpha) {
-    if (alpha) {
+    if (!isNaN(alpha) && alpha >= 0) {
         return "rgba(" + c.r + ", " + c.g + ", " + c.b + ", " + alpha + ")";
     } else {
         return "rgb(" + c.r + ", " + c.g + ", " + c.b + ")";
