@@ -69,6 +69,8 @@ Player.prototype.ammo_replenish_rate = 0.0005;
 Player.prototype.heal_rate           = 0.0000625;
 
 Player.prototype.get_info = function() {
+    var is_invincible = this.invulnerable > 0; //workaround.
+    debugger;
     return {
         name: this.name,
         id: this.id,
@@ -79,7 +81,7 @@ Player.prototype.get_info = function() {
         ammo: this.ammo,
         angle: this.angle,
         score: this.points,
-        invinicible: (this.invulnerable > 0),
+        invincible: is_invincible,
     };
 };
 
@@ -257,6 +259,7 @@ Player.prototype.spawn = function(x, y, radius) {
     this.invulnerable = this.invulnerable_after_spawn;
     
     log(this.name + " has spawned at: " + Math.floor(this.x) + ", " + Math.floor(this.y));
+    log(this.name + " is invulnerable for " + this.invulnerable + " ms.");
 };
 
 Player.prototype.give_resources = function(resources) {

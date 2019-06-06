@@ -190,6 +190,19 @@ var Camera = {
             cxt.moveTo(0, 0); cxt.lineTo(-5, 5); cxt.lineTo(10, 0); cxt.lineTo(-5, -5); cxt.lineTo(0, 0);
             cxt.closePath();
             cxt.fill();
+            
+            if (p.invincible) {
+                //a small bubble shield to show that
+                cxt.fillStyle   = get_colour(p.colour, 0.3);
+                cxt.strokeStyle = get_colour(p.colour);
+                cxt.lineWidth   = 2;
+                cxt.beginPath();
+                cxt.arc(0, 0, 15, 0, Math.PI * 2);
+                cxt.closePath();
+                cxt.fill();
+                cxt.stroke();
+            }
+            
             cxt.restore();
         });
 

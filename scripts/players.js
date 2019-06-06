@@ -55,7 +55,7 @@ var Players = module.exports = {
                 p.y - p.radius < y + width &&
                 p.active
             ) {
-                in_view.push(p);
+                in_view.push(p.get_info());
             }
         });
         
