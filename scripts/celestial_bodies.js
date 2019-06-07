@@ -110,13 +110,13 @@ Asteroid_rock.prototype.explode = function() {
     while (resource_count > 0) {
         var angle  = Math.random() * Math.PI * 2;
         var radius = Math.random() * this.radius * 2;
-		
-		var resources = Resources.get_resources();
-		resources["au"].count = Misc_math.random_number(0, 2);
-		resources["ag"].count = Misc_math.random_number(0, 3);
-		resources["fe"].count = Misc_math.random_number(1, 5);
-		resources["si"].count = Misc_math.random_number(0, 1);
-		
+        
+        var resources = Resources.get_resources();
+        resources["au"].count = Misc_math.random_number(0, 2);
+        resources["ag"].count = Misc_math.random_number(0, 3);
+        resources["fe"].count = Misc_math.random_number(1, 5);
+        resources["si"].count = Misc_math.random_number(0, 1);
+        
         Universe.objects.push(new Pickupable.Resource_item(
             Math.cos(angle) * radius + this.x,
             Math.sin(angle) * radius + this.y,
@@ -163,7 +163,8 @@ function Planet(star, orbit_radius, name, radius) {
     this.orbit_radius = orbit_radius;
     this.radius       = (isNaN(radius) || radius <= 0) ? 32 : radius;
     
-    this.angle = Math.random() * Math.PI * 2;
+    this.angle    = Math.random() * Math.PI * 2;
+    this.rotation = Math.random() * Math.PI * 2;
     
     this.active = true;
     
@@ -188,9 +189,7 @@ Planet.prototype.update = function(lapse) {
     this.rotation += this.rotation_speed * lapse;
 
     //collision
-    Universe.objects.filter((f) => {
-        return f.is_projectile;
-    }).forEach((p) => {
+    Universe.projectiles.forEach((p) => {
         if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
             p.collision();
         }
@@ -217,9 +216,7 @@ Star.prototype.update = function(lapse) {
     //don't do anything, really.
 
     //except check for collision
-    Universe.objects.filter((f) => {
-        return f.is_projectile;
-    }).forEach((p) => {
+    Universe.projectiles.forEach((p) => {
         if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
             p.collision();
         }
