@@ -157,7 +157,8 @@ function Planet(star, orbit_radius, name, radius) {
     this.radius       = (isNaN(radius) || radius <= 0) ? 32 : radius;
     
     this.angle = Math.random() * Math.PI * 2;
-    
+    this.rotation = Math.random() * Math.PI * 2;
+
     this.active = true;
     
     this.update(0);
@@ -181,13 +182,10 @@ Planet.prototype.update = function(lapse) {
     this.rotation += this.rotation_speed * lapse;
 
     //collision
-    Universe.objects.filter((f) => {
-        return f.is_projectile;
-    }).forEach((p) => {
-        if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
-            p.collision();
-        }
-    });
+    Universe.projectiles.forEach((p) => {
+    if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
+        p.collision();
+    }
 };
 
 Celestial_bodies.Planet = Planet;
@@ -210,13 +208,10 @@ Star.prototype.update = function(lapse) {
     //don't do anything, really.
 
     //except check for collision
-    Universe.objects.filter((f) => {
-        return f.is_projectile;
-    }).forEach((p) => {
-        if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
-            p.collision();
-        }
-    });
+    Universe.projectiles.forEach((p) => {
+    if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
+	p.collision();
+    }
 };
 
 Celestial_bodies.Star = Star;
