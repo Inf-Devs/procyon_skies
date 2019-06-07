@@ -1,5 +1,4 @@
 var Players   = require(__dirname + "/players.js");
-var Resources = require(__dirname + "/Resources.js");
 var Misc_math = require(__dirname + "/misc_math.js");
 
 var Pickupable = module.exports = {};
