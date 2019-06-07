@@ -6,7 +6,6 @@ var Game_events = require(__dirname + "/events.js");
 var Colours     = require(__dirname + "/colours.js");
 var log         = require(__dirname + "/logging.js");
 var Pickupable  = require(__dirname + "/pickupable.js");
-var Resources   = require(__dirname + "/resources.js");
 
 function Player(name, colour, id) {
     this.colour = colour;
@@ -30,7 +29,14 @@ function Player(name, colour, id) {
     };
     
     this.weapons = [ Weapons[(Math.random() < 0.1 ? "twin blaster" : "blaster")], Weapons["torpedo"] ];
-
+	
+	// upgrades
+	this.current_upgrades = [];
+	for(var upgrade in this.upgrades)
+	{
+		current_upgrades.push({name:this.upgrades[upgrade].name,count:0,type:this.upgrades[upgrade]});
+	}
+	
     //health related stuff
     this.health      = 1;
     this.last_damage = 0;
@@ -49,7 +55,7 @@ function Player(name, colour, id) {
     this.score        = 0; // stats!
     this.exhaust      = Math.random() < 0.5 ? Particles.Bubble : Particles.Shrinking_diamond;
     
-    this.resources = Resources.get_resources();
+    this.resources = 0;
 }
 
 Player.prototype.is_body = true;
@@ -68,9 +74,33 @@ Player.prototype.heal_delay           = 2000; // 2000 ms for health to start rec
 Player.prototype.ammo_replenish_rate = 0.0005;
 Player.prototype.heal_rate           = 0.0000625;
 
+Player.prototype.base_upgrade_cost = 150;
+Player.prototype.upgrade_cost_factor = 1.0; // adjust 1.0 for base cost, higher for greater cost (and higher grinding!)
+Player.prototype.upgrades_rate = {
+	"health_regen":{
+		name:"health_regen",
+		max: 10,
+	},
+	"engine_thrust":{
+		name:"engine_thrust",
+		max: 5,
+	},
+	"engine_turning":{
+		name:"engine_turning",
+		max: 5,
+	},
+	"damage_resistance":{
+		name:"damage_resistance",
+		max: 10,
+	},
+	"ammo_regen":{
+		name:"ammo_regen",
+		max: 10,
+	},
+};
+
 Player.prototype.get_info = function() {
     var is_invincible = this.invulnerable > 0; //workaround.
-    debugger;
     return {
         name: this.name,
         id: this.id,
@@ -244,6 +274,45 @@ Player.prototype.explode = function() {
     }
 };
 
+Player.prototype.get_total_upgrade_count = function()
+{
+	var count = 0;
+	this.current_upgrades.forEach(upgrade => count += upgrade.count);
+	return count;
+};
+
+
+Player.prototype.get_upgrade_count = function(name)
+{
+	var upgrade = this.current_upgrades.find(function(element){return element.name === name});
+	if(upgrade) return upgrade.count;
+	log(name + " as an upgrade does not exist.");
+	// in case there are no upgrades of the same, return 0 to be sure that there is none of that name.
+	return 0;
+};
+
+Player.prototype.get_upgrade_cost = function()
+{
+	// this is where the fun starts: FORMULAS!
+	var cost = Math.round(this.upgrade_cost_factor * this.base_upgrade_cost * (Math.sqrt(this.get_total_upgrade_count())));
+	return cost;
+};
+
+Player.prototype.buy_upgrade = function(name)
+{
+	// can't use arrow functions for some reason
+	var upgrade = this.current_upgrades.find(function(element){return element.name === name});
+	if(upgrade.count < upgrade.type.max)
+	{
+		var cost = this.get_upgrade_cost();
+		if(this.resources > cost)
+		{
+			this.resources -= cost;
+			upgrade.count += 1;
+		}
+	}
+};
+
 Player.prototype.set_weapon = function(slot, weapon) {
     this.weapons[slot] = weapon;
 };
@@ -263,22 +332,19 @@ Player.prototype.spawn = function(x, y, radius) {
 };
 
 Player.prototype.give_resources = function(resources) {
-    for(var key in resources)
-    {
-        this.resources[key].count += resources[key].count;
-    }
-    this.update_score("pick up resource");
+    this.resources += resources;
+    this.update_score("pick up resource",resources);
 };
 
 Player.prototype.points = {
-    "kill": 10,
-    "destroy asteroid": 3,
-    "pick up resource": 2,
+    "kill": 1000,
+    "destroy asteroid": 30,
+    "pick up resource": 1,
 };
 
-Player.prototype.update_score = function(action) {
+Player.prototype.update_score = function(action,action_count = 1) {
     if (this.points.hasOwnProperty(action)) {
-        this.score += this.points[action];
+        this.score += this.points[action] * action_count;
     }
     
     Game_events.emit("score changed");
