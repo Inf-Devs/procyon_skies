@@ -130,10 +130,10 @@ var Camera = {
                     cxt.lineTo(-4, 3);
                     cxt.lineTo(-7, 0);
                     cxt.lineTo(-4, -3);
-                    cxt.moveTo(3, 5);
-                    cxt.lineTo(0, 2);
-                    cxt.lineTo(-3, 5);
-                    cxt.lineTo(0, 8);
+                    cxt.moveTo(3, -5);
+                    cxt.lineTo(0, -2);
+                    cxt.lineTo(-3, -5);
+                    cxt.lineTo(0, -8);
                     cxt.closePath();
                     cxt.fill();
                     cxt.restore();
