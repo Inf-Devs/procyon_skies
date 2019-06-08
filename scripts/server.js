@@ -68,6 +68,23 @@ io.on("connection", function(socket) {
     var kill_event_listener;
     var leaderboard_listener;
     
+	// incoming ASK from client 
+	// some minor action to be performed
+	socket.on("ask", function(data) {		
+		if(data.action === "buy_upgrade")
+		{
+			if(player.buy_upgrade(data.request.upgrade_name))
+			{
+				socket.emit("upgrades_update",{upgrade_bought:data.request.upgrade_name
+					,next_upgrade_cost:player.get_upgrade_cost()})
+			}
+			else 
+			{
+				socket.emit("notification", "unable to purchase " + data.request.upgrade_name);
+			}
+		}
+	});
+	
     //incoming update from the client
     socket.on("client_update", function(data) {
         if (last_update != null && last_update > data.time) {
@@ -89,12 +106,12 @@ io.on("connection", function(socket) {
             //remember to spawn the player
             player.spawn(Alpha.x, Alpha.y, 48);
             
-            kill_event_listener  = create_kill_listener(player, socket);
-            leaderboard_listener = create_leaderboard_listener(socket);
-            
+            kill_event_listener		= create_kill_listener(player, socket);
+            leaderboard_listener 	= create_leaderboard_listener(socket);
+			
             Game_events.on("kill", kill_event_listener);
             Game_events.on("leaderboard_update", leaderboard_listener);
-            
+			
             Game_events.emit("score changed");
         }
         
@@ -155,7 +172,7 @@ function create_kill_listener(player, socket) {
 function create_leaderboard_listener(socket) {
     return function() {
         socket.emit("leaderboard_update", Leaderboard);
-    }
+    };
 }
 
 var Leaderboard = [];
@@ -163,7 +180,6 @@ var num_scores  = 10;
 
 Game_events.on("score changed", function() {
     Leaderboard = Players.get_highest(num_scores);
-    
     Game_events.emit("leaderboard_update");
 });
 

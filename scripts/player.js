@@ -34,7 +34,7 @@ function Player(name, colour, id) {
     this.current_upgrades = [];
     for(var upgrade in this.upgrades)
     {
-        current_upgrades.push({name:this.upgrades[upgrade].name,count:0,type:this.upgrades[upgrade]});
+        this.current_upgrades.push({name:this.upgrades[upgrade].name,count:0,type:this.upgrades[upgrade]});
     }
     
     //health related stuff
@@ -55,7 +55,7 @@ function Player(name, colour, id) {
     this.score        = 0; // stats!
     this.exhaust      = Math.random() < 0.5 ? Particles.Bubble : Particles.Shrinking_diamond;
     
-    this.resources = 0;
+    this.resources = 1000;
 }
 
 Player.prototype.is_body = true;
@@ -72,11 +72,13 @@ Player.prototype.ammo_replenish_delay = 500; // 500 ms for ammo to start being r
 Player.prototype.heal_delay           = 2000; // 2000 ms for health to start recovering
 
 Player.prototype.ammo_replenish_rate = 0.0005;
-Player.prototype.heal_rate           = 0.0000625;
+Player.prototype.heal_rate           = 0.00000625;
 
 Player.prototype.base_upgrade_cost = 150;
 Player.prototype.upgrade_cost_factor = 1.0; // adjust 1.0 for base cost, higher for greater cost (and higher grinding!)
-Player.prototype.upgrades_rate = {
+
+// name MUST NOT differ from key, use 'display_name' instead
+Player.prototype.upgrades = {
     "health regen":{
         name:"health regen",
         max: 10,
@@ -116,15 +118,20 @@ Player.prototype.get_info = function() {
 };
 
 Player.prototype.update = function(lapse) {
-    //update the angle
-    this.angle += (this.keys.left ? -this.rotation_speed * lapse : 0) + (this.keys.right ? this.rotation_speed * lapse : 0);
-
+    // get some upgrade counts 
+	var engine_thrust_level = this.get_upgrade_count("engine thrust");
+	var engine_turning_level = this.get_upgrade_count("engine turning");
+	//update the angle
+    this.angle = this.angle
+		+ (this.keys.left ? -this.rotation_speed * (1 + 0.1 * engine_turning_level) * lapse : 0) 
+		+ (this.keys.right ? this.rotation_speed * (1 + 0.1 * engine_turning_level) * lapse : 0);
+	
     //get the friction
     var friction = { x: -this.v.x * Universe.friction * lapse, y: -this.v.y * Universe.friction * lapse};
     //get the thrust
     var thrust = {
-        x: this.keys.up ? Math.cos(this.angle) * this.engine_thrust * lapse : 0,
-        y: this.keys.up ? Math.sin(this.angle) * this.engine_thrust * lapse : 0,
+        x: this.keys.up ? Math.cos(this.angle) * this.engine_thrust * (1 + 0.1 * engine_thrust_level) * lapse : 0,
+        y: this.keys.up ? Math.sin(this.angle) * this.engine_thrust * (1 + 0.1 * engine_thrust_level) * lapse : 0,
     };
     
     //...and now add them together!
@@ -224,10 +231,11 @@ Player.prototype.reset_ammo = function() {
 };
 
 Player.prototype.replenish_ammo = function(lapse) {
-    if (this.last_fire >= this.ammo_replenish_delay &&
+	var ammo_regen_level = this.get_upgrade_count("ammo regen");
+    if (this.last_fire >= this.ammo_replenish_delay - (25 * ammo_regen_level) &&
         this.ammo < 1 && !this.keys.weapon1 && !this.keys.weapon2
     ) {
-        this.ammo = Math.min(this.ammo + this.ammo_replenish_rate * lapse, 1);
+        this.ammo = Math.min(this.ammo + this.ammo_replenish_rate * (1 + 0.1 * ammo_regen_level) * lapse, 1);
     }
 };
 
@@ -237,7 +245,12 @@ Player.prototype.do_damage = function(damage, owner) {
         return;
     }
     
-    this.health -= damage;
+	// damage negation due to damage resistance.
+	// limits to 2 so it's not TOO OP
+	var damamge_resistance = 1 + (this.get_upgrade_count("damage resistance")/2);
+	
+	// damage resistance is a sure as hell powerful divisor, can't negate damage but can sure as hell make it harder to kill
+    this.health -= damage / damamge_resistance;
     
     if (this.health <= 0) {
         this.active = false;
@@ -250,8 +263,9 @@ Player.prototype.do_damage = function(damage, owner) {
 };
 
 Player.prototype.heal = function(lapse) {
-    if (this.last_damage > this.heal_delay && this.health < 1) {
-        this.health = Math.min(this.health + this.heal_rate * lapse, 1);
+	var health_regen_level = this.get_upgrade_count("health regen");
+    if (this.last_damage > this.heal_delay - (100*health_regen_level) && this.health < 1) {
+        this.health = Math.min(this.health + this.heal_rate * lapse * (1+health_regen_level), 1);
     }
 };
 
@@ -294,14 +308,17 @@ Player.prototype.get_upgrade_count = function(name)
 Player.prototype.get_upgrade_cost = function()
 {
     // this is where the fun starts: FORMULAS!
-    var cost = Math.round(this.upgrade_cost_factor * this.base_upgrade_cost * (Math.sqrt(this.get_total_upgrade_count())));
+    var cost = Math.round(this.upgrade_cost_factor * this.base_upgrade_cost * (Math.sqrt(this.get_total_upgrade_count()+1)));
     return cost;
 };
 
 Player.prototype.buy_upgrade = function(name)
 {
     // can't use arrow functions for some reason
+	// checking to prevent client abuse bloody crashing the server
     var upgrade = this.current_upgrades.find(function(element){return element.name === name});
+	if(!upgrade) return false;
+	
     if(upgrade.count < upgrade.type.max)
     {
         var cost = this.get_upgrade_cost();
@@ -309,8 +326,10 @@ Player.prototype.buy_upgrade = function(name)
         {
             this.resources -= cost;
             upgrade.count += 1;
+			return true;
         }
     }
+	return false;
 };
 
 Player.prototype.set_weapon = function(slot, weapon) {
@@ -338,7 +357,7 @@ Player.prototype.give_resources = function(resources) {
 
 Player.prototype.points = {
     "kill": 1000,
-    "destroy asteroid": 30,
+    "destroy asteroid": 15,
     "pick up resource": 1,
 };
 
