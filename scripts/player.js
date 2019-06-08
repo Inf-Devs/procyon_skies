@@ -29,14 +29,14 @@ function Player(name, colour, id) {
     };
     
     this.weapons = [ Weapons[(Math.random() < 0.1 ? "twin blaster" : "blaster")], Weapons["torpedo"] ];
-	
-	// upgrades
-	this.current_upgrades = [];
-	for(var upgrade in this.upgrades)
-	{
-		current_upgrades.push({name:this.upgrades[upgrade].name,count:0,type:this.upgrades[upgrade]});
-	}
-	
+    
+    // upgrades
+    this.current_upgrades = [];
+    for(var upgrade in this.upgrades)
+    {
+        current_upgrades.push({name:this.upgrades[upgrade].name,count:0,type:this.upgrades[upgrade]});
+    }
+    
     //health related stuff
     this.health      = 1;
     this.last_damage = 0;
@@ -77,26 +77,26 @@ Player.prototype.heal_rate           = 0.0000625;
 Player.prototype.base_upgrade_cost = 150;
 Player.prototype.upgrade_cost_factor = 1.0; // adjust 1.0 for base cost, higher for greater cost (and higher grinding!)
 Player.prototype.upgrades_rate = {
-	"health_regen":{
-		name:"health_regen",
-		max: 10,
-	},
-	"engine_thrust":{
-		name:"engine_thrust",
-		max: 5,
-	},
-	"engine_turning":{
-		name:"engine_turning",
-		max: 5,
-	},
-	"damage_resistance":{
-		name:"damage_resistance",
-		max: 10,
-	},
-	"ammo_regen":{
-		name:"ammo_regen",
-		max: 10,
-	},
+    "health regen":{
+        name:"health regen",
+        max: 10,
+    },
+    "engine thrust":{
+        name:"engine thrust",
+        max: 5,
+    },
+    "engine turning":{
+        name:"engine turning",
+        max: 5,
+    },
+    "damage resistance":{
+        name:"damage resistance",
+        max: 10,
+    },
+    "ammo regen":{
+        name:"ammo regen",
+        max: 10,
+    },
 };
 
 Player.prototype.get_info = function() {
@@ -276,41 +276,41 @@ Player.prototype.explode = function() {
 
 Player.prototype.get_total_upgrade_count = function()
 {
-	var count = 0;
-	this.current_upgrades.forEach(upgrade => count += upgrade.count);
-	return count;
+    var count = 0;
+    this.current_upgrades.forEach(upgrade => count += upgrade.count);
+    return count;
 };
 
 
 Player.prototype.get_upgrade_count = function(name)
 {
-	var upgrade = this.current_upgrades.find(function(element){return element.name === name});
-	if(upgrade) return upgrade.count;
-	log(name + " as an upgrade does not exist.");
-	// in case there are no upgrades of the same, return 0 to be sure that there is none of that name.
-	return 0;
+    var upgrade = this.current_upgrades.find(function(element){return element.name === name});
+    if(upgrade) return upgrade.count;
+    log(name + " as an upgrade does not exist.");
+    // in case there are no upgrades of the same, return 0 to be sure that there is none of that name.
+    return 0;
 };
 
 Player.prototype.get_upgrade_cost = function()
 {
-	// this is where the fun starts: FORMULAS!
-	var cost = Math.round(this.upgrade_cost_factor * this.base_upgrade_cost * (Math.sqrt(this.get_total_upgrade_count())));
-	return cost;
+    // this is where the fun starts: FORMULAS!
+    var cost = Math.round(this.upgrade_cost_factor * this.base_upgrade_cost * (Math.sqrt(this.get_total_upgrade_count())));
+    return cost;
 };
 
 Player.prototype.buy_upgrade = function(name)
 {
-	// can't use arrow functions for some reason
-	var upgrade = this.current_upgrades.find(function(element){return element.name === name});
-	if(upgrade.count < upgrade.type.max)
-	{
-		var cost = this.get_upgrade_cost();
-		if(this.resources > cost)
-		{
-			this.resources -= cost;
-			upgrade.count += 1;
-		}
-	}
+    // can't use arrow functions for some reason
+    var upgrade = this.current_upgrades.find(function(element){return element.name === name});
+    if(upgrade.count < upgrade.type.max)
+    {
+        var cost = this.get_upgrade_cost();
+        if(this.resources > cost)
+        {
+            this.resources -= cost;
+            upgrade.count += 1;
+        }
+    }
 };
 
 Player.prototype.set_weapon = function(slot, weapon) {

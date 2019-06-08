@@ -242,6 +242,7 @@ function Grenade(x, y, angle, colour, owner) {
     this.active   = true;
     this.lifetime = 0;
     this.owner    = owner;
+    this.type     = "grenade";
 }
 
 Grenade.prototype.max_lifetime = 3000;
@@ -272,9 +273,25 @@ Grenade.prototype.update = function(lapse) {
     this.y += this.v.y * lapse;
     
     //add collision detection
+    Universe.bodies.forEach((body) => {
+        if (body === this) return;
+
+        var min_dist = this.radius + body.radius;
+        var overlap  = min_dist - Misc_math.get_distance(this.x, this.y, body.x, body.y);
+
+        if (overlap > 0) {
+            //push it away
+            var angle = Misc_math.get_angle(this, body) + Math.PI;
+            this.x    = body.x + Math.cos(angle) * min_dist;
+            this.y    = body.y + Math.sin(angle) * min_dist;
+
+            this.v.x += Math.cos(angle) * (overlap * Universe.bounciness * 2);
+            this.v.y += Math.sin(angle) * (overlap * Universe.bounciness * 2);
+        }
+    });
 };
 
 Grenade.prototype.explode = function(lapse) {
     //KABOOM!
-    Universe.objects.push(new Particles.Explosion(this.x, this.y, this.colour));
+    Universe.objects.push(new Particles.Explosion(this.x, this.y, this.colour, this.owner));
 };

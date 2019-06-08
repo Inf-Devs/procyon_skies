@@ -20,6 +20,7 @@ function Asteroid_rock(x, y, size) {
     this.active = true;
     this.type   = "asteroid";
     
+    this.rotation   = Math.random() * Math.PI * 2;
     this.rotate_dir = Math.random() < 0.5 ? 1 : -1;
 }
 
@@ -109,7 +110,7 @@ Asteroid_rock.prototype.explode = function() {
     while (resource_count > 0) {
         var angle  = Math.random() * Math.PI * 2;
         var radius = Math.random() * this.radius * 2;
-		
+        
         Universe.objects.push(new Pickupable.Resource_item(
             Math.cos(angle) * radius + this.x,
             Math.sin(angle) * radius + this.y,
@@ -156,7 +157,7 @@ function Planet(star, orbit_radius, name, radius) {
     this.orbit_radius = orbit_radius;
     this.radius       = (isNaN(radius) || radius <= 0) ? 32 : radius;
     
-    this.angle = Math.random() * Math.PI * 2;
+    this.angle    = Math.random() * Math.PI * 2;
     this.rotation = Math.random() * Math.PI * 2;
 
     this.active = true;
@@ -183,9 +184,10 @@ Planet.prototype.update = function(lapse) {
 
     //collision
     Universe.projectiles.forEach((p) => {
-    if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
-        p.collision();
-    }
+        if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
+            p.collision();
+        }
+    });
 };
 
 Celestial_bodies.Planet = Planet;
@@ -199,19 +201,70 @@ function Star(name, x, y) {
 
     this.x = x;
     this.y = y;
+    
+    this.points = this.point_angles.map((a) => {
+        return new Point(this.x, this.y, a, this.radius);
+    });
 }
 
 Star.prototype.is_body = true;
 Star.prototype.radius  = 125;
 
+Star.prototype.point_angles = [
+    0, Math.PI / 4, Math.PI / 2,  3 * Math.PI / 4, Math.PI,
+    5 * Math.PI / 4, 3 * Math.PI / 2, 7 * Math.PI / 4
+];
+
 Star.prototype.update = function(lapse) {
     //don't do anything, really.
 
-    //except check for collision
+    //except for update points...
+    
+    this.points.forEach((f) => {
+        f.update(lapse);
+    });
+    
+    //...and check for collision
     Universe.projectiles.forEach((p) => {
-    if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
-	p.collision();
-    }
+        if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
+            p.collision();
+        }
+    });
 };
 
 Celestial_bodies.Star = Star;
+
+//helper object ----------------------------------------------------------------
+function Point(centre_x, centre_y, angle, radius) {
+    this.centre = { x: centre_x, y: centre_y, radius: radius};
+    this.angle  = angle;
+    
+    this.x = null;
+    this.y = null;
+    
+    this.time = 0;
+    
+    this.radius_function = this.create_function(Misc_math.random_number(15, 45));
+    
+    this.radius = null;
+    
+    this.update(0);
+}
+
+Point.prototype.create_function = function(num) {
+    //sinusoidals!
+    return function(time) {
+        return 15 * Math.sin(Math.PI * time / 1000 + num) + 30;
+    };
+};
+
+Point.prototype.update= function(lapse) {
+    this.time += lapse;
+    
+    //recalculate radius
+    this.radius = this.radius_function(this.time);
+    
+    //recalculate x and y
+    this.x = Math.cos(this.angle) * (this.radius + this.centre.radius);// + this.centre.x;
+    this.y = Math.sin(this.angle) * (this.radius + this.centre.radius);// + this.centre.y;
+};

@@ -101,6 +101,8 @@ var Camera = {
                     cxt.fill();
                     cxt.restore();
                     break;
+                case "grenade":
+                    break;
                 case "asteroid":
                     cxt.save();
                     cxt.translate(draw_x, draw_y);
@@ -158,6 +160,18 @@ var Camera = {
                     cxt.restore();
                     break;
                 case "star":
+                    cxt.fillStyle = "orangeRed";
+                    cxt.save();
+                    cxt.translate(draw_x, draw_y);
+                    cxt.beginPath();
+                    cxt.moveTo(f.points[0].x, f.points[0].y);
+                    f.points.forEach((g) => {
+                        cxt.lineTo(g.x, g.y);
+                    });
+                    cxt.closePath();
+                    cxt.fill();
+                    cxt.restore();
+                
                     cxt.fillStyle = "orange";
                     cxt.beginPath();
                     cxt.arc(draw_x, draw_y, f.radius, 0, Math.PI * 2);
