@@ -123,6 +123,7 @@ var Camera = {
                     cxt.fillStyle = get_colour(Game.colour);
                     cxt.save();
                     cxt.translate(draw_x, draw_y);
+                    cxt.scale(Math.cos(f.rotation), 1); //BLING BLING BLING
                     cxt.beginPath();
                     cxt.moveTo(1, 0);
                     cxt.lineTo(4, 3);
@@ -166,7 +167,9 @@ var Camera = {
                     cxt.beginPath();
                     cxt.moveTo(f.points[0].x, f.points[0].y);
                     f.points.forEach((g) => {
-                        cxt.lineTo(g.x, g.y);
+                        var x = Math.cos(g.angle - Math.PI / 4) * f.radius;
+                        var y = Math.sin(g.angle - Math.PI / 4) * f.radius;
+                        cxt.quadraticCurveTo(x, y, g.x, g.y);
                     });
                     cxt.closePath();
                     cxt.fill();
