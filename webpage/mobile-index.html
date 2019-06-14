@@ -3,69 +3,17 @@
     <head>
         <title>Space for everyone!</title>
         <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet" />
-        <link href="mobile-manifest.json" rel="manifest" />
+        <link href="mobile-stylesheet.css" rel="stylesheet" />
+        <!--<link href="mobile-manifest.json" rel="manifest" />-->
         <meta charset="utf-8" />
-        <style>
-            body {
-                background-color: rgb(38, 38, 38);
-                color: white;
-                padding: 0px;
-                /* WILL BE MODIFIED BY JAVASCRIPT */
-                border-color: white;
-                border-width: 1px;
-                border-style: solid;
-            }
-            
-            canvas {
-                position: absolute;
-                top: 0px; left: 0px;
-                background-color: black;
-                text-align: center;
-            }
-            
-            canvas#viewport {
-                
-            }
-            
-            /* should mobile have a minimap? i'd say for now, no*/
-            
-            /*
-                for reference: an iPhone 5 has a screen resolution of 1136 by 640 pixels
-                that's a 4-inch or 10-cm screen, 16:9 screen ratio.
-            */
-            
-            canvas#status_panel {
-                position: absolute;
-                top: 5px; left: 5px;
-                width: 160px; height: 65px;
-                opacity: 0.8;
-            }
-            
-            /* incomplete, will finish. */
-            
-            #leaderboard {
-                
-            }
-            
-            .notification {
-                
-            }
-            
-            /* UNIQUE TO MOBILE */
-            #d-pad {
-                
-            }
-            
-            .weapon-button {
-                opacity: 0.8;
-            }
-        </style>
     </head>
     <body>
+        <!--
         <script>
             //lock the screen, as if the mainfest didn't already.
             screen.orientation.lock("landscape");
         </script>
+        -->
         <!-- WILL FINISH THE REST -->
         <canvas id="viewport"></canvas>
     </body>
