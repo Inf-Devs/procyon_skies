@@ -105,6 +105,8 @@ div#infos {
 #upgrades_panel button {
     height: 20px;
     font-size: 15pt;
+    border: inherit;
+    background-color: inherit;
 }
 
 #upgrades_panel progress {
