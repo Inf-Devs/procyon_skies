@@ -68,13 +68,6 @@ function keyup_handler(e) {
 }
 
 function send_update() {
-    //data to send:
-    //    [x] player's name
-    //    [x] player's id
-    //    [x] player's colour
-    //    [x] player's keys' states
-    //    [x] the time
-    //    [x] the viewport's size
     socket.emit("client_update", {
         name: Game.name,
         id: Game.id,
@@ -85,10 +78,22 @@ function send_update() {
     });
 }
 
+// for minor requests
+function send_ask(action,request) {
+	socket.emit("ask",{action:action,request:request});
+}
+
 var last_update = null;
 
 function receive_update(data) {
-    if (data.time < last_update && last_update != null) {
+	// for initializing certain HTML elements 
+	if (last_update === null)
+	{
+		var player = data.player;
+		Upgrades_display.init(player.current_upgrades);
+	}
+	
+    if (data.time < last_update && last_update !== null) {
         //we got an earlier update, so just ignore it.
         return;
     }
@@ -100,9 +105,12 @@ function receive_update(data) {
     Camera.offset_x = data.offset.x;
     Camera.offset_y = data.offset.y;
     
+	//update infos
     Info_display.health = data.health;
     Info_display.ammo   = data.ammo;
-    
+	
+	resource_counter.innerHTML = "resources: " + data.player.resources;
+		
     playing = true;
 }
 
@@ -137,7 +145,7 @@ function on_kill() {
     //to-do:
     
     kills++;
-    document.getElementById("infos").innerHTML = "kills: " + kills;
+    kill_counter.innerHTML = "kills: " + kills;
 }
 
 function update_leaderboard(data) {

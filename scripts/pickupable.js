@@ -7,7 +7,8 @@ function Resource_item(x, y, resources) {
     this.x = x;
     this.y = y;
     
-	this.resources = resources;
+    this.resources = resources;
+    this.rotation  = Math.random() * Math.PI * 2;
     
     this.visible  = true;
     this.lifetime = 0;
@@ -20,6 +21,7 @@ Resource_item.prototype.start_flash  = 5000;
 Resource_item.prototype.max_lifetime = 1e4;
 
 Resource_item.prototype.attraction_radius = 25;
+Resource_item.prototype.rotation_speed    = 0.004;
 
 Resource_item.prototype.speed  = 0.007;
 Resource_item.prototype.radius = 3;
@@ -30,6 +32,8 @@ Resource_item.prototype.update = function(lapse) {
         this.active = false;
         return;
     }
+    
+    this.rotation += this.rotation_speed * lapse;
     
     if (this.lifetime >= this.start_flash) {
         var is_visible = Math.floor((this.lifetime - this.start_flash) / this.flash_delay);
@@ -52,7 +56,7 @@ Resource_item.prototype.update = function(lapse) {
 };
 
 Resource_item.prototype.give_to = function(player) {
-	player.give_resources(this.resources);
+    player.give_resources(this.resources);
     this.active = false;
 };
 
