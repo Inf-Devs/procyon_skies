@@ -16,7 +16,7 @@ canvas {
 }
 
 canvas#viewport {
-    
+    /* fills the entire screen */
 }
 
 /* should mobile have a minimap? i'd say for now, no*/
@@ -60,11 +60,17 @@ canvas#status_panel {
 
 .weapon-button {
     margin: 0px;
-    border: 1px solid white;
+    border: 1px solid white; /* will be modified by Javascript */
     opacity: 0.8;
+    width: 65px; height: 65px;
 }
 
 #weapon_1 {
     position: relative;
-    left: 
+    left: 5px; bottom: 5px;
+}
+
+#weapon2 {
+    position: relative;
+    top: 5px; right: 5px;
 }
