@@ -3,10 +3,30 @@ function form_submit(event) {
     event.preventDefault();
     //get ready for callback hell, y'all!
     
+	// get the control scheme
+	var control_scheme = form.controls.value;
+	if (control_scheme === "WASD")
+	{
+		key_codes[87] = "up";
+		key_codes[65] = "left";
+		key_codes[83] = "down";
+		key_codes[68] = "right";
+		key_codes[188] = "weapon1";
+		key_codes[190] = "weapon2";
+	}
+	else 
+	{
+		key_codes[37] = "left";
+		key_codes[38] = "up";
+		key_codes[39] = "right";
+		key_codes[40] = "down";
+		key_codes[90] = "weapon1";
+		key_codes[88] = "weapon2";
+	}
     //get the submitted name
     var name = form.name_field.value;
     log("submitted name: " + name);
-    
+	
     //make sure a valid name is entered
     if (name.trim() == "") name = "anonymous";
     
@@ -49,15 +69,18 @@ function post_request_handler(req, callback) {
 //  90: z (blasters)
 //  88: x (torpedos)
 //  67: c (unused)
+
+// other reference 
+// 87: w
+// 65: a
+// 83: s
+// 68: d
+// 188: ,
+// 190: .
+// 191: /
 var key_codes = (function() {
-    var a = [90];
-    a[37] = "left";
-    a[38] = "up";
-    a[39] = "right";
-    a[40] = "down";
-    a[90] = "weapon1";
-    a[88] = "weapon2";
-    return a;
+    var action = {};
+    return action;
 })();
 function keydown_handler(e) {
     Game.keys[key_codes[e.keyCode]] = true;

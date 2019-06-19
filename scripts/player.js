@@ -50,11 +50,11 @@ function Player(name, colour, id) {
 
     //miscellaneous
     this.last_exhaust = 0;
-    this.active       = true;
+    this.last_orbit = 0;
+	this.active       = true;
     this.type         = "player";
     this.score        = 0; // stats!
     this.exhaust      = Math.random() < 0.5 ? Particles.Bubble : Particles.Shrinking_diamond;
-    
     this.resources = 1000;
 }
 
@@ -157,6 +157,7 @@ Player.prototype.update = function(lapse) {
     this.last_fire    += lapse;
     this.last_exhaust += lapse;
     this.last_damage  += lapse;
+    this.last_orbit  += lapse;
     this.invulnerable -= lapse;
     
     //safeguard
