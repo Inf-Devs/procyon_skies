@@ -59,8 +59,9 @@ function Player(name, colour, id) {
     this.resources    = 1000;
 }
 
-Player.prototype.is_body = true;
-Player.prototype.radius  = 7.5;
+Player.prototype.is_body    = true;
+Player.prototype.radius     = 7.5;
+Player.prototype.bounciness = 0.004;
 
 Player.prototype.engine_thrust  = 0.0005;
 Player.prototype.rotation_speed = 0.003;
@@ -72,6 +73,8 @@ Player.prototype.base_rotation_speed = 0.003;
 Player.prototype.exhaust_delay = 125; // 125 ms for each exhuast bubble
 
 Player.prototype.invulnerable_after_spawn = 5000;
+
+Player.prototype.collision_damage = 0.03;
 
 Player.prototype.ammo_replenish_delay = 500; // 500 ms for ammo to start being replenished
 Player.prototype.heal_delay           = 2000; // 2000 ms for health to start recovering
@@ -233,11 +236,11 @@ Player.prototype.update = function(lapse) {
         if (overlap > 0) {
             //push it away
             var angle = Misc_math.get_angle(this, body) + Math.PI;
-            this.x    = body.x + Math.cos(angle) * min_dist;
-            this.y    = body.y + Math.sin(angle) * min_dist;
-
-            this.v.x += Math.cos(angle) * (overlap * Universe.bounciness * 2);
-            this.v.y += Math.sin(angle) * (overlap * Universe.bounciness * 2);
+            
+            //this.do_damage(this.collision_damage);
+            
+            this.v.x += Math.cos(angle) * (overlap * this.bounciness * 2);
+            this.v.y += Math.sin(angle) * (overlap * this.bounciness * 2);
         }
     });
 };
@@ -370,7 +373,7 @@ Player.prototype.spawn = function(x, y, radius) {
 };
 
 Player.prototype.enter_planet = function(planet) {
-    
+    this.is_at_planet = true;
 };
 
 Player.prototype.give_resources = function(resources) {

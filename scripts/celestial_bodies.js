@@ -31,6 +31,7 @@ Asteroid_rock.prototype.is_body = true;
 
 Asteroid_rock.prototype.drift_speed  = 0.02;
 Asteroid_rock.prototype.rotate_speed = 0.0003;
+Asteroid_rock.prototype.bounciness   = 0.005;
 
 Asteroid_rock.prototype.freeze_radius = 1000;
 
@@ -74,11 +75,9 @@ Asteroid_rock.prototype.update = function(lapse) {
         if (overlap > 0) {
             //push it away
             var angle = Misc_math.get_angle(this, body) + Math.PI;
-            this.x    = body.x + Math.cos(angle) * min_dist;
-            this.y    = body.y + Math.sin(angle) * min_dist;
 
-            this.v.x += Math.cos(angle) * (overlap * Universe.bounciness * 2);
-            this.v.y += Math.sin(angle) * (overlap * Universe.bounciness * 2);
+            this.v.x += Math.cos(angle) * (overlap * this.bounciness * 2);
+            this.v.y += Math.sin(angle) * (overlap * this.bounciness * 2);
         }
     });
 };
