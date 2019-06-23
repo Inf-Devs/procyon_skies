@@ -14,6 +14,10 @@ var Game = {
     },
 };
 
+// UI elements 
+var kill_counter;
+var resource_counter;
+
 //game setup
 function setup_game() {
     //specifically: start a connection, update, then start when the information comes
@@ -32,7 +36,8 @@ function setup_game() {
     socket.on("death", on_death);
     socket.on("kill", on_kill);
     socket.on("leaderboard_update", update_leaderboard);
-    
+    socket.on("upgrades_update", Upgrades_display.receive_buy_update);
+	
     //set up the main canvas
     document.body.appendChild(canvas);
     Camera.resize();
@@ -57,6 +62,7 @@ function setup_game() {
     restart_button.style.borderColor    = get_colour(Game.colour);
     restart_button.onclick = function() {location.reload()};
     restart_box.appendChild(restart_button);
+	
     //set up the mini map and infos
     var mini_map               = document.createElement("canvas");
     mini_map.id                = "mini_map";
@@ -69,12 +75,21 @@ function setup_game() {
     document.body.appendChild(status);
     
     var info               = document.createElement("div");
-    info.innerHTML         = "kills: 0";
     info.id                = "infos";
     info.style.borderColor = get_colour(Game.colour);
     info.style.color       = get_colour(Game.colour);
     document.body.appendChild(info);
     
+	kill_counter 		= document.createElement("div");
+	kill_counter.innerHTML 	= "kills: 0";
+	kill_counter.id			= "kill_counter";
+	info.appendChild(kill_counter);
+	
+	resource_counter 		= document.createElement("div");
+	resource_counter.innerHTML 	= "resources: 0";
+	resource_counter.id			= "resource_counter";
+	info.appendChild(resource_counter);
+	
     var leaderboard                 = document.createElement("div");
     leaderboard.innerHTML           = "<h1>Top Players</h1>";
     leaderboard.id                  = "leaderboard";
@@ -84,5 +99,13 @@ function setup_game() {
     
     Info_display.init(mini_map, status);
     
+	// upgrades
+	var upgrades_panel					= document.createElement("div");
+	upgrades_panel.innerHTML			= "<h1>Upgrades</h1>";
+	upgrades_panel.id					= "upgrades_panel";
+	upgrades_panel.style.borderColor	= get_colour(Game.colour);
+    upgrades_panel.style.color			= get_colour(Game.colour);
+	document.body.appendChild(upgrades_panel);
+	
     requestAnimationFrame(animate);
 }

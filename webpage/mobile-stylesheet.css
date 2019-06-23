@@ -1,0 +1,76 @@
+body {
+    background-color: rgb(38, 38, 38);
+    color: white;
+    padding: 0px;
+    /* WILL BE MODIFIED BY JAVASCRIPT */
+    border-color: white;
+    border-width: 1px;
+    border-style: solid;
+}
+
+canvas {
+    position: absolute;
+    top: 0px; left: 0px;
+    background-color: black;
+    text-align: center;
+}
+
+canvas#viewport {
+    /* fills the entire screen */
+}
+
+/* should mobile have a minimap? i'd say for now, no*/
+
+/*
+for reference: an iPhone 5 has a screen resolution of 1136 by 640 pixels
+that's a 4-inch or 10-cm screen, 16:9 screen ratio.
+*/
+
+canvas#status_panel {
+    position: absolute;
+    top: 5px; left: 5px;
+    width: 160px; height: 65px;
+    opacity: 0.8;
+}
+
+/* incomplete, will finish. */
+
+#leaderboard {
+    
+}
+
+.notification {
+    
+}
+
+/* UNIQUE TO MOBILE */
+#d-pad {
+    position: absolute;
+    left: 5px; bottom: 5px;
+    width: 125px; height: 125px;
+}
+
+#weapon-button-container {
+    position: absolute;
+    right: 5px; bottom: 5px;
+    width: 125px; height: 125px;
+    padding: 0px;
+    border: none;
+}
+
+.weapon-button {
+    margin: 0px;
+    border: 1px solid white; /* will be modified by Javascript */
+    opacity: 0.8;
+    width: 65px; height: 65px;
+}
+
+#weapon_1 {
+    position: relative;
+    left: 5px; bottom: 5px;
+}
+
+#weapon2 {
+    position: relative;
+    top: 5px; right: 5px;
+}

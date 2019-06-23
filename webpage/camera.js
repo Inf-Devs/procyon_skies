@@ -123,6 +123,7 @@ var Camera = {
                     cxt.fillStyle = get_colour(Game.colour);
                     cxt.save();
                     cxt.translate(draw_x, draw_y);
+                    cxt.scale(Math.cos(f.rotation), 1); //BLING BLING BLING
                     cxt.beginPath();
                     cxt.moveTo(1, 0);
                     cxt.lineTo(4, 3);
@@ -166,7 +167,9 @@ var Camera = {
                     cxt.beginPath();
                     cxt.moveTo(f.points[0].x, f.points[0].y);
                     f.points.forEach((g) => {
-                        cxt.lineTo(g.x, g.y);
+                        var x = Math.cos(g.angle - Math.PI / 4) * f.radius;
+                        var y = Math.sin(g.angle - Math.PI / 4) * f.radius;
+                        cxt.quadraticCurveTo(x, y, g.x, g.y);
                     });
                     cxt.closePath();
                     cxt.fill();
@@ -326,6 +329,66 @@ var Info_display = {
 
         this.status_context.restore();
     },
+};
+
+// upgrade handler 
+var Upgrades_display = {
+	panel: null,
+	cost_display: null,
+	upgrade_panels: {},
+	
+	current_upgrades: {},
+	init: function(upgrades)
+	{
+		var current_upgrades = Upgrades_display.current_upgrades;
+		var panel = Upgrades_display.panel = document.getElementById("upgrades_panel");
+		var upgrade_panels = Upgrades_display.upgrade_panels;
+		
+		var cost_display = Upgrades_display.cost_display = document.createElement("div");
+		cost_display.innerHTML = "<p>150 resources</p>";
+		panel.appendChild(cost_display);
+		
+		upgrades.forEach(upgrade => 
+			{
+				current_upgrades[upgrade.name] = {count:0,max:upgrade.type.max}
+				
+				// set it all up for each row
+				upgrade_panels[upgrade.name] = {panel:document.createElement("div")};
+				upgrade_panels[upgrade.name].panel.innerHTML = "<p>"+ upgrade.name +"</p>";
+				panel.appendChild(upgrade_panels[upgrade.name].panel);
+				
+				// now add in the upgrade fullness
+				var upgrade_progress = upgrade_panels[upgrade.name].upgrade_progress = document.createElement("progress");
+				upgrade_progress.setAttribute("value",0);
+				upgrade_progress.setAttribute("max",upgrade.type.max);
+				upgrade_panels[upgrade.name].panel.appendChild(upgrade_progress);
+				// buttons
+				var upgrade_button = upgrade_panels[upgrade.name].upgrade_button = document.createElement("button");
+				upgrade_button.setAttribute("onClick", "Upgrades_display.send_buy_request('" + upgrade.name + "');"); // SUPER SKETCHY WAY TO DO THIS
+				upgrade_button.innerHTML = "+";
+				upgrade_button.style.borderColor = get_colour(Game.colour);
+				upgrade_button.style.color       = get_colour(Game.colour);
+				upgrade_panels[upgrade.name].panel.appendChild(upgrade_button);
+			});
+		
+	},
+	
+	send_buy_request: function(name)
+	{
+		var upgrade = Upgrades_display.current_upgrades[name];
+		// decrease clutter
+		if(upgrade.count < upgrade.max)
+		{
+			send_ask("buy_upgrade",{upgrade_name:name});
+		}
+	},
+	
+	receive_buy_update: function(data)
+	{
+		Upgrades_display.current_upgrades[data.upgrade_bought].count += 1;
+		Upgrades_display.upgrade_panels[data.upgrade_bought].upgrade_progress.setAttribute("value",Upgrades_display.current_upgrades[data.upgrade_bought].count);
+		Upgrades_display.cost_display.innerHTML = "<p>" + data.next_upgrade_cost + " resources</p>";
+	},
 };
 
 function get_colour(c, alpha) {
