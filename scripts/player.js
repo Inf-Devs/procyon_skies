@@ -50,12 +50,13 @@ function Player(name, colour, id) {
 
     //miscellaneous
     this.last_exhaust = 0;
-    this.last_orbit = 0;
-	this.active       = true;
+    this.last_orbit   = 0;
+    this.is_at_planet = true;
+    this.active       = true;
     this.type         = "player";
     this.score        = 0; // stats!
     this.exhaust      = Math.random() < 0.5 ? Particles.Bubble : Particles.Shrinking_diamond;
-    this.resources = 1000;
+    this.resources    = 1000;
 }
 
 Player.prototype.is_body = true;
@@ -63,6 +64,10 @@ Player.prototype.radius  = 7.5;
 
 Player.prototype.engine_thrust  = 0.0005;
 Player.prototype.rotation_speed = 0.003;
+
+//for calculating with upgrades
+Player.prototype.base_engine_thrust  = 0.0005;
+Player.prototype.base_rotation_speed = 0.003;
 
 Player.prototype.exhaust_delay = 125; // 125 ms for each exhuast bubble
 
@@ -74,8 +79,18 @@ Player.prototype.heal_delay           = 2000; // 2000 ms for health to start rec
 Player.prototype.ammo_replenish_rate = 0.0005;
 Player.prototype.heal_rate           = 0.00000625;
 
+//for calculating with upgrades
+Player.prototype.base_ammo_replenish_delay = 500; // 500 ms for ammo to start being replenished
+Player.prototype.base_heal_delay           = 2000; // 2000 ms for health to start recovering
+
+Player.prototype.base_ammo_replenish_rate = 0.0005;
+Player.prototype.base_heal_rate           = 0.00000625;
+Player.prototype.base_damage_resistance   = 1; // take full damage
+
 Player.prototype.base_upgrade_cost = 150;
 Player.prototype.upgrade_cost_factor = 1.0; // adjust 1.0 for base cost, higher for greater cost (and higher grinding!)
+
+Player.prototype.orbit_cooldown = 1e4; //ten seconds to switching between planet and space
 
 // name MUST NOT differ from key, use 'display_name' instead
 Player.prototype.upgrades = {
@@ -118,14 +133,19 @@ Player.prototype.get_info = function() {
 };
 
 Player.prototype.update = function(lapse) {
+    if (this.is_at_planet) {
+        //player is at planet, no need to update
+        return;
+    }
+    
     // get some upgrade counts 
-	var engine_thrust_level = this.get_upgrade_count("engine thrust");
-	var engine_turning_level = this.get_upgrade_count("engine turning");
-	//update the angle
+    var engine_thrust_level = this.get_upgrade_count("engine thrust");
+    var engine_turning_level = this.get_upgrade_count("engine turning");
+    //update the angle
     this.angle = this.angle
-		+ (this.keys.left ? -this.rotation_speed * (1 + 0.1 * engine_turning_level) * lapse : 0) 
-		+ (this.keys.right ? this.rotation_speed * (1 + 0.1 * engine_turning_level) * lapse : 0);
-	
+        + (this.keys.left ? -this.rotation_speed * (1 + 0.1 * engine_turning_level) * lapse : 0) 
+        + (this.keys.right ? this.rotation_speed * (1 + 0.1 * engine_turning_level) * lapse : 0);
+    
     //get the friction
     var friction = { x: -this.v.x * Universe.friction * lapse, y: -this.v.y * Universe.friction * lapse};
     //get the thrust
@@ -176,8 +196,6 @@ Player.prototype.update = function(lapse) {
         this.ammo -= this.weapons[0].cost;
         this.weapons[0].fire(this.get_info());
         
-        //log(this.name + " has fired weapon 0.");
-        
         this.reset_ammo();
     }
     
@@ -186,8 +204,6 @@ Player.prototype.update = function(lapse) {
     ) {
         this.ammo -= this.weapons[1].cost;
         this.weapons[1].fire(this.get_info());
-        
-        //log(this.name + " has fired weapon 1.");
         
         this.reset_ammo();
     }
@@ -209,7 +225,7 @@ Player.prototype.update = function(lapse) {
     
     //now check for other stuff collision...MORE LAG!!!!
     Universe.bodies.forEach((body) => {
-        if (body === this || body.owner === this.id) return;
+        if (body === this || body.owner == this.id) return;
         
         var min_dist = this.radius + body.radius;
         var overlap  = min_dist - Misc_math.get_distance(this.x, this.y, body.x, body.y);
@@ -232,7 +248,7 @@ Player.prototype.reset_ammo = function() {
 };
 
 Player.prototype.replenish_ammo = function(lapse) {
-	var ammo_regen_level = this.get_upgrade_count("ammo regen");
+    var ammo_regen_level = this.get_upgrade_count("ammo regen");
     if (this.last_fire >= this.ammo_replenish_delay - (25 * ammo_regen_level) &&
         this.ammo < 1 && !this.keys.weapon1 && !this.keys.weapon2
     ) {
@@ -246,11 +262,11 @@ Player.prototype.do_damage = function(damage, owner) {
         return;
     }
     
-	// damage negation due to damage resistance.
-	// limits to 2 so it's not TOO OP
-	var damamge_resistance = 1 + (this.get_upgrade_count("damage resistance")/2);
-	
-	// damage resistance is a sure as hell powerful divisor, can't negate damage but can sure as hell make it harder to kill
+    // damage negation due to damage resistance.
+    // limits to 2 so it's not TOO OP
+    var damamge_resistance = 1 + (this.get_upgrade_count("damage resistance")/2);
+    
+    // damage resistance is a sure as hell powerful divisor, can't negate damage but can sure as hell make it harder to kill
     this.health -= damage / damamge_resistance;
     
     if (this.health <= 0) {
@@ -264,7 +280,7 @@ Player.prototype.do_damage = function(damage, owner) {
 };
 
 Player.prototype.heal = function(lapse) {
-	var health_regen_level = this.get_upgrade_count("health regen");
+    var health_regen_level = this.get_upgrade_count("health regen");
     if (this.last_damage > this.heal_delay - (100*health_regen_level) && this.health < 1) {
         this.health = Math.min(this.health + this.heal_rate * lapse * (1+health_regen_level), 1);
     }
@@ -316,10 +332,10 @@ Player.prototype.get_upgrade_cost = function()
 Player.prototype.buy_upgrade = function(name)
 {
     // can't use arrow functions for some reason
-	// checking to prevent client abuse bloody crashing the server
+    // checking to prevent client abuse bloody crashing the server
     var upgrade = this.current_upgrades.find(function(element){return element.name === name});
-	if(!upgrade) return false;
-	
+    if(!upgrade) return false;
+    
     if(upgrade.count < upgrade.type.max)
     {
         var cost = this.get_upgrade_cost();
@@ -327,10 +343,10 @@ Player.prototype.buy_upgrade = function(name)
         {
             this.resources -= cost;
             upgrade.count += 1;
-			return true;
+            return true;
         }
     }
-	return false;
+    return false;
 };
 
 Player.prototype.set_weapon = function(slot, weapon) {
@@ -347,8 +363,14 @@ Player.prototype.spawn = function(x, y, radius) {
     
     this.invulnerable = this.invulnerable_after_spawn;
     
+    this.is_at_planet = false;
+    
     log(this.name + " has spawned at: " + Math.floor(this.x) + ", " + Math.floor(this.y));
     log(this.name + " is invulnerable for " + this.invulnerable + " ms.");
+};
+
+Player.prototype.enter_planet = function(planet) {
+    
 };
 
 Player.prototype.give_resources = function(resources) {

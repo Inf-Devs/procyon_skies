@@ -16,7 +16,7 @@ var Weapons = {
         [ ] cost
         [ ] description (coming soon)
         
-        *** (incomplete) EXAMPLES BELOW ***
+        *** EXAMPLES BELOW ***
     */
     
     "torpedo": {
@@ -122,6 +122,20 @@ var Weapons = {
         cooldown: 1500,
         fire: function(p) {
             //my new secret weapon...
+        },
+    },
+    
+    "sonic cannon": {
+        name: "sonic cannon",
+        cost: 0.2,
+        cooldown: 1250,
+        fire: function(p) {
+            var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
+            var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
+            
+            Universe.objects.push(new Sonic_bubble(fire_x, fire_y, p.angle,
+                Colours.lighten(p.colour), p.id
+            ));
         },
     },
 };
@@ -294,4 +308,48 @@ Grenade.prototype.update = function(lapse) {
 Grenade.prototype.explode = function(lapse) {
     //KABOOM!
     Universe.objects.push(new Particles.Explosion(this.x, this.y, this.colour, this.owner));
+};
+
+//sonic cannon projectile ------------------------------------------------------
+function Sonic_bubble(x, y, angle, colour, owner) {
+    this.x = x;
+    this.y = y;
+    
+    this.angle  = angle;
+    this.owner  = owner;
+    this.colour = colour;
+    this.radius = 12.5;
+    
+    this.lifetime = 0;
+    this.active   = true;
+    this.alpha    = 1;
+    
+    this.type = "sonic";
+}
+
+Sonic_bubble.prototype.max_lifetime = 3000;
+Sonic_bubble.prototype.fade_rate    = 1 / 3000;
+
+Sonic_bubble.prototype.speed = 0.05;
+
+Sonic_bubble.prototype.is_projectile = true;
+
+Sonic_bubble.prototype.update = function(lapse) {
+    this.lifetime += lapse;
+    
+    if (this.lifetime >= this.max_lifetime) {
+        this.active = false;
+        return;
+    }
+    
+    this.x += Math.cos(this.angle) * this.speed;
+    this.y += Math.sin(this.angle) * this.speed;
+    
+    //update the alpha
+    this.alpha -= this.fade_rate * lapse;
+    this.alpha = Math.max(this.alpha, 0);
+};
+
+Sonic_bubble.prototype.collision = function() {
+    return 1.5;
 };

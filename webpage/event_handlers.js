@@ -3,30 +3,26 @@ function form_submit(event) {
     event.preventDefault();
     //get ready for callback hell, y'all!
     
-	// get the control scheme
-	var control_scheme = form.controls.value;
-	if (control_scheme === "WASD")
-	{
-		key_codes[87] = "up";
-		key_codes[65] = "left";
-		key_codes[83] = "down";
-		key_codes[68] = "right";
-		key_codes[188] = "weapon1";
-		key_codes[190] = "weapon2";
-	}
-	else 
-	{
-		key_codes[37] = "left";
-		key_codes[38] = "up";
-		key_codes[39] = "right";
-		key_codes[40] = "down";
-		key_codes[90] = "weapon1";
-		key_codes[88] = "weapon2";
-	}
+    //both control schemes are active. no need to choose.
+    //WASD, "," for weapon1, "." for weapon2
+    key_codes[87] = "up";
+    key_codes[65] = "left";
+    key_codes[83] = "down";
+    key_codes[68] = "right";
+    key_codes[188] = "weapon1";
+    key_codes[190] = "weapon2";
+    //arrow keys, z for weapon1, x for weapon2
+    key_codes[37] = "left";
+    key_codes[38] = "up";
+    key_codes[39] = "right";
+    key_codes[40] = "down";
+    key_codes[90] = "weapon1";
+    key_codes[88] = "weapon2";
+
     //get the submitted name
     var name = form.name_field.value;
     log("submitted name: " + name);
-	
+    
     //make sure a valid name is entered
     if (name.trim() == "") name = "anonymous";
     
@@ -103,19 +99,19 @@ function send_update() {
 
 // for minor requests
 function send_ask(action,request) {
-	socket.emit("ask",{action:action,request:request});
+    socket.emit("ask",{action:action,request:request});
 }
 
 var last_update = null;
 
 function receive_update(data) {
-	// for initializing certain HTML elements 
-	if (last_update === null)
-	{
-		var player = data.player;
-		Upgrades_display.init(player.current_upgrades);
-	}
-	
+    // for initializing certain HTML elements 
+    if (last_update === null)
+    {
+        var player = data.player;
+        Upgrades_display.init(player.current_upgrades);
+    }
+    
     if (data.time < last_update && last_update !== null) {
         //we got an earlier update, so just ignore it.
         return;
@@ -128,12 +124,12 @@ function receive_update(data) {
     Camera.offset_x = data.offset.x;
     Camera.offset_y = data.offset.y;
     
-	//update infos
+    //update infos
     Info_display.health = data.health;
     Info_display.ammo   = data.ammo;
-	
-	resource_counter.innerHTML = "resources: " + data.player.resources;
-		
+    
+    resource_counter.innerHTML = "resources: " + data.player.resources;
+        
     playing = true;
 }
 
