@@ -30,7 +30,7 @@ var Players = module.exports = {
         return Players.all_ids.map((id) => {
             return Players[id];
         }).filter((p) => {
-            return p.health > 0 && p.active;
+            return p.health > 0 && p.active && !p.is_at_planet;
         }).sort(function(a, b) {
             return Misc_math.get_distance(x, y, a.x, a.y) - Misc_math.get_distance(x, y, b.x, b.y);
         })[0];
@@ -53,7 +53,7 @@ var Players = module.exports = {
                 p.y + p.radius > y &&
                 p.x - p.radius < x + width &&
                 p.y - p.radius < y + width &&
-                p.active
+                p.active && !p.is_at_planet
             ) {
                 in_view.push(p.get_info());
             }

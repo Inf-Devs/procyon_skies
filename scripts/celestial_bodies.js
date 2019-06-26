@@ -170,6 +170,8 @@ Planet.prototype.radius  = 32;
 Planet.prototype.orbit_speed    = 0.03;
 Planet.prototype.rotation_speed = 0.00015;
 
+Planet.prototype.orbitable = true;
+
 Planet.prototype.update = function(lapse) {
     //FORMULA: arc length / radius = angle
     var arc = lapse * this.orbit_speed;

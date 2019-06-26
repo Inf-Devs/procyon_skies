@@ -64,27 +64,28 @@ io.on("connection", function(socket) {
     var player      = null;
     var id          = null;
     var last_update = null;
+    var planet      = null;
     
     var kill_event_listener;
     var leaderboard_listener;
     
-	// incoming ASK from client 
-	// some minor action to be performed
-	socket.on("ask", function(data) {		
-		if(data.action === "buy_upgrade")
-		{
-			if(player.buy_upgrade(data.request.upgrade_name))
-			{
-				socket.emit("upgrades_update",{upgrade_bought:data.request.upgrade_name
-					,next_upgrade_cost:player.get_upgrade_cost()})
-			}
-			else 
-			{
-				socket.emit("notification", "unable to purchase " + data.request.upgrade_name);
-			}
-		}
-	});
-	
+    // incoming ASK from client 
+    // some minor action to be performed
+    socket.on("ask", function(data) {       
+        if(data.action === "buy_upgrade")
+        {
+            if(player.buy_upgrade(data.request.upgrade_name))
+            {
+                socket.emit("upgrades_update",{upgrade_bought:data.request.upgrade_name
+                    ,next_upgrade_cost:player.get_upgrade_cost()})
+            }
+            else 
+            {
+                socket.emit("notification", "unable to purchase " + data.request.upgrade_name);
+            }
+        }
+    });
+    
     //incoming update from the client
     socket.on("client_update", function(data) {
         if (last_update != null && last_update > data.time) {
@@ -106,12 +107,12 @@ io.on("connection", function(socket) {
             //remember to spawn the player
             player.spawn(Alpha.x, Alpha.y, 48);
             
-            kill_event_listener		= create_kill_listener(player, socket);
-            leaderboard_listener 	= create_leaderboard_listener(socket);
-			
+            kill_event_listener     = create_kill_listener(player, socket);
+            leaderboard_listener    = create_leaderboard_listener(socket);
+            
             Game_events.on("kill", kill_event_listener);
             Game_events.on("leaderboard_update", leaderboard_listener);
-			
+            
             Game_events.emit("score changed");
         }
         
@@ -138,17 +139,55 @@ io.on("connection", function(socket) {
         });
     });
     
+    socket.on("toggle orbit", function() {
+        if (player.is_at_planet) {
+            player.spawn(planet.x, planet.y, planet.radius * 1.5);
+            planet = null;
+            return;
+        }
+        
+        planet = player.enter_planet();
+        
+        if (planet == null) {
+            //entering orbit failed.
+            socket.emit("notification", "get closer to a planet and try again.");
+        } else {
+            //entering orbit succceeded.
+            socket.emit("notification", "now orbiting planet " + planet.name + ". press C or M to exit orbit.");
+        }
+    });
+    
     socket.on("disconnect", function() {
         if (player != null) {
-            io.emit("notification", player.name + " has disconnected.");
+            //io.emit("notification", player.name + " has disconnected.");
             log(player.name + ", " + id + " has disconnected.", "info");
             Players.remove(id);
+            player.active = false;
             
             Game_events.emit("score changed");
             
             Game_events.removeListener("kill", kill_event_listener);
             Game_events.removeListener("leaderboard_update", leaderboard_listener);
         }
+    });
+    
+    socket.on("reconnect", function() {
+        //re-add the player and the event listeners. ugh network shit
+        //i actually don't know if this works.
+        
+        log(player.name + " (" + id + ") has reconnected.");
+        
+        Players.add(player, id);
+        player.active = true;
+        Universe.objects.push(player);
+        
+        kill_event_listener  = create_kill_listener(player, socket);
+        leaderboard_listener = create_leaderboard_listener(socket);
+        
+        Game_events.on("kill", kill_event_listener);
+        Game_events.on("leaderboard_update", leaderboard_listener);
+        
+        Game_events.emit("score changed");
     });
 });
 

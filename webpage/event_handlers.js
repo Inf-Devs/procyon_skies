@@ -71,18 +71,22 @@ function post_request_handler(req, callback) {
 // 65: a
 // 83: s
 // 68: d
+// 77: m
 // 188: ,
 // 190: .
-// 191: /
-var key_codes = (function() {
-    var action = {};
-    return action;
-})();
+// 191: / (firefox has problems with this one.)
+var key_codes = {};
+
 function keydown_handler(e) {
     Game.keys[key_codes[e.keyCode]] = true;
 }
 
 function keyup_handler(e) {
+    if (e.keyCode == 77 || e.keyCode == 67) {
+        socket.emit("toggle orbit");
+        return;
+    }
+    
     Game.keys[key_codes[e.keyCode]] = false;
 }
 

@@ -51,12 +51,14 @@ function Player(name, colour, id) {
     //miscellaneous
     this.last_exhaust = 0;
     this.last_orbit   = 0;
-    this.is_at_planet = true;
     this.active       = true;
     this.type         = "player";
     this.score        = 0; // stats!
     this.exhaust      = Math.random() < 0.5 ? Particles.Bubble : Particles.Shrinking_diamond;
     this.resources    = 1000;
+    
+    //orbit! not the KSP kind.
+    this.is_at_planet = true;
 }
 
 Player.prototype.is_body    = true;
@@ -267,10 +269,10 @@ Player.prototype.do_damage = function(damage, owner) {
     
     // damage negation due to damage resistance.
     // limits to 2 so it's not TOO OP
-    var damamge_resistance = 1 + (this.get_upgrade_count("damage resistance")/2);
+    var damage_resistance = 1 + (this.get_upgrade_count("damage resistance")/2);
     
     // damage resistance is a sure as hell powerful divisor, can't negate damage but can sure as hell make it harder to kill
-    this.health -= damage / damamge_resistance;
+    this.health -= damage / damage_resistance;
     
     if (this.health <= 0) {
         this.active = false;
@@ -315,6 +317,12 @@ Player.prototype.get_total_upgrade_count = function()
     return count;
 };
 
+//defunct, for now.
+Player.prototype.create_upgrades = function() {
+    return {
+        
+    };
+};
 
 Player.prototype.get_upgrade_count = function(name)
 {
@@ -372,13 +380,31 @@ Player.prototype.spawn = function(x, y, radius) {
     log(this.name + " is invulnerable for " + this.invulnerable + " ms.");
 };
 
-Player.prototype.enter_planet = function(planet) {
-    this.is_at_planet = true;
+Player.prototype.enter_planet = function() {
+    //HOW THIS WORKS:
+    //[x] scan for closest planet
+    //[x] if the distance to the planet is less than 1.5 times its radius, then enter planet and return success.
+    //[x] otherwise, return failure, whatever that means.
+    
+    var closest_planet = Universe.objects.filter((f) => {
+        return f.orbitable;
+    }).sort((a, b) => {
+        return Misc_math.get_distance(this.x, this.y, a.x, a.y) - Misc_math.get_distance(this.x, this.y, b.x, b.y);
+    })[0];
+    
+    if (Misc_math.get_distance(this.x, this.y, closest_planet.x, closest_planet.y) <= closest_planet.radius * 3) {
+        //orbit success!
+        this.is_at_planet = true;
+        return closest_planet;
+    } else {
+        //orbit failed!
+        return null;
+    }
 };
 
 Player.prototype.give_resources = function(resources) {
     this.resources += resources;
-    this.update_score("pick up resource",resources);
+    this.update_score("pick up resource", resources);
 };
 
 Player.prototype.points = {
@@ -387,9 +413,11 @@ Player.prototype.points = {
     "pick up resource": 1,
 };
 
-Player.prototype.update_score = function(action,action_count = 1) {
+Player.prototype.update_score = function(action, action_count = 1) {
     if (this.points.hasOwnProperty(action)) {
         this.score += this.points[action] * action_count;
+    } else {
+        log("unrecognized action: " + action);
     }
     
     Game_events.emit("score changed");
