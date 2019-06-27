@@ -58,7 +58,7 @@ function Player(name, colour, id) {
     this.resources    = 1000;
     
     //orbit! not the KSP kind.
-    this.is_at_planet = true;
+	this.orbiting_planet = null;
 }
 
 Player.prototype.is_body    = true;
@@ -138,7 +138,7 @@ Player.prototype.get_info = function() {
 };
 
 Player.prototype.update = function(lapse) {
-    if (this.is_at_planet) {
+    if (this.orbiting_planet) {
         //player is at planet, no need to update
         return;
     }
@@ -373,9 +373,7 @@ Player.prototype.spawn = function(x, y, radius) {
     this.angle = Math.random() * 2 * Math.PI;
     
     this.invulnerable = this.invulnerable_after_spawn;
-    
-    this.is_at_planet = false;
-    
+        
     log(this.name + " has spawned at: " + Math.floor(this.x) + ", " + Math.floor(this.y));
     log(this.name + " is invulnerable for " + this.invulnerable + " ms.");
 };
@@ -385,21 +383,34 @@ Player.prototype.enter_planet = function() {
     //[x] scan for closest planet
     //[x] if the distance to the planet is less than 1.5 times its radius, then enter planet and return success.
     //[x] otherwise, return failure, whatever that means.
-    
-    var closest_planet = Universe.objects.filter((f) => {
-        return f.orbitable;
-    }).sort((a, b) => {
-        return Misc_math.get_distance(this.x, this.y, a.x, a.y) - Misc_math.get_distance(this.x, this.y, b.x, b.y);
-    })[0];
-    
-    if (Misc_math.get_distance(this.x, this.y, closest_planet.x, closest_planet.y) <= closest_planet.radius * 3) {
-        //orbit success!
-        this.is_at_planet = true;
-        return closest_planet;
-    } else {
-        //orbit failed!
-        return null;
-    }
+    //[x] cooldown for orbiting 
+	// return codes 
+	// 0 - success 
+	// 1 - too far 
+	// 2 - too soon (cooldown)
+	
+	if(this.last_orbit >= this.orbit_cooldown)
+	{
+		var closest_planet = Universe.objects.filter((f) => {
+			return f.orbitable;
+		}).sort((a, b) => {
+			return Misc_math.get_distance(this.x, this.y, a.x, a.y) - Misc_math.get_distance(this.x, this.y, b.x, b.y);
+		})[0];
+		
+		if (Misc_math.get_distance(this.x, this.y, closest_planet.x, closest_planet.y) <= closest_planet.radius * 3) {
+			//orbit success!
+			this.orbiting_planet = closest_planet;
+			this.last_orbit = 0;
+			return 0;
+		} else {
+			//orbit failed!
+			return 1;
+		}
+	}
+	else 
+	{
+		return 2;
+	}
 };
 
 Player.prototype.give_resources = function(resources) {

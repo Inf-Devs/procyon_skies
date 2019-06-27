@@ -29,7 +29,8 @@ function form_submit(event) {
     event.preventDefault(); //no, don't reload the page!
     
     removeElement(form);
-    
+	// just delete everything!
+    removeElement(document.getElementById("join"));
     //now, for the XmLhTtPrEqUeSt!!!
     var req = new XMLHttpRequest();
     req.open("POST", "/" , true);
@@ -138,7 +139,7 @@ function receive_update(data) {
 }
 
 function receive_notification(message) {
-    var NOTIFICATION_TIME = 3000;
+    var NOTIFICATION_TIME = 30000;
     log('notification received: "' + message + '"');
     
     var message_box = document.createElement('div');

@@ -121,10 +121,21 @@ io.on("connection", function(socket) {
         //time, for updating purposes.
         var time = Date.now();
         
+        
+        // camera focus x and y 
+		if(player.orbiting_planet)
+		{
+			var p_x = player.orbiting_planet.x - (data.viewport.width / 2);
+			var p_y = player.orbiting_planet.y - (data.viewport.height / 2);
+		}
+		else 
+		{
+			var p_x = player.x - (data.viewport.width / 2);
+			var p_y = player.y - (data.viewport.height / 2);
+		}
+		
         //viewport
-        var p_x = player.x - (data.viewport.width / 2);
-        var p_y = player.y - (data.viewport.height / 2);
-        var p_w = data.viewport.width;
+		var p_w = data.viewport.width;
         var p_h = data.viewport.height;
         
         //infos to the player
@@ -140,21 +151,29 @@ io.on("connection", function(socket) {
     });
     
     socket.on("toggle orbit", function() {
-        if (player.is_at_planet) {
-            player.spawn(planet.x, planet.y, planet.radius * 1.5);
-            planet = null;
+        if (player.orbiting_planet) {
+            player.spawn(player.orbiting_planet.x, player.orbiting_planet.y, player.orbiting_planet.radius * 1.5);
+			player.orbiting_planet = null;
             return;
         }
         
-        planet = player.enter_planet();
+        var flag = player.enter_planet();
         
-        if (planet == null) {
-            //entering orbit failed.
+        if (flag === 0) 
+		{
+            //entering orbit success.
+			socket.emit("notification", "now orbiting planet " + player.orbiting_planet.name + ". press C or M to exit orbit.");
+		}
+		else if (flag === 1)
+		{
+			//too far 
             socket.emit("notification", "get closer to a planet and try again.");
-        } else {
-            //entering orbit succceeded.
-            socket.emit("notification", "now orbiting planet " + planet.name + ". press C or M to exit orbit.");
-        }
+		}	
+		else if (flag === 2)
+		{
+			//too soon
+            socket.emit("notification", "you just left orbit!");
+		}
     });
     
     socket.on("disconnect", function() {
