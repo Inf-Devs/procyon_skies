@@ -74,7 +74,7 @@ Shrinking_diamond.prototype.update = function(lapse) {
 Particles.Shrinking_diamond = Shrinking_diamond;
 
 // EXPLOSIONS! -----------------------------------------------------------------
-function Explosion(x, y, colour, owner) {
+function Explosion(x, y, colour, owner, max_lifetime) {
     this.x = x;
     this.y = y;
     
@@ -87,18 +87,23 @@ function Explosion(x, y, colour, owner) {
     
     this.radius = 0.01; //prevent any shenanigans with zero
     
+    this.max_lifetime = (isNaN(max_lifetime) || max_lifetime < this.default_max_lifetime) ?
+        this.default_max_lifetime : max_lifetime;
+    this.fade_rate = (isNaN(max_lifetime) || max_lifetime < this.default_max_lifetime) ?
+    this.default_fade_rate : 1 / max_lifetime;
+    
     this.type = "explosion";
 }
 
-Explosion.prototype.max_lifetime = 250;
+Explosion.prototype.default_max_lifetime = 250;
 
 //for now, both linear
-Explosion.prototype.expansion_rate = 0.1;
-Explosion.prototype.fade_rate      = 1 / 250;
-Explosion.prototype.is_body        = true;
+Explosion.prototype.expansion_rate    = 0.1;
+Explosion.prototype.default_fade_rate = 1 / 250;
+Explosion.prototype.is_body           = true;
 
 Explosion.prototype.is_projectile = true;
-Explosion.prototype.damage        = 0.5;
+Explosion.prototype.damage        = 0.75;
 
 Explosion.prototype.update = function(lapse) {
     this.lifetime += lapse;

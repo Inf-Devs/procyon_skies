@@ -1,5 +1,6 @@
 var Universe  = require(__dirname + "/universe.js");
 var Particles = require(__dirname + "/particles.js");
+var Misc_math = require(__dirname + "/misc_math.js");
 var Colours   = require(__dirname + "/colours.js");
 var log       = require(__dirname + "/logging.js");
 
@@ -121,7 +122,12 @@ var Weapons = {
         cost: 0.3,
         cooldown: 1500,
         fire: function(p) {
-            //my new secret weapon...
+            var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
+            var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
+            
+            Universe.objects.push(new Grenade(fire_x, fire_y, p.angle,
+                Colours.lighten(p.colour), p.id
+            ));
         },
     },
     
@@ -259,10 +265,11 @@ function Grenade(x, y, angle, colour, owner) {
     this.type     = "grenade";
 }
 
-Grenade.prototype.max_lifetime = 3000;
+Grenade.prototype.max_lifetime = 1500;
 
-Grenade.prototype.is_body = true;
-Grenade.prototype.radius  = 3.5;
+Grenade.prototype.is_body    = true;
+Grenade.prototype.radius     = 3.5;
+Grenade.prototype.bounciness = 0.003;
 
 Grenade.prototype.deceleration  = 0.0125;
 Grenade.prototype.initial_force = 1.5; //adjust as necessary
@@ -296,18 +303,16 @@ Grenade.prototype.update = function(lapse) {
         if (overlap > 0) {
             //push it away
             var angle = Misc_math.get_angle(this, body) + Math.PI;
-            this.x    = body.x + Math.cos(angle) * min_dist;
-            this.y    = body.y + Math.sin(angle) * min_dist;
 
-            this.v.x += Math.cos(angle) * (overlap * Universe.bounciness * 2);
-            this.v.y += Math.sin(angle) * (overlap * Universe.bounciness * 2);
+            this.v.x += Math.cos(angle) * (overlap * this.bounciness * 2);
+            this.v.y += Math.sin(angle) * (overlap * this.bounciness * 2);
         }
     });
 };
 
 Grenade.prototype.explode = function(lapse) {
     //KABOOM!
-    Universe.objects.push(new Particles.Explosion(this.x, this.y, this.colour, this.owner));
+    Universe.objects.push(new Particles.Explosion(this.x, this.y, this.colour, this.owner, 500));
 };
 
 //sonic cannon projectile ------------------------------------------------------
@@ -353,3 +358,8 @@ Sonic_bubble.prototype.update = function(lapse) {
 Sonic_bubble.prototype.collision = function() {
     return 1.5;
 };
+
+//more weapons...---------------------------------------------------------------
+function Cluster_torpedo_rocket(x, y, angle, colour, owner, generation) {
+    
+}

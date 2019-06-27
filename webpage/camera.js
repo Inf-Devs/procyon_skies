@@ -102,6 +102,11 @@ var Camera = {
                     cxt.restore();
                     break;
                 case "grenade":
+                    cxt.fillStyle = get_colour(f.colour);
+                    cxt.beginPath();
+                    cxt.arc(draw_x, draw_y, 3.5, 0, Math.PI * 2);
+                    cxt.closePath();
+                    cxt.fill();
                     break;
                 case "sonic":
                     cxt.fillStyle = get_colour(f.colour, f.alpha);
