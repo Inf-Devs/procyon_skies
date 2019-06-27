@@ -17,6 +17,7 @@ function Asteroid_rock(x, y, size) {
     this.size   = (size < 0 || isNaN(size)) ? Math.floor(Math.random() * 4) : size;
     this.radius = this.radii[this.size];
     this.health = this.healths[this.size];
+	this.max_health = this.healths[this.size];
     this.active = true;
     this.type   = "asteroid";
     
