@@ -104,7 +104,15 @@ var Camera = {
                 case "grenade":
                     cxt.fillStyle = get_colour(f.colour);
                     cxt.beginPath();
-                    cxt.arc(draw_x, draw_y, 3.5, 0, Math.PI * 2);
+                    cxt.moveTo(draw_x, draw_y);
+                    cxt.arc(draw_x, draw_y, 3.5, Math.PI / 24, 11 * Math.PI / 24);
+                    cxt.lineTo(draw_x, draw_y);
+                    cxt.arc(draw_x, draw_y, 3.5, 13 * Math.PI / 24, 23 * Math.PI / 24);
+                    cxt.lineTo(draw_x, draw_y);
+                    cxt.arc(draw_x, draw_y, 3.5, 25 * Math.PI / 24, 35 * Math.PI / 24);
+                    cxt.lineTo(draw_x, draw_y);
+                    cxt.arc(draw_x, draw_y, 3.5, 37 * Math.PI / 24, 47 * Math.PI / 24);
+                    cxt.lineTo(draw_x, draw_y);
                     cxt.closePath();
                     cxt.fill();
                     break;

@@ -103,7 +103,7 @@ Explosion.prototype.default_fade_rate = 1 / 250;
 Explosion.prototype.is_body           = true;
 
 Explosion.prototype.is_projectile = true;
-Explosion.prototype.damage        = 0.75;
+Explosion.prototype.damage        = 0.9;
 
 Explosion.prototype.update = function(lapse) {
     this.lifetime += lapse;

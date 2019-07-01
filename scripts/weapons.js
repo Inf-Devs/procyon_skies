@@ -120,7 +120,7 @@ var Weapons = {
     "grenade": {
         name: "grenade",
         cost: 0.3,
-        cooldown: 1500,
+        cooldown: 100,
         fire: function(p) {
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
             var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
@@ -359,7 +359,18 @@ Sonic_bubble.prototype.collision = function() {
     return 1.5;
 };
 
-//more weapons...---------------------------------------------------------------
+//cluster torpedo -- MICHAEL BAY STYLE -----------------------------------------
 function Cluster_torpedo_rocket(x, y, angle, colour, owner, generation) {
     
 }
+
+//let's start sprinkling the universe with high explosives! --------------------
+function Spacemine(x, y, angle, colour, owner) {
+    
+}
+
+Spacemine.prototype.explode = function() {
+    
+};
+
+//are nuclear weapons allowed in this game? or are they too overpowering?
