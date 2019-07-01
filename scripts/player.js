@@ -7,6 +7,8 @@ var Colours     = require(__dirname + "/colours.js");
 var log         = require(__dirname + "/logging.js");
 var Pickupable  = require(__dirname + "/pickupable.js");
 
+var default_planet = { orbitable: true, x: 0, y: 0, radius: 10 };
+
 function Player(name, colour, id) {
     this.colour = colour;
     this.name   = name;
@@ -50,7 +52,7 @@ function Player(name, colour, id) {
 
     //miscellaneous
     this.last_exhaust = 0;
-    this.last_orbit   = 0;
+    this.last_spawn   = 0;
     this.active       = true;
     this.type         = "player";
     this.score        = 0; // stats!
@@ -58,7 +60,7 @@ function Player(name, colour, id) {
     this.resources    = 1000;
     
     //orbit! not the KSP kind.
-	this.orbiting_planet = null;
+    this.orbiting_planet = default_planet;
 }
 
 Player.prototype.is_body    = true;
@@ -138,8 +140,10 @@ Player.prototype.get_info = function() {
 };
 
 Player.prototype.update = function(lapse) {
-    if (this.orbiting_planet) {
+    if (this.orbiting_planet != null) {
         //player is at planet, no need to update
+        this.x = this.orbiting_planet.x;
+        this.y = this.orbiting_planet.y;
         return;
     }
     
@@ -182,7 +186,7 @@ Player.prototype.update = function(lapse) {
     this.last_fire    += lapse;
     this.last_exhaust += lapse;
     this.last_damage  += lapse;
-    this.last_orbit  += lapse;
+    this.last_spawn  += lapse;
     this.invulnerable -= lapse;
     
     //safeguard
@@ -364,15 +368,18 @@ Player.prototype.set_weapon = function(slot, weapon) {
     this.weapons[slot] = weapon;
 };
 
-Player.prototype.spawn = function(x, y, radius) {
+Player.prototype.spawn = function() {
     var angle = Math.random() * 2 * Math.PI;
     
-    this.x = Math.cos(angle) * radius + x;
-    this.y = Math.sin(angle) * radius + y;
+    this.x = Math.cos(angle) * this.orbiting_planet.radius * 1.5 + this.orbiting_planet.x;
+    this.y = Math.sin(angle) * this.orbiting_planet.radius * 1.5 + this.orbiting_planet.y;
     
     this.angle = Math.random() * 2 * Math.PI;
     
     this.invulnerable = this.invulnerable_after_spawn;
+    this.last_spawn   = 0;
+    
+    this.orbiting_planet = null;
         
     log(this.name + " has spawned at: " + Math.floor(this.x) + ", " + Math.floor(this.y));
     log(this.name + " is invulnerable for " + this.invulnerable + " ms.");
@@ -384,33 +391,29 @@ Player.prototype.enter_planet = function() {
     //[x] if the distance to the planet is less than 1.5 times its radius, then enter planet and return success.
     //[x] otherwise, return failure, whatever that means.
     //[x] cooldown for orbiting 
-	// return codes 
-	// 0 - success 
-	// 1 - too far 
-	// 2 - too soon (cooldown)
-	
-	if(this.last_orbit >= this.orbit_cooldown)
-	{
-		var closest_planet = Universe.objects.filter((f) => {
-			return f.orbitable;
-		}).sort((a, b) => {
-			return Misc_math.get_distance(this.x, this.y, a.x, a.y) - Misc_math.get_distance(this.x, this.y, b.x, b.y);
-		})[0];
-		
-		if (Misc_math.get_distance(this.x, this.y, closest_planet.x, closest_planet.y) <= closest_planet.radius * 3) {
-			//orbit success!
-			this.orbiting_planet = closest_planet;
-			this.last_orbit = 0;
-			return 0;
-		} else {
-			//orbit failed!
-			return 1;
-		}
-	}
-	else 
-	{
-		return 2;
-	}
+    // return codes 
+    // "success"
+    // "too far"
+    // "too soon" (cooldown not done)
+    
+    if (this.last_spawn >= this.orbit_cooldown) {
+        var closest_planet = Universe.objects.filter((f) => {
+            return f.orbitable;
+        }).sort((a, b) => {
+            return Misc_math.get_distance(this.x, this.y, a.x, a.y) - Misc_math.get_distance(this.x, this.y, b.x, b.y);
+        })[0];
+        
+        if (Misc_math.get_distance(this.x, this.y, closest_planet.x, closest_planet.y) <= closest_planet.radius * 3) {
+            //orbit success!
+            this.orbiting_planet = closest_planet;
+            return "success";
+        } else {
+            //orbit failed!
+            return "too far";
+        }
+    } else {
+        return "too soon";
+    }
 };
 
 Player.prototype.give_resources = function(resources) {
@@ -434,4 +437,13 @@ Player.prototype.update_score = function(action, action_count = 1) {
     Game_events.emit("score changed");
 };
 
-module.exports = Player;
+//module.exports = Player;
+
+module.exports = function(default_orbiting_planet) {
+    if (default_orbiting_planet.orbitable) {
+        default_planet = default_orbiting_planet;
+        return Player;
+    } else {
+        throw new Error("please provide an orbitable thing for players to orbit.");
+    }
+};

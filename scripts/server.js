@@ -10,11 +10,22 @@ var log              = require(__dirname + "/logging.js"); //load logging functi
 var Misc_math        = require(__dirname + "/misc_math.js");
 var Colours          = require(__dirname + "/colours.js");
 var Players          = require(__dirname + "/players.js");
-var Player           = require(__dirname + "/player.js");
 var Universe         = require(__dirname + "/universe.js");
 var Celestial_bodies = require(__dirname + "/celestial_bodies.js");
 var Game_events      = require(__dirname + "/events.js");
 // var Shop             = require(__dirname + "/shop.js");
+
+//planets and sun
+var Sun   = new Celestial_bodies.Star("sun", 5000, 5000);
+var Alpha = new Celestial_bodies.Planet(Sun, 600, "alpha", 32);
+var Beta  = new Celestial_bodies.Planet(Sun, 1000, "beta", 32);
+
+Universe.objects.push(Sun);
+Universe.objects.push(Alpha);
+Universe.objects.push(Beta);
+
+//player needs special setup
+var Player = require(__dirname + "/player.js")(Beta);
 
 //set up express resources, assuming running from directory above
 app.use(express.static("./webpage"));
@@ -105,7 +116,7 @@ io.on("connection", function(socket) {
             Universe.objects.push(player);
             
             //remember to spawn the player
-            player.spawn(Alpha.x, Alpha.y, 48);
+            player.spawn();
             
             kill_event_listener     = create_kill_listener(player, socket);
             leaderboard_listener    = create_leaderboard_listener(socket);
@@ -122,20 +133,12 @@ io.on("connection", function(socket) {
         var time = Date.now();
         
         
-        // camera focus x and y 
-		if(player.orbiting_planet)
-		{
-			var p_x = player.orbiting_planet.x - (data.viewport.width / 2);
-			var p_y = player.orbiting_planet.y - (data.viewport.height / 2);
-		}
-		else 
-		{
-			var p_x = player.x - (data.viewport.width / 2);
-			var p_y = player.y - (data.viewport.height / 2);
-		}
-		
+        // camera focus x and y
+        var p_x = player.x - (data.viewport.width / 2);
+        var p_y = player.y - (data.viewport.height / 2);
+        
         //viewport
-		var p_w = data.viewport.width;
+        var p_w = data.viewport.width;
         var p_h = data.viewport.height;
         
         //infos to the player
@@ -152,28 +155,23 @@ io.on("connection", function(socket) {
     
     socket.on("toggle orbit", function() {
         if (player.orbiting_planet) {
-            player.spawn(player.orbiting_planet.x, player.orbiting_planet.y, player.orbiting_planet.radius * 1.5);
-			player.orbiting_planet = null;
+            player.spawn();
+            player.orbiting_planet = null;
             return;
         }
         
         var flag = player.enter_planet();
         
-        if (flag === 0) 
-		{
+        if (flag == "success") {
             //entering orbit success.
-			socket.emit("notification", "now orbiting planet " + player.orbiting_planet.name + ". press C or M to exit orbit.");
-		}
-		else if (flag === 1)
-		{
-			//too far 
+            socket.emit("notification", "now orbiting planet " + player.orbiting_planet.name + ". press C or M to exit orbit.");
+        } else if (flag == "too far") {
+            //too far 
             socket.emit("notification", "get closer to a planet and try again.");
-		}	
-		else if (flag === 2)
-		{
-			//too soon
+        } else if (flag == "too soon") {
+            //too soon
             socket.emit("notification", "you just left orbit!");
-		}
+        }
     });
     
     socket.on("disconnect", function() {
@@ -240,14 +238,6 @@ Game_events.on("score changed", function() {
     Leaderboard = Players.get_highest(num_scores);
     Game_events.emit("leaderboard_update");
 });
-
-var Sun   = new Celestial_bodies.Star("sun", 5000, 5000);
-var Alpha = new Celestial_bodies.Planet(Sun, 600, "alpha", 32);
-var Beta  = new Celestial_bodies.Planet(Sun, 1000, "beta", 32);
-
-Universe.objects.push(Sun);
-Universe.objects.push(Alpha);
-Universe.objects.push(Beta);
 
 setInterval(Celestial_bodies.spawn_asteroid(Sun, 800, 900, 50), 1000);
 

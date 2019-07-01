@@ -14,12 +14,12 @@ function Asteroid_rock(x, y, size) {
 
     this.v = { x: Math.cos(angle), y: Math.sin(angle), };
     
-    this.size   = (size < 0 || isNaN(size)) ? Math.floor(Math.random() * 4) : size;
-    this.radius = this.radii[this.size];
-    this.health = this.healths[this.size];
-	this.max_health = this.healths[this.size];
-    this.active = true;
-    this.type   = "asteroid";
+    this.size       = (size < 0 || isNaN(size)) ? Math.floor(Math.random() * 4) : size;
+    this.radius     = this.radii[this.size];
+    this.health     = this.healths[this.size];
+    this.max_health = this.healths[this.size];
+    this.active     = true;
+    this.type       = "asteroid";
     
     this.rotation   = Math.random() * Math.PI * 2;
     this.rotate_dir = Math.random() < 0.5 ? 1 : -1;

@@ -116,29 +116,33 @@ var Camera = {
                     cxt.fill();
                     break;
                 case "asteroid":
-					// healthbar
-					cxt.fillStyle = "white";
-					// yo dawg I heard you like cases inside of your cases
-					switch (f.size)
-					{
-						case 0:
-							cxt.fillRect(draw_x - 10, draw_y - 12, (f.health / f.max_health) * 20, 5);
-							break;
-						case 1:
-							cxt.fillRect(draw_x - 15, draw_y - 15, (f.health / f.max_health) * 30, 5);
-							break;
-						case 2:
-							cxt.fillRect(draw_x - 20, draw_y - 20, (f.health / f.max_health) * 40, 5);
-							break;
-						case 3:
-							cxt.fillRect(draw_x - 25, draw_y - 30, (f.health / f.max_health) * 50, 5);
-							break;
-						default:
-							
-					}
-					
-					
-					//
+                    /*
+                    // healthbar
+                    cxt.fillStyle = "white";
+                    // yo dawg I heard you like cases inside of your cases
+                    switch (f.size) {
+                        case 0:
+                            cxt.fillRect(draw_x - 10, draw_y - 12, (f.health / f.max_health) * 20, 2.5);
+                            break;
+                        case 1:
+                            cxt.fillRect(draw_x - 15, draw_y - 15, (f.health / f.max_health) * 30, 2.5);
+                            break;
+                        case 2:
+                            cxt.fillRect(draw_x - 20, draw_y - 20, (f.health / f.max_health) * 40, 2.5);
+                            break;
+                        case 3:
+                            cxt.fillRect(draw_x - 25, draw_y - 30, (f.health / f.max_health) * 50, 2.5);
+                            break;
+                        default:
+                    } */
+                    
+                    //yo dawg ya don' evin need cases in this case.
+                    if (f.health < f.max_health) {
+                        cxt.fillStyle = "slategray";
+                        var bar_width = (f.health / f.max_health) * f.radius * 2;
+                        cxt.fillRect(draw_x - f.radius, draw_y - f.radius - 5, bar_width, 2.5);
+                    }
+                    
                     cxt.save();
                     cxt.translate(draw_x, draw_y);
                     cxt.rotate(-f.rotation);
