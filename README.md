@@ -54,8 +54,6 @@ On the client side...
 
 ### Server side
 
-* figure out how to use modules &mdash; this means splitting up the code into more files, for comprehensibility's sake
-
 * figure out how to make it efficient &mdash; even if Javascript is not
 
 * more features for the clients, such as:
@@ -68,6 +66,3 @@ On the client side...
     
     - more efficient updating, for less lag
     
-    - asteroids and resources
-    
-    - upgrades
