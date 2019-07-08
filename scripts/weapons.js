@@ -15,13 +15,14 @@ var Weapons = {
         [ ] cooldown (in milliseconds)
         [ ] name
         [ ] cost
-        [ ] description (coming soon)
+        [ ] description
         
         *** EXAMPLES BELOW ***
     */
     
     "torpedo": {
         name: "torpedo",
+        description: "a basic rocket.",
         cost: 0.4,
         cooldown: 1000,
         fire: function(p) {
@@ -37,6 +38,7 @@ var Weapons = {
     
     "blaster": {
         name: "blaster",
+        description: "basic blasters. fires one bullet at a time.",
         cost: 0.05,
         cooldown: 250,
         fire: function(p) {
@@ -52,6 +54,7 @@ var Weapons = {
     
     "twin blaster": {
         name: "twin blaster",
+        description: "fires two bullets for (almost) the cost of one.",
         cost: 0.07,
         cooldown: 300,
         fire: function(p) {
@@ -78,9 +81,11 @@ var Weapons = {
     
     "machine gun blaster": { //like a blaster, but faster!
         name: "machine gun blaster",
+        description: "fast blaster. good at shredding things.",
         cost: 0.03,
         cooldown: 75,
         fire: function(p) {
+            var angle  = p.angle;
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
             var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
             
@@ -92,10 +97,11 @@ var Weapons = {
     
     "wide shot blaster": {
         name: "wide shot blaster",
+        description: "fires five bullets, with 30 degrees between them. why only shoot forward?",
         cost: 0.1,
         cooldown: 500,
         fire: function(p) {
-            //fire five blaster bullets!
+            //fire FIVE blaster bullets!
             //angles: -30, -15, 0, 15, 30 (degrees)
             //translation: -PI/12, -PI/24, 0, PI/24, PI/12
             var angles = [
@@ -117,10 +123,38 @@ var Weapons = {
         },
     },
     
+    "twin machine gun blaster": {
+        name: "twin machine gun blaster",
+        description: "two streams of joy.",
+        cost: 0.05,
+        cooldown: 75,
+        fire: function(p) {
+            //with the right marketing, this could work
+            var a1 = p.angle + Math.PI / 15, a2 = p.angle - Math.PI / 15;
+            
+            var fire_x1 = get_fire_coordinates(p.x, p.y, a1, player_radius).x;
+            var fire_y1 = get_fire_coordinates(p.x, p.y, a1, player_radius).y;
+            
+            var fire_x2 = get_fire_coordinates(p.x, p.y, a2, player_radius).x;
+            var fire_y2 = get_fire_coordinates(p.x, p.y, a2, player_radius).y;
+            
+            Universe.objects.push(new Blaster_bullet(fire_x1, fire_y1, p.angle,
+                Colours.lighten(p.colour), p.id
+            ));
+            
+            Universe.objects.push(new Blaster_bullet(fire_x2, fire_y2, p.angle,
+                Colours.lighten(p.colour), p.id
+            ));
+            
+            //easy. just copy and paste from above! that's how coding is done, y'all!
+        },
+    },
+    
     "grenade": {
         name: "grenade",
+        description: "delayed explosions done right.",
         cost: 0.3,
-        cooldown: 100,
+        cooldown: 750,
         fire: function(p) {
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
             var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
@@ -133,6 +167,7 @@ var Weapons = {
     
     "sonic cannon": {
         name: "sonic cannon",
+        description: "big bubbles, slow and deadly.",
         cost: 0.2,
         cooldown: 1250,
         fire: function(p) {
@@ -169,8 +204,6 @@ function Blaster_bullet(x, y, angle, colour, owner) {
     this.owner    = owner;
 
     this.type = "blaster bullet";
-    
-    //log("blaster bullet created at: " + Math.floor(this.x) + ", " + Math.floor(this.y));
 }
 
 Blaster_bullet.prototype.speed  = 0.4;
@@ -197,6 +230,39 @@ Blaster_bullet.prototype.collision = function() {
     this.active = false;
     return this.damage;
 };
+
+// a stronger blaster bullet, really ---------------------------------
+function Laser_bullet(x, y, angle, colour, owner) {
+    this.x = x;
+    this.y = y;
+    
+    this.angle  = angle;
+    this.colour = colour || { r: 255, g: 255, b: 255 };
+    this.owner  = owner;
+    this.type   = "laser bullet";
+}
+
+Laser_bullet.prototype = Blaster_bullet.prototype;
+
+Laser_bullet.prototype.speed  = 0.5;
+Laser_bullet.prototype.damage = 0.15;
+
+// you can think of this as blaster bullet level 3 -------------------
+function Plasma_bullet(x, y, angle, colour, owner) {
+    this.x = x;
+    this.y = y;
+    
+    this.angle  = angle;
+    this.colour = colour || { r: 255, g: 255, b: 255 };
+    this.owner  = owner;
+    this.type   = "plasma bullet";
+}
+
+Plasma_bullet.prototype = Blaster_bullet.prototype;
+
+Plasma_bullet.prototype.speed  = 0.6;
+Plasma_bullet.prototype.damage = 0.3;
+Plasma_bullet.prototype.radius = 0.1;
 
 // the torpedo type, for the players' torpedos! ----------------------
 function Torpedo_rocket(x, y, angle, colour, owner) {
