@@ -197,6 +197,21 @@ function update_leaderboard(data) {
     
 }
 
+function toggle_orbit(state)
+{
+				console.log(state);
+	switch(state)
+	{
+		case "enter":
+			document.getElementById("orbit_screen").style.display = "flex";
+			break;
+		case "exit":
+			document.getElementById("orbit_screen").style.display = "none";
+			break;
+		default:
+	}
+}
+
 var need_update = true;
 var playing = false;
 function animate() {

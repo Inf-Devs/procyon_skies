@@ -157,6 +157,7 @@ io.on("connection", function(socket) {
         if (player.orbiting_planet) {
             player.spawn();
             player.orbiting_planet = null;
+			socket.emit("orbit_update","exit");
             return;
         }
         
@@ -165,6 +166,8 @@ io.on("connection", function(socket) {
         if (flag == "success") {
             //entering orbit success.
             socket.emit("notification", "now orbiting planet " + player.orbiting_planet.name + ". press C or M to exit orbit.");
+			// using socket because Game_events doesn't work.
+			socket.emit("orbit_update","enter");
         } else if (flag == "too far") {
             //too far 
             socket.emit("notification", "get closer to a planet and try again.");
