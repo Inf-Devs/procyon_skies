@@ -1,6 +1,7 @@
 var canvas, context;
 var form;
 var socket;
+var stylesheet;
 
 function init() {
     form = document.getElementById("join_form");
@@ -13,12 +14,38 @@ function init() {
     
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
+	
+	stylesheet = get_style_sheet_by_name("stylesheet");
+	
 }
 
 // UI elements 
 var kill_counter;
 var resource_counter;
 var orbit_panel;
+
+// init game 
+function init_game(data)
+{
+	Game.id     = data["id"];
+	Game.name   = data["name"];
+	Game.colour = data["colour"];
+
+	// set rules
+	
+	stylesheet.insertRule(".theme_colour{"
+		+ "border-color:" + get_colour(Game.colour) + ";" 
+		+ "color:" + get_colour(Game.colour) + ";" 
+		+ "}");
+		
+	// specifically for progress bars 
+	stylesheet.insertRule("#upgrades_panel progress[value]::-webkit-progress-value {"
+		+ "-webkit-appearance: none;"
+		+ "appearance: none;"
+		+ "background-color: " + get_colour(Game.colour,1) + ";"
+		+ "}");
+    
+}
 
 //game setup
 // moved this here because it makes no sense that setup isn't in init_and_setup.js 
@@ -151,4 +178,21 @@ window.onresize = function(e) {
 //util function to help us remove nodes
 function remove_element(element) {
 	element && element.parentNode && element.parentNode.removeChild(element);
+}
+
+//util function to help us select the correct stylesheet 
+function get_style_sheet_by_name(name)
+{
+	if(!name) return;
+	
+	var sheets = document.styleSheets;
+	for(var index in sheets)
+	{
+		if(sheets[index].href && sheets[index].href.indexOf(name + ".css") > -1)
+		{
+			return sheets[index];
+		}
+	}
+	
+	log("No such stylesheet called \"" + name + "\" exists. The name of a stylesheet refers to its href and does not need the suffix.");
 }
