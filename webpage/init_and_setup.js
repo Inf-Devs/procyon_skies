@@ -61,12 +61,14 @@ function setup_game() {
     //set up our event listeners
     addEventListener("keyup", keyup_handler);
     addEventListener("keydown", keydown_handler);
+    socket.on("initialize", initialize);
     socket.on("server_update", receive_update);
     socket.on("notification", receive_notification);
     socket.on("death", on_death);
     socket.on("kill", on_kill);
     socket.on("leaderboard_update", update_leaderboard);
     socket.on("upgrades_update", Upgrades_display.receive_buy_update);
+    socket.on("weapons_update", Weapons_handler.receive_weapons_update);
     socket.on("orbit_update", toggle_orbit);
 	
     //set up the main canvas
@@ -120,6 +122,7 @@ function setup_game() {
 	
 	// weapons
 	var shop_weapons_panel = document.createElement("div");
+	shop_weapons_panel.id = "weapons_panel";
 	orbit_panel.addTab(shop_weapons_panel, "Weapons");
 	
     //set up the mini map and infos
@@ -158,6 +161,14 @@ function setup_game() {
     
     Info_display.init(mini_map, status);
 	
+	// set up the offscreen canvas for ICON making! 
+	var icon_canvas = document.createElement("canvas");
+	icon_canvas.width = 128;
+	icon_canvas.height = 128;
+	createCanvasIcons(icon_canvas);
+	
+	send_ask("initialize");
+	
     requestAnimationFrame(animate);
 }
 
@@ -195,4 +206,66 @@ function get_style_sheet_by_name(name)
 	}
 	
 	log("No such stylesheet called \"" + name + "\" exists. The name of a stylesheet refers to its href and does not need the suffix.");
+}
+
+// Sneaky way of creating ICONS from canvas 
+// So we won't have a literal million mini canvases 
+var Canvas_icons = {}
+
+function createCanvasIcons(canvas)
+{
+	var context = canvas.getContext("2d");
+	
+	// helper function to store and then clear the canvas for its next iteration
+	function createNewIcon(name)
+	{
+		Canvas_icons[name] = canvas.toDataURL('image/png', 1);
+		context.clearRect(0,0,canvas.width,canvas.height);
+	}
+	
+	// set colours matching default 
+	context.strokeStyle = get_colour(Game.colour);
+	context.fillStyle = get_colour(Game.colour);
+	context.lineWidth = 1;
+	// now create da icons!
+	
+	// blasters 
+	context.beginPath();
+	context.moveTo(50,128-4);
+	context.lineTo(4,128-50);
+	context.lineTo(28-10,128-54-10);
+	context.lineTo(54+10,128-28+10);
+	context.closePath();
+	context.fill();
+	context.stroke();
+
+	context.beginPath();
+	context.moveTo(32,128-50);
+	context.lineTo(50,128-32);
+	context.lineTo(70,128-52);
+	context.lineTo(52,128-70);
+	context.closePath();
+	context.fill();
+	context.stroke();
+
+	context.beginPath();
+	context.moveTo(38,128-44);
+	context.lineTo(44,128-38);
+	context.lineTo(102,128-96);
+	context.lineTo(96,128-102);
+	context.closePath();
+	context.fill();
+	context.stroke();
+
+	context.beginPath();
+	context.moveTo(114,128-104);
+	context.lineTo(102,128-114);
+	context.lineTo(82,128-92);
+	context.lineTo(94,128-82);
+	context.closePath();
+	context.fill();
+	context.stroke();
+	
+	//disabled for now
+	//createNewIcon("blaster");
 }

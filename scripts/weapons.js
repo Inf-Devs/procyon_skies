@@ -17,13 +17,18 @@ var Weapons = {
         [ ] cost
         [ ] description (coming soon)
         
-        *** EXAMPLES BELOW ***
+		*** OPTIOANL ***
+		[ ] price (null interpretted as unbuyable, 0 as free)
+		*** EXAMPLES BELOW ***
     */
     
     "torpedo": {
         name: "torpedo",
         cost: 0.4,
         cooldown: 1000,
+		price: 0,
+		description: "A slab of metal that packs a punch.",
+		slot: "secondary",
         fire: function(p) {
             //launch a new rocket
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
@@ -39,6 +44,9 @@ var Weapons = {
         name: "blaster",
         cost: 0.05,
         cooldown: 250,
+		price: 0,
+		description: "Pew pew!",
+		slot: "primary",
         fire: function(p) {
             //launch one blaster bullet
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
@@ -54,6 +62,9 @@ var Weapons = {
         name: "twin blaster",
         cost: 0.07,
         cooldown: 300,
+		price: 500,
+		description: "Twice the pews per shot!",
+		slot: "primary",
         fire: function(p) {
             //launch two blaster bullets, 40 degrees apart
             var a1 = p.angle + Math.PI / 15, a2 = p.angle - Math.PI / 15;
@@ -80,6 +91,9 @@ var Weapons = {
         name: "machine gun blaster",
         cost: 0.03,
         cooldown: 75,
+		price: 1000,
+		description: "Pew pew pew pew pew...!",
+		slot: "primary",
         fire: function(p) {
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
             var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
@@ -94,6 +108,9 @@ var Weapons = {
         name: "wide shot blaster",
         cost: 0.1,
         cooldown: 500,
+		price: 1500,
+		description: "A shotgun in SPACE!",
+		slot: "primary",
         fire: function(p) {
             //fire five blaster bullets!
             //angles: -30, -15, 0, 15, 30 (degrees)
@@ -121,6 +138,9 @@ var Weapons = {
         name: "grenade",
         cost: 0.3,
         cooldown: 100,
+		price: 1000,
+		description: "It's the explosion that does the damage.",
+		slot: "secondary",
         fire: function(p) {
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
             var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
@@ -135,6 +155,9 @@ var Weapons = {
         name: "sonic cannon",
         cost: 0.2,
         cooldown: 1250,
+		price: 250,
+		description: "Great for mining asteroids, but can't hurt any players.",
+		slot: "secondary",
         fire: function(p) {
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
             var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;

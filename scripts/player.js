@@ -103,22 +103,27 @@ Player.prototype.orbit_cooldown = 1e4; //ten seconds to switching between planet
 Player.prototype.upgrades = {
     "health regen":{
         name:"health regen",
+		description:"Makes your health go up faster.",
         max: 10,
     },
     "engine thrust":{
         name:"engine thrust",
+		description:"Makes you go faster.",
         max: 5,
     },
     "engine turning":{
         name:"engine turning",
+		description:"Makes you go spinning faster.",
         max: 5,
     },
     "damage resistance":{
         name:"damage resistance",
+		description:"Decreases damage that other things can do to you.",
         max: 10,
     },
     "ammo regen":{
         name:"ammo regen",
+		description:"So you can shoot more.",
         max: 10,
     },
 };
@@ -346,6 +351,9 @@ Player.prototype.get_upgrade_cost = function()
 
 Player.prototype.buy_upgrade = function(name)
 {
+	// check if in orbit first. ya can't cheat the system even if you know a bit of console js!
+	if(!this.orbiting_planet) return false;
+	
     // can't use arrow functions for some reason
     // checking to prevent client abuse bloody crashing the server
     var upgrade = this.current_upgrades.find(function(element){return element.name === name});
@@ -354,7 +362,7 @@ Player.prototype.buy_upgrade = function(name)
     if(upgrade.count < upgrade.type.max)
     {
         var cost = this.get_upgrade_cost();
-        if(this.resources > cost)
+        if(this.resources >= cost)
         {
             this.resources -= cost;
             upgrade.count += 1;
@@ -363,7 +371,31 @@ Player.prototype.buy_upgrade = function(name)
     }
     return false;
 };
+/*
+	Yes, you CAN upgrade down and there are no refunds!
+ */
+Player.prototype.buy_weapon = function(weapon_key)
+{
+	// check if in orbit first. ya can't cheat the system even if you know a bit of console js!
+	if(!this.orbiting_planet) return false;
+	
+	var weapon = Weapons[weapon_key];
+	var cost = weapon.price;
+	if(this.resources >= cost)
+	{
+		this.resources -= cost;
+		var slot = 0;
+		if(weapon.slot === "secondary")
+		{
+			slot = 1;
+		}
+		this.set_weapon(slot, weapon);
+		return true;
+	}
+	return false;
+};
 
+// remember that slot 0 is primary, 1 is secondary
 Player.prototype.set_weapon = function(slot, weapon) {
     this.weapons[slot] = weapon;
 };

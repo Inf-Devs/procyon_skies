@@ -11,6 +11,7 @@ var Misc_math        = require(__dirname + "/misc_math.js");
 var Colours          = require(__dirname + "/colours.js");
 var Players          = require(__dirname + "/players.js");
 var Universe         = require(__dirname + "/universe.js");
+var Weapons     = require(__dirname + "/weapons.js");
 var Celestial_bodies = require(__dirname + "/celestial_bodies.js");
 var Game_events      = require(__dirname + "/events.js");
 // var Shop             = require(__dirname + "/shop.js");
@@ -82,19 +83,38 @@ io.on("connection", function(socket) {
     
     // incoming ASK from client 
     // some minor action to be performed
-    socket.on("ask", function(data) {       
-        if(data.action === "buy_upgrade")
-        {
-            if(player.buy_upgrade(data.request.upgrade_name))
-            {
-                socket.emit("upgrades_update",{upgrade_bought:data.request.upgrade_name
-                    ,next_upgrade_cost:player.get_upgrade_cost()})
-            }
-            else 
-            {
-                socket.emit("notification", "unable to purchase " + data.request.upgrade_name);
-            }
-        }
+    socket.on("ask", function(data) {    
+		switch(data.action)
+		{
+			case "buy_upgrade":
+				if(player.buy_upgrade(data.request.upgrade_name))
+				{
+					socket.emit("upgrades_update",{upgrade_bought:data.request.upgrade_name
+						,next_upgrade_cost:player.get_upgrade_cost()})
+				}
+				else 
+				{
+					socket.emit("notification", "unable to purchase " + data.request.upgrade_name);
+				}
+				break;
+			case "buy_weapon":
+				if(player.buy_weapon(data.request))
+				{
+					socket.emit("weapons_update",data.request);
+					socket.emit("notification","you have purchased the " + data.request);
+				}
+				else 
+				{
+					socket.emit("notification", "unable to purchase weapon " + data.request);
+				}
+				break;
+			case "initialize":
+				socket.emit("initialize",{upgrades: Object.getPrototypeOf(player).upgrades
+				,weapons:Weapons});
+				break;
+			default:
+		}
+		
     });
     
     //incoming update from the client

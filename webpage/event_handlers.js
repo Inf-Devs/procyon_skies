@@ -120,14 +120,21 @@ function send_ask(action,request) {
     socket.emit("ask",{action:action,request:request});
 }
 
+function initialize(data)
+{
+	log(data);
+	Upgrades_display.init(data.upgrades);
+	Weapons_handler.init(data.weapons);
+}
+
 var last_update = null;
 
 function receive_update(data) {
     // for initializing certain HTML elements 
     if (last_update === null)
     {
-        var player = data.player;
-        Upgrades_display.init(player.current_upgrades);
+        //var player = data.player;
+        //Upgrades_display.init(player.current_upgrades);
     }
     
     if (data.time < last_update && last_update !== null) {
@@ -168,10 +175,7 @@ function receive_notification(message) {
 
 function on_death() {
     log("player has been killed.");
-    //to-do:
-    //[ ] a death screen
-    //[ ] give the player an option to respawn (don't worry about respawning logic)
-    document.getElementById("death_screen").style.display = "flex";
+    document.getElementById("death_screen").style.visibility = "visible";
     // Restart with forced refresh for now 
 }
 
@@ -215,10 +219,10 @@ function toggle_orbit(state)
 	switch(state)
 	{
 		case "enter":
-			document.getElementById("orbit_screen").style.display = "flex";
+			document.getElementById("orbit_screen").style.visibility = "visible";
 			break;
 		case "exit":
-			document.getElementById("orbit_screen").style.display = "none";
+			document.getElementById("orbit_screen").style.visibility = "hidden";
 			break;
 		default:
 	}
@@ -242,29 +246,35 @@ var Upgrades_display = {
         cost_display.innerHTML = "<p>150 resources</p>";
         panel.appendChild(cost_display);
         
-        upgrades.forEach(upgrade => 
-            {
-                current_upgrades[upgrade.name] = {count:0,max:upgrade.type.max}
-                
-                // set it all up for each row
-                upgrade_panels[upgrade.name] = {panel:document.createElement("div")};
-                upgrade_panels[upgrade.name].panel.innerHTML = "<p>"+ upgrade.name +"</p>";
-                panel.appendChild(upgrade_panels[upgrade.name].panel);
-                
-                // now add in the upgrade fullness
-                var upgrade_progress = upgrade_panels[upgrade.name].upgrade_progress = document.createElement("progress");
-                upgrade_progress.setAttribute("value",0);
-                upgrade_progress.setAttribute("max",upgrade.type.max);
-                upgrade_panels[upgrade.name].panel.appendChild(upgrade_progress);
-                // buttons
-                var upgrade_button = upgrade_panels[upgrade.name].upgrade_button = document.createElement("button");
-                upgrade_button.setAttribute("onClick", "Upgrades_display.send_buy_request('" + upgrade.name + "');"); // SUPER SKETCHY WAY TO DO THIS
-                upgrade_button.innerHTML = "+";
-                upgrade_button.style.borderColor = get_colour(Game.colour);
-                upgrade_button.style.color       = get_colour(Game.colour);
-                upgrade_panels[upgrade.name].panel.appendChild(upgrade_button);
-            });
-        
+		for(key in upgrades)
+		{
+			var upgrade = upgrades[key];
+			current_upgrades[key] = {count:0, max: upgrade.max};
+			// set it all up for each row
+			upgrade_panels[key] = {panel:document.createElement("div")};
+			upgrade_panels[key].panel.innerHTML = "<p class = \'tooltip-left\'tooltip= \'" + upgrade.description + "\'>" + upgrade.name +"</p>";
+            // tooltips
+			panel.appendChild(upgrade_panels[key].panel);
+			
+			
+			// now add in the upgrade fullness
+			var upgrade_progress = upgrade_panels[key].upgrade_progress = document.createElement("progress");
+			upgrade_progress.setAttribute("value",0);
+			upgrade_progress.setAttribute("max",upgrade.max);
+			upgrade_panels[key].panel.appendChild(upgrade_progress);
+			
+			// buttons
+			var upgrade_button = upgrade_panels[key].upgrade_button = document.createElement("button");
+			upgrade_button.key = key;
+			upgrade_button.onclick = function()
+			{
+				Upgrades_display.send_buy_request(this.key);
+			};
+			upgrade_button.innerHTML = "+";
+			upgrade_button.style.borderColor = get_colour(Game.colour);
+			upgrade_button.style.color       = get_colour(Game.colour);
+			upgrade_panels[key].panel.appendChild(upgrade_button);
+		}
     },
     
     send_buy_request: function(name)
@@ -285,3 +295,87 @@ var Upgrades_display = {
     },
 };
 
+// weapons handler
+var Weapons_handler = {
+	panel: null,
+	
+	
+	init: function(weapons)
+	{
+		var panel = Weapons_handler.panel = document.getElementById("weapons_panel");
+		// create new subpanels, one for each type of weapon 
+		var primary_weapons = document.createElement("div");
+		primary_weapons.id = "primary_weapons";
+		primary_weapons.classList.add("theme_colour","sub_panel");
+		panel.appendChild(primary_weapons);
+		
+		var secondary_weapons = document.createElement("div");
+		secondary_weapons.id = "secondary_weapons";
+		secondary_weapons.classList.add("theme_colour","sub_panel");
+		panel.appendChild(secondary_weapons);
+		
+		// now handle da weapons!
+		for(var weapon_key in weapons)
+		{
+			var weapon = weapons[weapon_key];
+			// create a new element to represent this weapon 
+			var weapon_display = document.createElement("div");
+			weapon_display.classList.add("weapon_display","theme_colour");
+			// take your imgs from Canvas_icons
+			if(Canvas_icons[weapon_key])
+			{
+				var icon = new Image();
+				icon.src = Canvas_icons[weapon_key];
+				weapon_display.appendChild(icon);
+			}
+			// add text 
+			var weapon_name = document.createElement("h1");
+			weapon_name.innerHTML = weapon.name;
+			weapon_display.appendChild(weapon_name);
+			
+			var weapon_description = document.createElement("p");
+			weapon_description.innerHTML = weapon.description;
+			weapon_display.appendChild(weapon_description);
+			
+			var weapon_rpm = document.createElement("p");
+			var ratepersecond = 0;
+			if(weapon.cooldown !== 0) ratepersecond = 1000/weapon.cooldown;
+			weapon_rpm.innerHTML = "RPM: " + (ratepersecond * 60);
+			weapon_display.appendChild(weapon_rpm);
+			
+			var weapon_price = document.createElement("p");
+			weapon_price.innerHTML = "Price: " + weapon.price + " resources";
+			weapon_display.appendChild(weapon_price);
+			
+			var buy_weapon_button = document.createElement("button");
+			buy_weapon_button.innerHTML = "buy";
+			buy_weapon_button.key = weapon_key;
+			buy_weapon_button.onclick = function()
+			{
+				Weapons_handler.send_buy_request(this.key);
+			}
+			weapon_display.appendChild(buy_weapon_button);
+			
+			
+			// differentiate based on if it's primary or secondary
+			if(weapon.slot === "primary")
+			{
+				primary_weapons.appendChild(weapon_display);
+			}
+			else if (weapon.slot === "secondary")
+			{
+				secondary_weapons.appendChild(weapon_display);
+			}
+		}	
+	},
+	
+	send_buy_request: function(weapon_key)
+	{
+		send_ask("buy_weapon",weapon_key);
+	},
+	
+	receive_weapons_update: function(data)
+	{
+		
+	},
+};

@@ -12,6 +12,14 @@ body {
 	background-color: rgba(0, 0, 0, 0.8);
 }
 
+.sub_panel
+{
+	border: 1px solid;
+	border-color: inherit;
+	display: inline-block;
+	overflow: auto;
+}
+
 .component 
 {
 	border: 1px solid white;
@@ -29,6 +37,134 @@ body {
     margin: auto;
 }
 
+button {
+	cursor: pointer;
+}
+
+/* 
+	ingenious tooltip from here:
+	https://chrisbracco.com/a-simple-css-tooltip/
+*/
+
+/* BASE STYLE */
+[tooltip] {
+	position: relative;
+	z-index: 3;
+}
+
+[tooltip]::before,
+[tooltip]::after {
+	position: absolute;
+	visibility: hidden;
+}
+
+[tooltip]:hover::before,
+[tooltip]:hover::after {
+	visibility: visible;
+}
+
+
+[tooltip]::before {
+	position: absolute;
+	padding: 7px;
+	width: 160px;
+	background-color: #111111;
+	content: attr(tooltip);
+	text-align: center;
+	font-size: 14px;
+	line-height: 1.2;
+}
+
+/* top */
+[tooltip]::before,
+[tooltip]::after,
+.tooltip-top::before,
+.tooltip-top::after {
+	bottom: 100%;
+	left: 50%;
+}
+
+[tooltip]::before,
+.tooltip-top::before {
+	margin-left: -6px;
+	margin-bottom: -12px;
+}
+
+[tooltip]::after,
+.tooltip-top::after {
+	margin-left: -80px;
+}
+
+[tooltip]:hover::before,
+[tooltip]:hover::after,
+.tooltip-top:hover::before,
+.tooltip-top:hover::after {
+	-webkit-transform: translateY(-12px);
+	transform: translateY(-12px);
+}
+/* left */
+.tooltip-left::before,
+.tooltip-left::after {
+	right: 100%;
+	bottom: 50%;
+	left: auto;
+}
+
+.tooltip-left::before {
+	margin-left: 0;
+	margin-right: -12px;
+	margin-bottom: 0;
+}
+
+.tooltip-left:hover::before,
+.tooltip-left:hover::after{
+	-webkit-transform: translateX(-12px);
+	transform: translateX(-12px);
+}
+/* vertically center left/right tooltips */
+.tooltip-left::after,
+.tooltip-right::after{
+	margin-left: 0;
+	margin-bottom: -16px;
+}
+/* bototm */
+.tooltip-bottom::before,
+.tooltip-bottom::after {
+	top: 100%;
+	bottom: auto;
+	left: 50%;
+}
+
+.tooltip-bottom::before {
+	margin-top: -12px;
+	margin-bottom: 0;
+}
+
+.tooltip-bottom:hover::before,
+.tooltip-bottom:hover::after{
+	-webkit-transform: translateY(12px);
+	transform: translateY(12px);
+}
+/* right */
+.tooltip-right::before,
+.tooltip-right::after {
+	bottom: 50%;
+	left: 100%;
+}
+
+.tooltip-right::before {
+	margin-bottom: 0;
+	margin-left: -12px;
+}
+.tooltip-right:hover::before,
+.tooltip-right:hover::after{
+	-webkit-transform: translateX(12px);
+	transform: translateX(12px);
+}
+
+/*
+	Individual elements 
+ */
 canvas {
     position: absolute;
     top: 0px; left: 0px;
@@ -95,9 +231,73 @@ div#infos {
 }
 
 #weapons_panel {
-	
+	position: relative;
 }
 
+#primary_weapons {
+	width: calc(50% - 2px);
+	position: absolute;
+	top: 0;
+	left: 0;
+	
+	height: 100%;
+	/* DARN YOU WORDS AND CONTAINERS! */
+	font-size: 0px; 
+}
+
+#secondary_weapons {
+	width: calc(50% - 2px);
+	position: absolute;
+	top: 0;
+	right: 0;
+	
+	height: 100%;
+	/* DARN YOU WORDS AND CONTAINERS! */
+	font-size: 0px; 
+}
+
+.weapon_display {
+	width: 100%;
+	min-height: 128px;
+	border-top: 1px solid;
+	border-color: inherit;
+		
+	margin: 0;
+	padding: 0;
+	
+	display: inline-block;
+	position: relative;
+	
+	/* DARN YOU WORDS AND CONTAINERS! */
+	font-size: 12px; 
+}
+
+.weapon_display h1 {
+	margin: 0;
+	padding: 3px;
+}
+
+.weapon_display p {
+	font-size: 18px;
+	margin: 2px;
+}
+
+
+.weapon_display img {
+	width: 128px;
+	height: 128px;
+	float: right;
+}
+
+.weapon_display button {
+	width: 60px;
+	height: 20px;
+	font-family: "VT323";
+	background: none;
+	border: 1px solid;
+	border-color: inherit;
+	color: inherit;
+}
 
 #upgrades_panel {
     font-family: "VT323";
@@ -146,7 +346,8 @@ div#infos {
 /* screens */
 
 #death_screen {
-    display: none;
+    display: flex;
+	visibility: hidden;
     align-items: center;
     justify-content: center;
     height: 100vh;
@@ -161,6 +362,7 @@ div#infos {
 
 #orbit_screen {
 	display: flex;
+	visibility: hidden; 
     align-items: center;
     justify-content: center;
     height: 100vh;
@@ -231,16 +433,27 @@ div#infos {
 .tabbedPanel_navigationBar {
 	border-color: inherit;
 	height: 60px;
+	
+	display: flex;
+	flex-direction: row;
 }
 
 .tabbedPanel_navigationButton {
 	display:inline-block;
-	border: 1px solid white;
+	border-bottom: 1px solid white;
+	border-right: 1px solid white;
 	border-color: inherit;
 	padding: 15px;
 	font-size: 1.5em;
 	cursor: pointer;
 	height: calc(60px-30px);
+	
+	flex: 1;
+}
+
+/*remove that ugly border after everything else */
+.tabbedPanel_navigationButton:last-child {
+	border-right: none;
 }
 
 .tabbedPanel_contentPanel {
@@ -250,7 +463,8 @@ div#infos {
 	height: calc(100% - 50px - 60px); 
 }
 
-.tabbedPanel_contentPanel div {
+/* only for immediate children, ie the first divs */
+.tabbedPanel_contentPanel > div {
 	width: 100%;
 	height: 100%;
 }

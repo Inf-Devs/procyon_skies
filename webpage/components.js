@@ -1,3 +1,8 @@
+/**
+	DOM Tabbed Panel 
+	Use .addTab(tab, name) in order to add a tab 
+	
+ */
 function TabbedPanel()
 {
 	this.panel = document.createElement("div");
@@ -34,19 +39,6 @@ TabbedPanel.prototype.addTab = function(tab, name)
 	this.navigationBar.appendChild(tabButton);
 	this.buttons.push(tabButton);
 	
-	// repacking buttons
-	// adjust size dyanmically.
-	this.buttons.forEach(button => 
-		{
-			if(!button.style.padding) button.style.padding = this.navigationButtonPadding;
-			// minus twice in case button.style.padding is in percentages
-			button.style.width = "calc(" + 100/this.buttons.length + "%" 
-				+ " - " + button.style.padding 
-				+ " - " + button.style.padding 
-				+ " - " + this.navigationButtonBorderWidth
-				+ " - " + this.navigationButtonBorderWidth + ")";
-		}
-	);
 	this.contentPanel.appendChild(tab);
 	
 	// set as the first init in order to set the border
