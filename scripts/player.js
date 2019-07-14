@@ -57,7 +57,7 @@ function Player(name, colour, id) {
     this.type         = "player";
     this.score        = 0; // stats!
     this.exhaust      = Math.random() < 0.5 ? Particles.Bubble : Particles.Shrinking_diamond;
-    this.resources    = 1000;
+    this.resources    = 10000;
     
     //orbit! not the KSP kind.
     this.orbiting_planet = default_planet;

@@ -3,20 +3,36 @@
     <head>
         <title>Space for Everyone!</title>
         <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet"> 
-        <meta charset="utf-8" />
         <link href="stylesheet.css" rel="stylesheet"/>
+		<!-- favicons for every situation!	-->
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="icon" type="image/ico" sizes="16x16" href="/favicon.ico">
+
+		<meta charset="utf-8" />
+
     </head>
     <body>
         <div id="join">
-            <h1>Procyon Skies</h1>
-            <p>Welcome! Enter your name, and get ready for blastoff!</p>
-            <p>Instructions: Arrow keys to move. z for blasters. x for torpedos.</p>
-            <p>You can also use WASD to move, &quot;,&quot; for blasters, and &quot;.&quot; for torpedos.</p>
-            <p>Score points by blasting asteroids, blasting other players, and collecting resources.</p>
+            <h1 id="title_splash">Procyon Skies <img src="sprites/logo.png"></img></h1>
+            <div id="instructions">
+				<h1>Instructions</h1>
+				<p>Welcome! Enter your name, and get ready for blastoff!</p>
+				<p>Arrow keys to move. z for blasters. x for torpedos.</p>
+				<p>You can also use WASD to move, &quot;,&quot; for blasters, and &quot;.&quot; for torpedos.</p>
+				<p>Score points by blasting asteroids, blasting other players, and collecting resources.</p>
+				<div id="credits">
+					<span>Developed by Inf-Devs</span>
+					<span><a target = "_blank" href="https://docs.google.com/forms/d/e/1FAIpQLScHgviFI7HQ7Rh-kHNfiHX9Z0CHe6B5-A5rot-R_lvGC5CvRA/viewform?usp=sf_link">Tell us what you think!</a></span>
+					<span><a target = "_blank" href="https://github.com/Clocks-in-a-Cooler/procyon_skies/">Github</a></span>
+				</div>
+			</div>
             <form id="join_form">
                 <p>Name: <input type="text" name="name_field"/></p>
                 <button type="submit">Blastoff!</button>
             </form>
+			
         </div>
         <script src="socket.io.min.js"></script>
         <script src="game.js"></script>
