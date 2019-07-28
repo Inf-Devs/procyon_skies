@@ -3,6 +3,8 @@ var form;
 var socket;
 var stylesheet;
 
+var device;
+
 function init() {
     form = document.getElementById("join_form");
     form.addEventListener("submit", form_submit);
@@ -16,6 +18,8 @@ function init() {
     canvas.height = window.innerHeight;
 	
 	stylesheet = get_style_sheet_by_name("stylesheet");
+	// pour les controlles
+	device = "pc";
 	
 }
 
@@ -231,41 +235,134 @@ function createCanvasIcons(canvas)
 	
 	// blasters 
 	context.beginPath();
-	context.moveTo(50,128-4);
-	context.lineTo(4,128-50);
-	context.lineTo(28-10,128-54-10);
-	context.lineTo(54+10,128-28+10);
-	context.closePath();
-	context.fill();
-	context.stroke();
-
-	context.beginPath();
-	context.moveTo(32,128-50);
-	context.lineTo(50,128-32);
-	context.lineTo(70,128-52);
-	context.lineTo(52,128-70);
-	context.closePath();
-	context.fill();
-	context.stroke();
-
-	context.beginPath();
-	context.moveTo(38,128-44);
-	context.lineTo(44,128-38);
-	context.lineTo(102,128-96);
-	context.lineTo(96,128-102);
-	context.closePath();
-	context.fill();
-	context.stroke();
-
-	context.beginPath();
-	context.moveTo(114,128-104);
-	context.lineTo(102,128-114);
-	context.lineTo(82,128-92);
-	context.lineTo(94,128-82);
-	context.closePath();
-	context.fill();
+	context.lineWidth = 5;
+	
+	context.moveTo(40,128-40);
+	context.lineTo(128-40,40);
 	context.stroke();
 	
-	//disabled for now
-	//createNewIcon("blaster");
+	context.beginPath();
+	context.moveTo(0,128-40);
+	context.lineTo(40,128);
+	context.lineTo(0,128);
+	context.closePath();
+	context.fill();
+
+	createNewIcon("blaster");
+	
+	// twin blasters
+	context.beginPath();
+	context.lineWidth = 5;
+	
+	context.moveTo(30,128-50);
+	context.lineTo(128-50,30);
+	
+	context.moveTo(50,128-30);
+	context.lineTo(128-30,50);
+	context.stroke();
+
+	context.moveTo(0,128-40);
+	context.lineTo(40,128);
+	context.lineTo(0,128);
+	context.closePath();
+	context.fill();
+	createNewIcon("twin blaster");
+
+	// machine gun
+	context.beginPath();
+	context.lineWidth = 5;
+	context.setLineDash([5, 15]);
+
+	context.moveTo(40,128-40);
+	context.lineTo(128-40,40);
+	context.stroke();
+
+	context.moveTo(0,128-40);
+	context.lineTo(40,128);
+	context.lineTo(0,128);
+	context.closePath();
+	context.fill();
+	createNewIcon("machine gun blaster");
+	
+	// wide shot blaster 
+	context.beginPath();
+	context.lineWidth = 5;
+	context.setLineDash([]);
+
+	context.moveTo(20,128-60);
+	context.lineTo(128-80,0);
+	context.stroke();
+	
+	context.moveTo(30,128-50);
+	context.lineTo(128-60,20);
+	context.stroke();
+	
+	context.moveTo(40,128-40);
+	context.lineTo(128-40,40);
+	context.stroke();
+	
+	context.moveTo(50,128-30);
+	context.lineTo(128-20,60);
+	context.stroke();
+	
+	context.moveTo(60,128-20);
+	context.lineTo(128-0,80);
+	context.stroke();
+	
+	context.moveTo(0,128-40);
+	context.lineTo(40,128);
+	context.lineTo(0,128);
+	context.closePath();
+	context.fill();
+	createNewIcon("wide shot blaster");
+	
+	// torpedo
+	context.beginPath();
+	context.lineWidth = 5;
+	
+	context.moveTo(40,128-80);
+	context.lineTo(128-40,40);
+	context.lineTo(80,128-40);
+	context.stroke();
+	
+	context.beginPath();
+	context.moveTo(0,128-40);
+	context.lineTo(40,128);
+	context.lineTo(0,128);
+	context.closePath();
+	context.fill();
+
+	createNewIcon("torpedo");
+	
+	// grenade 
+	context.beginPath();
+	context.lineWidth = 5;
+	
+	context.arc(40,128-40,20,0,2*Math.PI);
+	context.fill();
+	
+	context.beginPath();
+	context.moveTo(0,128-40);
+	context.lineTo(40,128);
+	context.lineTo(0,128);
+	context.closePath();
+	context.fill();
+
+	createNewIcon("grenade");
+	
+	// sonic cannon 
+	context.beginPath();
+	context.lineWidth = 5;
+	
+	context.arc(60,128-60,30,0,2*Math.PI);
+	context.fill();
+	
+	context.beginPath();
+	context.moveTo(0,128-40);
+	context.lineTo(40,128);
+	context.lineTo(0,128);
+	context.closePath();
+	context.fill();
+
+	createNewIcon("sonic cannon");
 }

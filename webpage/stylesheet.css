@@ -333,6 +333,7 @@ div#infos {
 	width: 128px;
 	height: 128px;
 	float: right;
+	border: 1px solid;
 }
 
 .weapon_display button {
@@ -408,7 +409,7 @@ div#infos {
 
 #orbit_screen {
 	display: flex;
-	visibility: hidden; 
+	visibility: visible; 
     align-items: center;
     justify-content: center;
     height: 100vh;
