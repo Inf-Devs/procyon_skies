@@ -3,7 +3,8 @@ var Game = {
     id: null,
     colour: null,
     name: null,
-    
+    player: null,
+
     keys: {
         up: false,
         down: false,

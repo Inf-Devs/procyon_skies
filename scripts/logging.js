@@ -39,7 +39,7 @@ function get_date() {
 
 //custom log function
 var fs         = require("fs");
-var log_stream = fs.createWriteStream("logs\\log" + get_date() + ".txt", {'flags': 'a'});
+var log_stream = fs.createWriteStream("logs/log" + get_date() + ".txt", {'flags': 'a'});
 
 function log(msg, type) {
     msg  = msg.trim();

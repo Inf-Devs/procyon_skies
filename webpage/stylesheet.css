@@ -3,12 +3,12 @@ body {
 	background: url("sprites/landing_page.png") no-repeat center fixed;
 	background-size: cover; /* Resize the background image to cover the entire container */
     color: white;
-	
+
 	font-family: "VT323";
 }
 
 /*
-	Framework 
+	Framework
  */
 .panel
 {
@@ -24,7 +24,7 @@ body {
 	overflow: auto;
 }
 
-.component 
+.component
 {
 	border: 1px solid white;
 }
@@ -45,7 +45,7 @@ button {
 	cursor: pointer;
 }
 
-/* 
+/*
 	ingenious tooltip from here:
 	https://chrisbracco.com/a-simple-css-tooltip/
 */
@@ -185,15 +185,15 @@ button {
 }
 
 .instructions_highlight {
-	
+
 }
 
-#join_form 
+#join_form
 {
 	display: block;
 }
 
-#join_form p, 
+#join_form p,
 #join_form button
 {
 	display: inline-block;
@@ -209,7 +209,7 @@ button {
     height: 50px;
 }
 /*
-	Individual elements 
+	Individual elements
  */
 canvas {
     position: absolute;
@@ -285,10 +285,10 @@ div#infos {
 	position: absolute;
 	top: 0;
 	left: 0;
-	
+
 	height: 100%;
 	/* DARN YOU WORDS AND CONTAINERS! */
-	font-size: 0px; 
+	font-size: 0px;
 }
 
 #secondary_weapons {
@@ -296,10 +296,10 @@ div#infos {
 	position: absolute;
 	top: 0;
 	right: 0;
-	
+
 	height: 100%;
 	/* DARN YOU WORDS AND CONTAINERS! */
-	font-size: 0px; 
+	font-size: 0px;
 }
 
 .weapon_display {
@@ -307,15 +307,15 @@ div#infos {
 	min-height: 128px;
 	border-top: 1px solid;
 	border-color: inherit;
-		
+
 	margin: 0;
 	padding: 0;
-	
+
 	display: inline-block;
 	position: relative;
-	
+
 	/* DARN YOU WORDS AND CONTAINERS! */
-	font-size: 12px; 
+	font-size: 12px;
 }
 
 .weapon_display h1 {
@@ -371,7 +371,7 @@ div#infos {
     font-size: 15pt;
     border: inherit;
     background-color: inherit;
-	
+
 	float: right;
 	display: inline-block;
 }
@@ -385,7 +385,7 @@ div#infos {
     background-color: rgba(0, 0, 0, 0.8);
     height: 20px;
 	width: 500px;
-	
+
 	float: right;
 	display: inline-block;
 }
@@ -399,7 +399,7 @@ div#infos {
     justify-content: center;
     height: 100vh;
     width: 100vw;
-    
+
     background-color: rgba(38, 38, 38, 0.5);
     position: absolute;
     top: 0;
@@ -409,12 +409,12 @@ div#infos {
 
 #orbit_screen {
 	display: flex;
-	visibility: visible; 
+	visibility: hidden; 
     align-items: center;
     justify-content: center;
     height: 100vh;
     width: 100vw;
-    
+
     position: absolute;
     top: 0;
     left: 0;
@@ -423,14 +423,14 @@ div#infos {
 #restart_box {
     font-family: "VT323";
     font-size: 21pt;
-    
+
     width: 300px;
     height: 200px;
     background-color: rgba(38, 38, 38, 0.5);
     border: 1px solid white;
     z-index: 3;
     padding: 10px;
-    
+
     text-align: center;
 }
 
@@ -450,7 +450,7 @@ div#infos {
 }
 
 
-/* 
+/*
 	JS COMPONENTS
 */
 
@@ -464,7 +464,7 @@ div#infos {
 .tabbedPanel_navigationBar {
 	border-color: inherit;
 	height: 60px;
-	
+
 	display: flex;
 	flex-direction: row;
 }
@@ -478,7 +478,7 @@ div#infos {
 	font-size: 1.5em;
 	cursor: pointer;
 	height: calc(60px-30px);
-	
+
 	flex: 1;
 }
 
@@ -491,7 +491,7 @@ div#infos {
 	padding: 25px;
 	width: calc(100% - 50px);
 	/* further 60px from the height of the navigation bar*/
-	height: calc(100% - 50px - 60px); 
+	height: calc(100% - 50px - 60px);
 }
 
 /* only for immediate children, ie the first divs */
@@ -499,4 +499,3 @@ div#infos {
 	width: 100%;
 	height: 100%;
 }
-
