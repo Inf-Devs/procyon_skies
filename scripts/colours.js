@@ -33,7 +33,6 @@ Colours.colours = [
     {r:   0, g: 191, b: 255}, //deepskyblue
     {r: 221, g: 160, b: 221}, //violet
     {r: 216, g: 191, b: 216}, //thistle
-    {r: 255, g: 255, b: 255}, //white
     {r: 192, g: 192, b: 192}, //silver
 ];
 

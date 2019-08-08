@@ -4,6 +4,7 @@ var Camera = {
 
     objects: [],
     players: [],
+    minimap_objects: [],
     width: null,
     height: null,
     offset_x: null,
@@ -124,33 +125,14 @@ var Camera = {
                     cxt.fill();
                     break;
                 case "asteroid":
-                    /*
-                    // healthbar
-                    cxt.fillStyle = "white";
-                    // yo dawg I heard you like cases inside of your cases
-                    switch (f.size) {
-                        case 0:
-                            cxt.fillRect(draw_x - 10, draw_y - 12, (f.health / f.max_health) * 20, 2.5);
-                            break;
-                        case 1:
-                            cxt.fillRect(draw_x - 15, draw_y - 15, (f.health / f.max_health) * 30, 2.5);
-                            break;
-                        case 2:
-                            cxt.fillRect(draw_x - 20, draw_y - 20, (f.health / f.max_health) * 40, 2.5);
-                            break;
-                        case 3:
-                            cxt.fillRect(draw_x - 25, draw_y - 30, (f.health / f.max_health) * 50, 2.5);
-                            break;
-                        default:
-                    } */
-                    
+
                     //yo dawg ya don' evin need cases in this case.
                     if (f.health < f.max_health) {
                         cxt.fillStyle = "slategray";
                         var bar_width = (f.health / f.max_health) * f.radius * 2;
                         cxt.fillRect(draw_x - f.radius, draw_y - f.radius - 5, bar_width, 2.5);
                     }
-                    
+
                     cxt.save();
                     cxt.translate(draw_x, draw_y);
                     cxt.rotate(-f.rotation);
@@ -189,21 +171,18 @@ var Camera = {
                     cxt.restore();
                     break;
                 case "planet":
-                    cxt.fillStyle = "dodgerblue";
-                    cxt.beginPath();
-                    cxt.arc(draw_x, draw_y, f.radius, 0, Math.PI * 2);
-                    cxt.closePath();
-                    cxt.fill();
-
                     cxt.save();
                     cxt.translate(draw_x, draw_y);
                     cxt.rotate(-f.rotation);
                     var sprite;
+                    /*
                     if (f.name == "alpha") {
                         sprite = Sprites.planets.alpha;
                     } else if (f.name == "beta") {
                         sprite = Sprites.planets.beta;
-                    }
+                    }*/
+                    //NEW CODE
+                    sprite = Sprites.planets[f.kind];
                     cxt.drawImage(sprite, -32, -32);
                     cxt.restore();
                     break;
@@ -221,7 +200,7 @@ var Camera = {
                     cxt.closePath();
                     cxt.fill();
                     cxt.restore();
-                
+
                     cxt.fillStyle = "orange";
                     cxt.beginPath();
                     cxt.arc(draw_x, draw_y, f.radius, 0, Math.PI * 2);
@@ -254,7 +233,7 @@ var Camera = {
             cxt.moveTo(0, 0); cxt.lineTo(-5, 5); cxt.lineTo(10, 0); cxt.lineTo(-5, -5); cxt.lineTo(0, 0);
             cxt.closePath();
             cxt.fill();
-            
+
             if (p.invincible) {
                 //a small bubble shield to show that
                 cxt.fillStyle   = get_colour(p.colour, 0.3);
@@ -266,11 +245,12 @@ var Camera = {
                 cxt.fill();
                 cxt.stroke();
             }
-            
+
             cxt.restore();
         });
 
-        Info_display.draw_mini_map(1e4, 1e4, this.offset_x + this.width / 2, this.offset_y + this.height / 2, get_colour(Game.colour));
+        var angle = Game.player == null ? 0 : Game.player.angle;
+        Info_display.draw_mini_map(1e4, 1e4, this.offset_x + this.width / 2, this.offset_y + this.height / 2, get_colour(Game.colour), angle);
         Info_display.draw_status(get_colour(Game.colour));
     },
 
@@ -312,7 +292,7 @@ var Info_display = {
         this.mini_map_height = this.mini_map_canvas.height;
     },
 
-    draw_mini_map: function(map_width, map_height, x, y, colour) {
+    draw_mini_map: function(map_width, map_height, x, y, colour, angle) {
         this.mini_map_context.clearRect(0, 0, this.mini_map_width, this.mini_map_height);
 
         this.mini_map_context.fillStyle = colour;
@@ -321,9 +301,20 @@ var Info_display = {
         var draw_y = this.mini_map_height * (y / map_height);
 
         this.mini_map_context.beginPath();
-        this.mini_map_context.arc(draw_x, draw_y, 3, 0, Math.PI * 2);
+        //this.mini_map_context.arc(draw_x, draw_y, 3, 0, Math.PI * 2);
+        this.mini_map_context.moveTo(Math.cos(angle) * 6 + draw_x, Math.sin(angle) * 4 + draw_y);
+        this.mini_map_context.lineTo(Math.cos(angle + Math.PI * 3 / 4) * 3 + draw_x, Math.sin(angle + Math.PI * 3 / 4) * 3 + draw_y);
+        this.mini_map_context.lineTo(Math.cos(angle - Math.PI * 3 / 4) * 3 + draw_x, Math.sin(angle - Math.PI * 3 / 4) * 3 + draw_y);
         this.mini_map_context.closePath();
         this.mini_map_context.fill();
+
+        Camera.minimap_objects.forEach((obj) => {
+            this.mini_map_context.fillStyle = get_colour(obj.colour);
+            this.mini_map_context.beginPath();
+            this.mini_map_context.arc(this.mini_map_width * obj.x, this.mini_map_height * obj.y, 1.5, 0, Math.PI * 2);
+            this.mini_map_context.closePath();
+            this.mini_map_context.fill();
+        });
     },
 
     draw_status: function(colour) {
@@ -332,43 +323,19 @@ var Info_display = {
 
         this.status_context.save();
 
-        //icons will be 25 by 25 pixels, with 5 pixels of padding between each.
+        //icons will have 5 pixels of padding between each.
 
         //draw a heart, for health
-        this.status_context.translate(5, 5);
-        this.status_context.beginPath();
-        this.status_context.arc(6.25, 6.25, 6.25, -Math.PI, 0);
-        this.status_context.arc(18.75, 6.25, 6.25, -Math.PI, 0);
-        this.status_context.moveTo(25, 6.25);
-        this.status_context.lineTo(12.5, 25);
-        this.status_context.lineTo(0, 6.25);
-        this.status_context.closePath();
-        this.status_context.fill();
+		this.status_context.translate(5,5);
+		CanvasDrawings.heart(this.status_context);
 
         //draw the health bar
         this.status_context.translate(30, 0);
         this.status_context.fillRect(0, 0, Math.max(this.health * 110, 0), 25);
 
         //draw some shells, for ammo
-        this.status_context.translate(-30, 30);
-        this.status_context.beginPath();
-        this.status_context.moveTo(0, 3);
-        this.status_context.lineTo(0, 24);
-        this.status_context.lineTo(6, 24);
-        this.status_context.lineTo(6, 3);
-        this.status_context.lineTo(3, 0);
-        this.status_context.moveTo(8, 3);
-        this.status_context.lineTo(8, 24);
-        this.status_context.lineTo(14, 24);
-        this.status_context.lineTo(14, 3);
-        this.status_context.lineTo(11, 0);
-        this.status_context.moveTo(16, 3);
-        this.status_context.lineTo(16, 24);
-        this.status_context.lineTo(22, 24);
-        this.status_context.lineTo(22, 3);
-        this.status_context.lineTo(19, 0);
-        this.status_context.closePath();
-        this.status_context.fill();
+		this.status_context.translate(-30, 30);
+		CanvasDrawings.ammo(this.status_context);
 
         //draw the ammo bar
         this.status_context.translate(30, 0);
@@ -378,63 +345,66 @@ var Info_display = {
     },
 };
 
-// upgrade handler 
-var Upgrades_display = {
-    panel: null,
-    cost_display: null,
-    upgrade_panels: {},
-    
-    current_upgrades: {},
-    init: function(upgrades)
-    {
-        var current_upgrades = Upgrades_display.current_upgrades;
-        var panel = Upgrades_display.panel = document.getElementById("upgrades_panel");
-        var upgrade_panels = Upgrades_display.upgrade_panels;
-        
-        var cost_display = Upgrades_display.cost_display = document.createElement("div");
-        cost_display.innerHTML = "<p>150 resources</p>";
-        panel.appendChild(cost_display);
-        
-        upgrades.forEach(upgrade => 
-            {
-                current_upgrades[upgrade.name] = {count:0,max:upgrade.type.max}
-                
-                // set it all up for each row
-                upgrade_panels[upgrade.name] = {panel:document.createElement("div")};
-                upgrade_panels[upgrade.name].panel.innerHTML = "<p>"+ upgrade.name +"</p>";
-                panel.appendChild(upgrade_panels[upgrade.name].panel);
-                
-                // now add in the upgrade fullness
-                var upgrade_progress = upgrade_panels[upgrade.name].upgrade_progress = document.createElement("progress");
-                upgrade_progress.setAttribute("value",0);
-                upgrade_progress.setAttribute("max",upgrade.type.max);
-                upgrade_panels[upgrade.name].panel.appendChild(upgrade_progress);
-                // buttons
-                var upgrade_button = upgrade_panels[upgrade.name].upgrade_button = document.createElement("button");
-                upgrade_button.setAttribute("onClick", "Upgrades_display.send_buy_request('" + upgrade.name + "');"); // SUPER SKETCHY WAY TO DO THIS
-                upgrade_button.innerHTML = "+";
-                upgrade_button.style.borderColor = get_colour(Game.colour);
-                upgrade_button.style.color       = get_colour(Game.colour);
-                upgrade_panels[upgrade.name].panel.appendChild(upgrade_button);
-            });
-        
+// reusable drawings!
+// use translate in order to place the drawings.
+var CanvasDrawings = {
+
+	// icons will be 25 by 25 pixels
+	ammo: function(context)
+	{
+        context.beginPath();
+
+        context.moveTo(0, 3);
+        context.lineTo(0, 24);
+        context.lineTo(6, 24);
+        context.lineTo(6, 3);
+        context.lineTo(3, 0);
+
+        context.moveTo(8, 3);
+        context.lineTo(8, 24);
+        context.lineTo(14, 24);
+        context.lineTo(14, 3);
+        context.lineTo(11, 0);
+
+        context.moveTo(16, 3);
+        context.lineTo(16, 24);
+        context.lineTo(22, 24);
+        context.lineTo(22, 3);
+        context.lineTo(19, 0);
+
+        context.closePath();
+        context.fill();
+	},
+	// icons will be 25 by 25 pixels
+	heart: function(context)
+	{
+		context.beginPath();
+        context.arc(6.25, 6.25, 6.25, -Math.PI, 0);
+        context.arc(18.75, 6.25, 6.25, -Math.PI, 0);
+        context.moveTo(25, 6.25);
+        context.lineTo(12.5, 25);
+        context.lineTo(0, 6.25);
+        context.closePath();
+        context.fill();
+	}
+};
+
+
+// images
+var Sprites = {
+    rocks: {
+        small: get_sprite("rock_small.png"),
+        medium: get_sprite("rock_medium.png"),
+        large: get_sprite("rock_large.png"),
+        enormous: get_sprite("rock_enormous.png"),
     },
-    
-    send_buy_request: function(name)
-    {
-        var upgrade = Upgrades_display.current_upgrades[name];
-        // decrease clutter
-        if(upgrade.count < upgrade.max)
-        {
-            send_ask("buy_upgrade",{upgrade_name:name});
-        }
-    },
-    
-    receive_buy_update: function(data)
-    {
-        Upgrades_display.current_upgrades[data.upgrade_bought].count += 1;
-        Upgrades_display.upgrade_panels[data.upgrade_bought].upgrade_progress.setAttribute("value",Upgrades_display.current_upgrades[data.upgrade_bought].count);
-        Upgrades_display.cost_display.innerHTML = "<p>" + data.next_upgrade_cost + " resources</p>";
+
+    planets: {
+        alpha: get_sprite("planet_alpha.png"),
+        beta: get_sprite("planet_beta.png"),
+        "blue gas giant": get_sprite("planet_blue_gas_giant.png"),
+        "red gas giant": get_sprite("planet_red_gas_giant.png"),
+        "green rocky": get_sprite("planet_green_rocky.png"),
     },
 };
 
@@ -451,17 +421,3 @@ function get_sprite(name) {
     img.src = "sprites/" + name;
     return img;
 }
-
-var Sprites = {
-    rocks: {
-        small: get_sprite("rock_small.png"),
-        medium: get_sprite("rock_medium.png"),
-        large: get_sprite("rock_large.png"),
-        enormous: get_sprite("rock_enormous.png"),
-    },
-
-    planets: {
-        alpha: get_sprite("planet_alpha.png"),
-        beta: get_sprite("planet_beta.png"),
-    },
-};

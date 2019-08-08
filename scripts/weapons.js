@@ -15,91 +15,108 @@ var Weapons = {
         [ ] cooldown (in milliseconds)
         [ ] name
         [ ] cost
-        [ ] description
-        
-        *** EXAMPLES BELOW ***
+        [ ] description (coming soon)
+
+		*** OPTIOANL ***
+		[ ] price (null interpretted as unbuyable, 0 as free)
+		*** EXAMPLES BELOW ***
     */
-    
+
     "torpedo": {
         name: "torpedo",
         description: "a basic rocket.",
         cost: 0.4,
         cooldown: 1000,
+		price: 0,
+		description: "A slab of metal that packs a punch.",
+		slot: "secondary",
         fire: function(p) {
             //launch a new rocket
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
             var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
-            
+
             Universe.objects.push(new Torpedo_rocket(fire_x, fire_y, p.angle,
                 Colours.lighten(p.colour), p.id
             ));
         },
     },
-    
+
     "blaster": {
         name: "blaster",
         description: "basic blasters. fires one bullet at a time.",
         cost: 0.05,
         cooldown: 250,
+		price: 0,
+		description: "Pew pew!",
+		slot: "primary",
         fire: function(p) {
             //launch one blaster bullet
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
             var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
-            
+
             Universe.objects.push(new Blaster_bullet(fire_x, fire_y, p.angle,
                 Colours.lighten(p.colour), p.id
             ));
         },
     },
-    
+
     "twin blaster": {
         name: "twin blaster",
         description: "fires two bullets for (almost) the cost of one.",
         cost: 0.07,
         cooldown: 300,
+		price: 500,
+		description: "Twice the pews per shot!",
+		slot: "primary",
         fire: function(p) {
             //launch two blaster bullets, 40 degrees apart
             var a1 = p.angle + Math.PI / 15, a2 = p.angle - Math.PI / 15;
-            
+
             var fire_x1 = get_fire_coordinates(p.x, p.y, a1, player_radius).x;
             var fire_y1 = get_fire_coordinates(p.x, p.y, a1, player_radius).y;
-            
+
             var fire_x2 = get_fire_coordinates(p.x, p.y, a2, player_radius).x;
             var fire_y2 = get_fire_coordinates(p.x, p.y, a2, player_radius).y;
-            
+
             Universe.objects.push(new Blaster_bullet(fire_x1, fire_y1, p.angle,
                 Colours.lighten(p.colour), p.id
             ));
-            
+
             Universe.objects.push(new Blaster_bullet(fire_x2, fire_y2, p.angle,
                 Colours.lighten(p.colour), p.id
             ));
-            
+
             //easy. just copy and paste from above! that's how coding is done, y'all!
         },
     },
-    
+
     "machine gun blaster": { //like a blaster, but faster!
         name: "machine gun blaster",
         description: "fast blaster. good at shredding things.",
         cost: 0.03,
         cooldown: 75,
+		price: 1000,
+		description: "Pew pew pew pew pew...!",
+		slot: "primary",
         fire: function(p) {
             var angle  = p.angle;
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
             var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
-            
+
             Universe.objects.push(new Blaster_bullet(fire_x, fire_y, p.angle,
                 Colours.lighten(p.colour), p.id
             ));
         },
     },
-    
+
     "wide shot blaster": {
         name: "wide shot blaster",
         description: "fires five bullets, with 30 degrees between them. why only shoot forward?",
         cost: 0.1,
         cooldown: 500,
+		price: 1500,
+		description: "A shotgun in SPACE!",
+		slot: "primary",
         fire: function(p) {
             //fire FIVE blaster bullets!
             //angles: -30, -15, 0, 15, 30 (degrees)
@@ -111,11 +128,11 @@ var Weapons = {
                 p.angle + Math.PI / 24,
                 p.angle + Math.PI / 12,
             ];
-            
+
             angles.forEach((a) => {
                 var fire_x = get_fire_coordinates(p.x, p.y, a, player_radius).x;
                 var fire_y = get_fire_coordinates(p.x, p.y, a, player_radius).y;
-                
+
                 Universe.objects.push(new Blaster_bullet(fire_x, fire_y, a,
                     Colours.lighten(p.colour), p.id
                 ));
@@ -154,26 +171,32 @@ var Weapons = {
         name: "grenade",
         description: "delayed explosions done right.",
         cost: 0.3,
-        cooldown: 750,
+        cooldown: 100,
+		price: 1000,
+		description: "It's the explosion that does the damage.",
+		slot: "secondary",
         fire: function(p) {
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
             var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
-            
+
             Universe.objects.push(new Grenade(fire_x, fire_y, p.angle,
                 Colours.lighten(p.colour), p.id
             ));
         },
     },
-    
+
     "sonic cannon": {
         name: "sonic cannon",
         description: "big bubbles, slow and deadly.",
         cost: 0.2,
         cooldown: 1250,
+		price: 250,
+		description: "Great for mining asteroids, but can't hurt any players.",
+		slot: "secondary",
         fire: function(p) {
             var fire_x = get_fire_coordinates(p.x, p.y, p.angle, player_radius).x;
             var fire_y = get_fire_coordinates(p.x, p.y, p.angle, player_radius).y;
-            
+
             Universe.objects.push(new Sonic_bubble(fire_x, fire_y, p.angle,
                 Colours.lighten(p.colour), p.id
             ));
@@ -309,7 +332,7 @@ Torpedo_rocket.prototype.update = function(lapse) {
 Torpedo_rocket.prototype.collision = function() {
     this.active = false;
     Universe.objects.push(new Particles.Explosion(this.x, this.y, this.colour, this.owner));
-    
+
     return this.damage;
 };
 
@@ -321,10 +344,10 @@ function Grenade(x, y, angle, colour, owner) {
         x: Math.cos(angle) * this.initial_force,
         y: Math.sin(angle) * this.initial_force,
     };
-    
+
     this.angle  = angle;
     this.colour = colour || { r: 255, g: 255, b: 255 };
-    
+
     this.active   = true;
     this.lifetime = 0;
     this.owner    = owner;
@@ -346,19 +369,19 @@ Grenade.prototype.update = function(lapse) {
         this.active = false;
         this.explode();
     }
-    
+
     //update velocity and position
     var friction = {
         x: -this.v.x * this.deceleration * lapse,
         y: -this.v.y * this.deceleration * lapse,
     };
-    
+
     this.v.x += friction.x;
     this.v.y += friction.y;
-    
+
     this.x += this.v.x * lapse;
     this.y += this.v.y * lapse;
-    
+
     //add collision detection
     Universe.bodies.forEach((body) => {
         if (body === this) return;
@@ -385,37 +408,37 @@ Grenade.prototype.explode = function(lapse) {
 function Sonic_bubble(x, y, angle, colour, owner) {
     this.x = x;
     this.y = y;
-    
+
     this.angle  = angle;
     this.owner  = owner;
     this.colour = colour;
     this.radius = 12.5;
-    
+
     this.lifetime = 0;
     this.active   = true;
     this.alpha    = 1;
-    
+
     this.type = "sonic";
 }
 
 Sonic_bubble.prototype.max_lifetime = 3000;
 Sonic_bubble.prototype.fade_rate    = 1 / 3000;
 
-Sonic_bubble.prototype.speed = 0.05;
+Sonic_bubble.prototype.speed = 0.2;
 
 Sonic_bubble.prototype.is_projectile = true;
 
 Sonic_bubble.prototype.update = function(lapse) {
     this.lifetime += lapse;
-    
+
     if (this.lifetime >= this.max_lifetime) {
         this.active = false;
         return;
     }
-    
+
     this.x += Math.cos(this.angle) * this.speed;
     this.y += Math.sin(this.angle) * this.speed;
-    
+
     //update the alpha
     this.alpha -= this.fade_rate * lapse;
     this.alpha = Math.max(this.alpha, 0);
@@ -427,16 +450,16 @@ Sonic_bubble.prototype.collision = function() {
 
 //cluster torpedo -- MICHAEL BAY STYLE -----------------------------------------
 function Cluster_torpedo_rocket(x, y, angle, colour, owner, generation) {
-    
+
 }
 
 //let's start sprinkling the universe with high explosives! --------------------
 function Spacemine(x, y, angle, colour, owner) {
-    
+
 }
 
 Spacemine.prototype.explode = function() {
-    
+
 };
 
 //are nuclear weapons allowed in this game? or are they too overpowering?
