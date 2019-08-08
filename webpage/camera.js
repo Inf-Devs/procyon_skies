@@ -174,17 +174,12 @@ var Camera = {
                     cxt.save();
                     cxt.translate(draw_x, draw_y);
                     cxt.rotate(-f.rotation);
-                    var sprite;
-                    /*
-                    if (f.name == "alpha") {
-                        sprite = Sprites.planets.alpha;
-                    } else if (f.name == "beta") {
-                        sprite = Sprites.planets.beta;
-                    }*/
-                    //NEW CODE
-                    sprite = Sprites.planets[f.kind];
+                    var sprite = Sprites.planets[f.kind];
                     cxt.drawImage(sprite, -32, -32);
                     cxt.restore();
+                    
+                    //draw the planet's name
+                    
                     break;
                 case "star":
                     cxt.fillStyle = "orangeRed";
@@ -404,6 +399,9 @@ var Sprites = {
         beta: get_sprite("planet_beta.png"),
         "blue gas giant": get_sprite("planet_blue_gas_giant.png"),
         "red gas giant": get_sprite("planet_red_gas_giant.png"),
+        "blue icy": get_sprite("planet_blue_icy.png"),
+        "yellow icy": get_sprite("planet_yellow_icy.png"),
+        "grey_rocky": get_sprite("planet_grey_rocky.png"),
         "green rocky": get_sprite("planet_green_rocky.png"),
     },
 };

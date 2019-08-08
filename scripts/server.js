@@ -18,8 +18,8 @@ var Game_events      = require(__dirname + "/events.js");
 
 //planets and sun
 var Sun   = new Celestial_bodies.Star("sun", 5000, 5000);
-var Alpha = new Celestial_bodies.Planet(Sun, 600, "alpha", 32, "blue gas giant", {r: 30, g: 144, b: 255});
-var Beta  = new Celestial_bodies.Planet(Sun, 1000, "beta", 32, "red gas giant", {r: 220, g: 20, b: 60});
+var Alpha = new Celestial_bodies.Planet(Sun, 600, "alpha", 32, "random", {r: 30, g: 144, b: 255});
+var Beta  = new Celestial_bodies.Planet(Sun, 1000, "beta", 32, "random", {r: 220, g: 20, b: 60});
 
 function get_minimap_objects() {
     return [

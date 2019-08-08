@@ -153,11 +153,11 @@ function Planet(star, orbit_radius, name, radius, kind, colour) {
 
     this.name   = name;
     this.type   = "planet";
-    this.kind   = typeof kind == "string" ? kind : "blue gas giant";
+    this.kind   = typeof kind == "string" ? kind : "random";
     this.colour = colour || {r: 255, g: 255, b: 255};
 
     if (this.kind == "random") {
-        this.kind = this.kinds[Misc_math.random_number(0, 10)];
+        this.kind = this.kinds[Misc_math.random_number(0, 6)];
     }
 
     this.orbit_radius = orbit_radius;
@@ -175,8 +175,8 @@ Planet.prototype.is_body = true;
 Planet.prototype.radius  = 32;
 
 Planet.prototype.kinds = [
-    "blue gas giant", "red gas giant", "blue icy", "yellow icy", "molten",
-    "ocean", "orange stormy", "purple stormy", "grey rocky", "green rocky"
+    "blue gas giant", "red gas giant", "blue icy", "yellow icy",/* "molten",
+    "ocean", "orange stormy", "purple stormy", */ "grey rocky", "green rocky"
 ],
 
 Planet.prototype.orbit_speed    = 0.03;
