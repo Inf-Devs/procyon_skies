@@ -171,12 +171,6 @@ var Camera = {
                     cxt.restore();
                     break;
                 case "planet":
-                    cxt.fillStyle = "dodgerblue";
-                    cxt.beginPath();
-                    cxt.arc(draw_x, draw_y, f.radius, 0, Math.PI * 2);
-                    cxt.closePath();
-                    cxt.fill();
-
                     cxt.save();
                     cxt.translate(draw_x, draw_y);
                     cxt.rotate(-f.rotation);
@@ -308,9 +302,9 @@ var Info_display = {
 
         this.mini_map_context.beginPath();
         //this.mini_map_context.arc(draw_x, draw_y, 3, 0, Math.PI * 2);
-        this.mini_map_context.moveTo(Math.cos(angle) * 4 + draw_x, Math.sin(angle) * 4 + draw_y);
-        this.mini_map_context.lineTo(Math.cos(angle + Math.PI * 3 / 4) * 2 + draw_x, Math.sin(angle + Math.PI * 3 / 4) * 2 + draw_y);
-        this.mini_map_context.lineTo(Math.cos(angle - Math.PI * 3 / 4) * 2 + draw_x, Math.sin(angle - Math.PI * 3 / 4) * 2 + draw_y);
+        this.mini_map_context.moveTo(Math.cos(angle) * 6 + draw_x, Math.sin(angle) * 4 + draw_y);
+        this.mini_map_context.lineTo(Math.cos(angle + Math.PI * 3 / 4) * 3 + draw_x, Math.sin(angle + Math.PI * 3 / 4) * 3 + draw_y);
+        this.mini_map_context.lineTo(Math.cos(angle - Math.PI * 3 / 4) * 3 + draw_x, Math.sin(angle - Math.PI * 3 / 4) * 3 + draw_y);
         this.mini_map_context.closePath();
         this.mini_map_context.fill();
 
