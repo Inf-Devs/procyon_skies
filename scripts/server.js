@@ -11,15 +11,23 @@ var Misc_math        = require(__dirname + "/misc_math.js");
 var Colours          = require(__dirname + "/colours.js");
 var Players          = require(__dirname + "/players.js");
 var Universe         = require(__dirname + "/universe.js");
-var Weapons     = require(__dirname + "/weapons.js");
+var Weapons          = require(__dirname + "/weapons.js");
 var Celestial_bodies = require(__dirname + "/celestial_bodies.js");
 var Game_events      = require(__dirname + "/events.js");
 // var Shop             = require(__dirname + "/shop.js");
 
 //planets and sun
 var Sun   = new Celestial_bodies.Star("sun", 5000, 5000);
-var Alpha = new Celestial_bodies.Planet(Sun, 600, "alpha", 32);
-var Beta  = new Celestial_bodies.Planet(Sun, 1000, "beta", 32);
+var Alpha = new Celestial_bodies.Planet(Sun, 600, "alpha", 32, "blue gas giant", {r: 30, g: 144, b: 255});
+var Beta  = new Celestial_bodies.Planet(Sun, 1000, "beta", 32, "red gas giant", {r: 220, g: 20, b: 60});
+
+function get_minimap_objects() {
+    return [
+        {x: Alpha.x / Universe.width, y: Alpha.y / Universe.height, colour: Alpha.colour},
+        {x: Beta.x / Universe.width, y: Beta.y / Universe.height, colour: Beta.colour},
+        {x: Sun.x / Universe.width, y: Sun.y / Universe.height, colour: Sun.colour},
+    ];
+}
 
 Universe.objects.push(Sun);
 Universe.objects.push(Alpha);
@@ -170,11 +178,7 @@ io.on("connection", function(socket) {
             offset: { x: p_x, y: p_y, },
             health: player.health,
             ammo: player.ammo,
-            minimap_objects: [
-                {x: Alpha.x / Universe.width, y: Alpha.y / Universe.height, colour: {r: 30, g: 144, b: 255}},
-                {x: Beta.x / Universe.width, y: Beta.y / Universe.height, colour: {r: 220, g: 20, b: 60}},
-                {x: Sun.x / Universe.width, y: Sun.y / Universe.height, colour: {r: 255, g: 255, b: 0}},
-            ],
+            minimap_objects: get_minimap_objects(),
         });
     });
 

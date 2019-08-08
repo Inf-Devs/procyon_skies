@@ -13,14 +13,14 @@ function Asteroid_rock(x, y, size) {
     var angle = Math.random() * Math.PI * 2;
 
     this.v = { x: Math.cos(angle), y: Math.sin(angle), };
-    
+
     this.size       = (size < 0 || isNaN(size)) ? Math.floor(Math.random() * 4) : size;
     this.radius     = this.radii[this.size];
     this.health     = this.healths[this.size];
     this.max_health = this.healths[this.size];
     this.active     = true;
     this.type       = "asteroid";
-    
+
     this.rotation   = Math.random() * Math.PI * 2;
     this.rotate_dir = Math.random() < 0.5 ? 1 : -1;
 }
@@ -39,24 +39,24 @@ Asteroid_rock.prototype.freeze_radius = 1000;
 Asteroid_rock.prototype.update = function(lapse) {
     //no need to update if no players nearby
     var closest = Players.get_closest(this.x, this.y);
-    
+
     if (closest == undefined || Misc_math.get_distance(this.x, this.y, closest.x, closest.y) > this.freeze_radius) {
         return; //no need for update
     }
-    
+
     //let it drift
     this.x += this.v.x * this.drift_speed * lapse;
     this.y += this.v.y * this.drift_speed * lapse;
-    
+
     this.rotation += this.rot_dir * this.rotate_speed * lapse;
-    
+
     //collision detection with projectiles
     Universe.projectiles.forEach((p) => {
         if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
             this.do_damage(p.collision(), p.owner);
         }
     });
-    
+
     //collision detection with edge of map
     if ((this.x < this.radius && this.v.x < 0) || (this.x > Universe.width - this.radius && this.v.x > 0)) {
         this.v.x *= -1;
@@ -65,7 +65,7 @@ Asteroid_rock.prototype.update = function(lapse) {
     if ((this.y < this.radius && this.v.y < 0) || (this.y > Universe.height - this.radius && this.v.y > 0)) {
         this.v.y *= -1;
     }
-    
+
     //collision detection with bodies
     Universe.bodies.forEach((body) => {
         if (body === this) return;
@@ -85,12 +85,12 @@ Asteroid_rock.prototype.update = function(lapse) {
 
 Asteroid_rock.prototype.do_damage = function(damage, owner) {
     this.health -= damage;
-    
+
     if (this.health <= 0) {
         //explode
         this.explode();
         this.active = false;
-        
+
         //reward the player who blasted this asteroid
         Players[owner].update_score("destroy asteroid");
     }
@@ -103,14 +103,14 @@ Asteroid_rock.prototype.explode = function() {
         Universe.objects.push(new Asteroid_rock(this.x + this.radius, this.y + this.radius, new_size));
         Universe.objects.push(new Asteroid_rock(this.x - this.radius, this.y - this.radius, new_size));
     }
-    
+
     //create some goodies!
     var resource_count = Misc_math.random_number(Math.ceil(this.radius / 3), this.radius);
-    
+
     while (resource_count > 0) {
         var angle  = Math.random() * Math.PI * 2;
         var radius = Math.random() * this.radius * 2;
-        
+
         Universe.objects.push(new Pickupable.Resource_item(
             Math.cos(angle) * radius + this.x,
             Math.sin(angle) * radius + this.y,
@@ -124,20 +124,20 @@ Celestial_bodies.Asteroid_rock = Asteroid_rock;
 
 function create_spawn_asteroid(star, inner, outer, limit) {
     var x = star.x, y = star.y;
-    
+
     return function() {
         if (Universe.get_all_of_type("asteroid").length >= limit || Players.count == 0) {
             return;
         }
-        
+
         var spawn_radius = Misc_math.random_number(inner, outer);
         var spawn_angle  = Math.random() * Math.PI * 2;
-        
+
         var spawn_x = Math.floor(Math.cos(spawn_angle) * spawn_radius + x);
         var spawn_y = Math.floor(Math.sin(spawn_angle) * spawn_radius + y);
-        
+
         Universe.objects.push(new Asteroid_rock(spawn_x, spawn_y));
-        
+
         log("asteroid has spawned at " + spawn_x + ", " + spawn_y + ".", "info");
     }
 }
@@ -145,28 +145,39 @@ function create_spawn_asteroid(star, inner, outer, limit) {
 Celestial_bodies.spawn_asteroid = create_spawn_asteroid;
 
 //PLANET --------------------------------------------------------------
-function Planet(star, orbit_radius, name, radius) {
+function Planet(star, orbit_radius, name, radius, kind, colour) {
     this.parent_star = star;
-    
+
     this.x = 0;
     this.y = 0;
-    
-    this.name = name;
-    this.type = "planet";
-    
+
+    this.name   = name;
+    this.type   = "planet";
+    this.kind   = typeof kind == "string" ? kind : "blue gas giant";
+    this.colour = colour || {r: 255, g: 255, b: 255};
+
+    if (this.kind == "random") {
+        this.kind = this.kinds[Misc_math.random_number(0, 10)];
+    }
+
     this.orbit_radius = orbit_radius;
     this.radius       = (isNaN(radius) || radius <= 0) ? 32 : radius;
-    
+
     this.angle    = Math.random() * Math.PI * 2;
     this.rotation = Math.random() * Math.PI * 2;
 
     this.active = true;
-    
+
     this.update(0);
 };
 
 Planet.prototype.is_body = true;
 Planet.prototype.radius  = 32;
+
+Planet.prototype.kinds = [
+    "blue gas giant", "red gas giant", "blue icy", "yellow icy", "molten",
+    "ocean", "orange stormy", "purple stormy", "grey rocky", "green rocky"
+],
 
 Planet.prototype.orbit_speed    = 0.03;
 Planet.prototype.rotation_speed = 0.00015;
@@ -203,7 +214,7 @@ function Star(name, x, y) {
 
     this.x = x;
     this.y = y;
-    
+
     this.points = this.point_angles.map((a) => {
         return new Point(this.x, this.y, a, this.radius);
     });
@@ -211,6 +222,7 @@ function Star(name, x, y) {
 
 Star.prototype.is_body = true;
 Star.prototype.radius  = 125;
+Star.prototype.colour  = {r: 255, g: 255, b: 0};
 
 Star.prototype.point_angles = [
     0, Math.PI / 4, Math.PI / 2,  3 * Math.PI / 4, Math.PI,
@@ -221,11 +233,11 @@ Star.prototype.update = function(lapse) {
     //don't do anything, really.
 
     //except for update points...
-    
+
     this.points.forEach((f) => {
         f.update(lapse);
     });
-    
+
     //...and check for collision
     Universe.projectiles.forEach((p) => {
         if (Misc_math.get_distance(this.x, this.y, p.x, p.y) < this.radius) {
@@ -240,16 +252,16 @@ Celestial_bodies.Star = Star;
 function Point(centre_x, centre_y, angle, radius) {
     this.centre = { x: centre_x, y: centre_y, radius: radius};
     this.angle  = angle;
-    
+
     this.x = null;
     this.y = null;
-    
+
     this.time = 0;
-    
+
     this.radius_function = this.create_function(Misc_math.random_number(15, 45));
-    
+
     this.radius = null;
-    
+
     this.update(0);
 }
 
@@ -262,10 +274,10 @@ Point.prototype.create_function = function(num) {
 
 Point.prototype.update= function(lapse) {
     this.time += lapse;
-    
+
     //recalculate radius
     this.radius = this.radius_function(this.time);
-    
+
     //recalculate x and y
     this.x = Math.cos(this.angle) * (this.radius + this.centre.radius);// + this.centre.x;
     this.y = Math.sin(this.angle) * (this.radius + this.centre.radius);// + this.centre.y;

@@ -181,11 +181,14 @@ var Camera = {
                     cxt.translate(draw_x, draw_y);
                     cxt.rotate(-f.rotation);
                     var sprite;
+                    /*
                     if (f.name == "alpha") {
                         sprite = Sprites.planets.alpha;
                     } else if (f.name == "beta") {
                         sprite = Sprites.planets.beta;
-                    }
+                    }*/
+                    //NEW CODE
+                    sprite = Sprites.planets[f.kind];
                     cxt.drawImage(sprite, -32, -32);
                     cxt.restore();
                     break;
@@ -405,6 +408,9 @@ var Sprites = {
     planets: {
         alpha: get_sprite("planet_alpha.png"),
         beta: get_sprite("planet_beta.png"),
+        "blue gas giant": get_sprite("planet_blue_gas_giant.png"),
+        "red gas giant": get_sprite("planet_red_gas_giant.png"),
+        "green rocky": get_sprite("planet_green_rocky.png"),
     },
 };
 
