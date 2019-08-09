@@ -171,15 +171,32 @@ var Camera = {
                     cxt.restore();
                     break;
                 case "planet":
+                    //draw the planet's name, if it's close enough
+                    if (Math.abs(draw_x - this.width / 2) <= 96 && Math.abs(draw_y - this.height / 2)) {
+                        //measure the text
+                        //var text_width = cxt.measureText(f.name).width;
+                        
+                        //find where to draw, usually above the planet
+                        var write_x = draw_x, write_y = draw_y - 100;
+                        
+                        cxt.fillStyle = get_colour(f.colour);
+                        cxt.fillText("planet " + f.name, write_x, write_y);
+                        //draw a line to label the planet
+                        cxt.strokeStyle = get_colour(f.colour);
+                        cxt.strokeWidth = 1;
+                        cxt.beginPath();
+                        cxt.moveTo(write_x, write_y - 5);
+                        cxt.lineTo(draw_x, draw_y);
+                        cxt.closePath();
+                        cxt.stroke();
+                    }
+                    
                     cxt.save();
                     cxt.translate(draw_x, draw_y);
                     cxt.rotate(-f.rotation);
                     var sprite = Sprites.planets[f.kind];
                     cxt.drawImage(sprite, -32, -32);
                     cxt.restore();
-                    
-                    //draw the planet's name
-                    
                     break;
                 case "star":
                     cxt.fillStyle = "orangeRed";
@@ -401,7 +418,7 @@ var Sprites = {
         "red gas giant": get_sprite("planet_red_gas_giant.png"),
         "blue icy": get_sprite("planet_blue_icy.png"),
         "yellow icy": get_sprite("planet_yellow_icy.png"),
-        "grey_rocky": get_sprite("planet_grey_rocky.png"),
+        "grey rocky": get_sprite("planet_grey_rocky.png"),
         "green rocky": get_sprite("planet_green_rocky.png"),
     },
 };
