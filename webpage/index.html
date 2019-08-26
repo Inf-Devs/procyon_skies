@@ -3,70 +3,44 @@
     <head>
         <title>Space for Everyone!</title>
         <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet"> 
-        <meta charset="utf-8" />
-        <style>
-            canvas {
-                position: absolute;
-                top: 0px; left: 0px;
-                background-color: black;
-                text-align: center;
-            }
-            
-            canvas#mini_map {
-                position: absolute;
-                top: 5px; left: 5px;
-                padding: 0px;
-                width: 150px; height: 150px;
-                background-color: black;
-                border: 1px solid white; /* will be modified by the script */
-                opacity: 0.8;
-            }
-            
-            canvas#status_panel {
-                position: absolute;
-                top: 160px; left: 5px;
-                width: 150px; height: 65px;
-                padding: 0px;
-                border: 1px solid white; /* will be modified by the script */
-                opacity: 0.8;
-            }
-            
-            div#infos {
-                position: absolute;
-                top: 230px; left: 5px;
-                width: 140px;
-                padding: 5px;
-                font-family: "VT323";
-                font-size: 14pt;
-                color: white; /* will be modified by the script */
-                border: 1px solid white; /* will be modified by script */
-            }
-            
-            .notification {
-                position: relative;
-                width: 200px;
-                min-height: 20px;
-                border: 1px solid white;
-                background-color: rgba(38, 38, 38, 0.5);
-                color: white;
-                padding: 10px;
-                text-align: center;
-                margin: auto;
-            }
-        </style>
+        <link href="stylesheet.css" rel="stylesheet"/>
+		<!-- favicons for every situation!	-->
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="icon" type="image/ico" sizes="16x16" href="/favicon.ico">
+
+		<meta charset="utf-8" />
+
     </head>
     <body>
-        <p>welcome! enter your name, and get ready for blastoff!</p>
-        <p>arrow keys to move. z for blasters. x for torpedos.</p> 
-        <form>
-            <p>name: <input type="text" name="name_field"/></p>
-            <button type="submit">submit</button>
-        </form>
+        <div id="join">
+            <h1 id="title_splash">Procyon Skies <img src="sprites/logo.png"></img></h1>
+            <div id="instructions">
+				<h1>Instructions</h1>
+				<p>Welcome! Enter your name, and get ready for blastoff!</p>
+				<p>Arrow keys to move. z for blasters. x for torpedos.</p>
+				<p>You can also use WASD to move, &quot;,&quot; for blasters, and &quot;.&quot; for torpedos.</p>
+				<p>Score points by blasting asteroids, blasting other players, and collecting resources.</p>
+				<div id="credits">
+					<span>Developed by Inf-Devs</span>
+					<span><a target = "_blank" href="https://docs.google.com/forms/d/e/1FAIpQLScHgviFI7HQ7Rh-kHNfiHX9Z0CHe6B5-A5rot-R_lvGC5CvRA/viewform?usp=sf_link">Tell us what you think!</a></span>
+					<span><a target = "_blank" href="https://github.com/Clocks-in-a-Cooler/procyon_skies/">Github</a></span>
+				</div>
+			</div>
+            <form id="join_form">
+                <p>Name: <input type="text" name="name_field"/></p>
+                <button type="submit">Blastoff!</button>
+            </form>
+			
+        </div>
         <script src="socket.io.min.js"></script>
         <script src="game.js"></script>
         <script src="camera.js"></script>
         <script src="event_handlers.js"></script>
         <script src="init_and_setup.js"></script>
+        <script src="components.js"></script>
+        
         <script>
             init();
         </script>

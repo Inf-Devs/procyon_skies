@@ -52,11 +52,7 @@ On the client side...
 
 * figure out how not to hog resources
 
-* figure out how to tell the player when they kill and get killed
-
 ### Server side
-
-* figure out how to use modules &mdash; this means splitting up the code into more files, for comprehensibility's sake
 
 * figure out how to make it efficient &mdash; even if Javascript is not
 
@@ -65,13 +61,8 @@ On the client side...
     - global chat
     
     - various planets for players to stop over
-    
-    - leaderboard
-    
+        
     - save server state, so that players can come back to where they left off
     
     - more efficient updating, for less lag
     
-    - asteroids and resources
-    
-    - upgrades

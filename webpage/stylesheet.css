@@ -1,0 +1,501 @@
+body {
+    background-color: rgba(38, 38, 38, 1);
+	background: url("sprites/landing_page.png") no-repeat center fixed;
+	background-size: cover; /* Resize the background image to cover the entire container */
+    color: white;
+
+	font-family: "VT323";
+}
+
+/*
+	Framework
+ */
+.panel
+{
+	border: 1px solid white;
+	background-color: rgba(0, 0, 0, 0.8);
+}
+
+.sub_panel
+{
+	border: 1px solid;
+	border-color: inherit;
+	display: inline-block;
+	overflow: auto;
+}
+
+.component
+{
+	border: 1px solid white;
+}
+
+.notification {
+    position: relative;
+    width: 200px;
+    min-height: 20px;
+    border: 1px solid white;
+    background-color: rgba(38, 38, 38, 0.5);
+    color: white;
+    padding: 10px;
+    text-align: center;
+    margin: auto;
+}
+
+button {
+	cursor: pointer;
+}
+
+/*
+	ingenious tooltip from here:
+	https://chrisbracco.com/a-simple-css-tooltip/
+*/
+
+/* BASE STYLE */
+[tooltip] {
+	position: relative;
+	z-index: 3;
+}
+
+[tooltip]::before,
+[tooltip]::after {
+	position: absolute;
+	visibility: hidden;
+}
+
+[tooltip]:hover::before,
+[tooltip]:hover::after {
+	visibility: visible;
+}
+
+
+[tooltip]::before {
+	position: absolute;
+	padding: 7px;
+	width: 160px;
+	background-color: #111111;
+	content: attr(tooltip);
+	text-align: center;
+	font-size: 14px;
+	line-height: 1.2;
+}
+
+/* top */
+[tooltip]::before,
+[tooltip]::after,
+.tooltip-top::before,
+.tooltip-top::after {
+	bottom: 100%;
+	left: 50%;
+}
+
+[tooltip]::before,
+.tooltip-top::before {
+	margin-left: -6px;
+	margin-bottom: -12px;
+}
+
+[tooltip]::after,
+.tooltip-top::after {
+	margin-left: -80px;
+}
+
+[tooltip]:hover::before,
+[tooltip]:hover::after,
+.tooltip-top:hover::before,
+.tooltip-top:hover::after {
+	-webkit-transform: translateY(-12px);
+	transform: translateY(-12px);
+}
+/* left */
+.tooltip-left::before,
+.tooltip-left::after {
+	right: 100%;
+	bottom: 50%;
+	left: auto;
+}
+
+.tooltip-left::before {
+	margin-left: 0;
+	margin-right: -12px;
+	margin-bottom: 0;
+}
+
+.tooltip-left:hover::before,
+.tooltip-left:hover::after{
+	-webkit-transform: translateX(-12px);
+	transform: translateX(-12px);
+}
+/* vertically center left/right tooltips */
+.tooltip-left::after,
+.tooltip-right::after{
+	margin-left: 0;
+	margin-bottom: -16px;
+}
+/* bototm */
+.tooltip-bottom::before,
+.tooltip-bottom::after {
+	top: 100%;
+	bottom: auto;
+	left: 50%;
+}
+
+.tooltip-bottom::before {
+	margin-top: -12px;
+	margin-bottom: 0;
+}
+
+.tooltip-bottom:hover::before,
+.tooltip-bottom:hover::after{
+	-webkit-transform: translateY(12px);
+	transform: translateY(12px);
+}
+/* right */
+.tooltip-right::before,
+.tooltip-right::after {
+	bottom: 50%;
+	left: 100%;
+}
+
+.tooltip-right::before {
+	margin-bottom: 0;
+	margin-left: -12px;
+}
+.tooltip-right:hover::before,
+.tooltip-right:hover::after{
+	-webkit-transform: translateX(12px);
+	transform: translateX(12px);
+}
+
+/* lobby */
+
+#join{
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+}
+
+#title_splash {
+	font-size: 100px;
+}
+
+#instructions {
+	background-color: rgba(10,10,10,0.7);
+	padding: 25px;
+	text-align: center;
+}
+
+.instructions_highlight {
+
+}
+
+#join_form
+{
+	display: block;
+}
+
+#join_form p,
+#join_form button
+{
+	display: inline-block;
+}
+
+#join button {
+    font-family: "VT323";
+    font-size: 20px;
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+    width: 100px;
+    height: 50px;
+}
+/*
+	Individual elements
+ */
+canvas {
+    position: absolute;
+    top: 0px; left: 0px;
+    background-color: black;
+    text-align: center;
+}
+
+canvas#mini_map {
+    position: absolute;
+    top: 5px; left: 5px;
+    padding: 0px;
+    width: 150px; height: 150px;
+    background-color: black;
+    border: 1px solid white; /* will be modified by the script */
+    opacity: 0.8;
+}
+
+canvas#status_panel {
+    position: absolute;
+    top: 160px; left: 5px;
+    width: 150px; height: 65px;
+    padding: 0px;
+    border: 1px solid white; /* will be modified by the script */
+    opacity: 0.8;
+}
+
+div#infos {
+    position: absolute;
+    top: 230px; left: 5px;
+    width: 140px;
+    padding: 5px;
+    font-family: "VT323";
+    font-size: 14pt;
+    color: white; /* will be modified by the script */
+    border: 1px solid white; /* will be modified by script */
+}
+
+#leaderboard {
+    position: absolute;
+    top: 5px; right: 5px;
+    width: 140px;
+    height: 200px;
+    padding: 5px;
+    font-family: "VT323";
+    font-size: 14pt;
+    color: white; /* will be modified by the script */
+    border: 1px solid white; /* will be modified by script */
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+#leaderboard h1{
+    font-size: 18pt;
+    padding: 0;
+    margin: 0;
+}
+
+.kill_counter {
+    float: right;
+}
+
+.name_counter {
+    float: left;
+    min-width: 80px;
+}
+
+#weapons_panel {
+	position: relative;
+}
+
+#primary_weapons {
+	width: calc(50% - 2px);
+	position: absolute;
+	top: 0;
+	left: 0;
+
+	height: 100%;
+	/* DARN YOU WORDS AND CONTAINERS! */
+	font-size: 0px;
+}
+
+#secondary_weapons {
+	width: calc(50% - 2px);
+	position: absolute;
+	top: 0;
+	right: 0;
+
+	height: 100%;
+	/* DARN YOU WORDS AND CONTAINERS! */
+	font-size: 0px;
+}
+
+.weapon_display {
+	width: 100%;
+	min-height: 128px;
+	border-top: 1px solid;
+	border-color: inherit;
+
+	margin: 0;
+	padding: 0;
+
+	display: inline-block;
+	position: relative;
+
+	/* DARN YOU WORDS AND CONTAINERS! */
+	font-size: 12px;
+}
+
+.weapon_display h1 {
+	margin: 0;
+	padding: 3px;
+}
+
+.weapon_display p {
+	font-size: 18px;
+	margin: 2px;
+}
+
+
+.weapon_display img {
+	width: 128px;
+	height: 128px;
+	float: right;
+	border: 1px solid;
+}
+
+.weapon_display button {
+	width: 60px;
+	height: 20px;
+	font-family: "VT323";
+	background: none;
+	border: 1px solid;
+	border-color: inherit;
+	color: inherit;
+}
+
+#upgrades_panel {
+    font-family: "VT323";
+}
+
+#upgrades_panel div {
+	height: 25px;
+	clear: left;
+}
+
+#upgrades_panel h1 {
+    font-size: 18pt;
+}
+
+#upgrades_panel div p {
+	float: left;
+	display: inline-block;
+	/* for chrome */
+	margin: 0;
+}
+
+#upgrades_panel button {
+    height: 20px;
+    font-size: 15pt;
+    border: inherit;
+    background-color: inherit;
+
+	float: right;
+	display: inline-block;
+}
+
+#upgrades_panel progress {
+    /* Reset the default appearance */
+	/*
+    -webkit-appearance: none;
+    appearance: none;
+	*/
+    background-color: rgba(0, 0, 0, 0.8);
+    height: 20px;
+	width: 500px;
+
+	float: right;
+	display: inline-block;
+}
+
+/* screens */
+
+#death_screen {
+    display: flex;
+	visibility: hidden;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+
+    background-color: rgba(38, 38, 38, 0.5);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+#orbit_screen {
+	display: flex;
+	visibility: hidden; 
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#restart_box {
+    font-family: "VT323";
+    font-size: 21pt;
+
+    width: 300px;
+    height: 200px;
+    background-color: rgba(38, 38, 38, 0.5);
+    border: 1px solid white;
+    z-index: 3;
+    padding: 10px;
+
+    text-align: center;
+}
+
+#restart_box button{
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    font-family: "VT323";
+    font-size: 21pt;
+    width: 100px;
+    height: 50px;
+}
+
+#orbit_panel {
+	width: 60%;
+	height: 60%;
+}
+
+
+/*
+	JS COMPONENTS
+*/
+
+/* tabbedPanel */
+.tabbedPanel {
+	font-family: "VT323";
+	border: 1px solid white;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.tabbedPanel_navigationBar {
+	border-color: inherit;
+	height: 60px;
+
+	display: flex;
+	flex-direction: row;
+}
+
+.tabbedPanel_navigationButton {
+	display:inline-block;
+	border-bottom: 1px solid white;
+	border-right: 1px solid white;
+	border-color: inherit;
+	padding: 15px;
+	font-size: 1.5em;
+	cursor: pointer;
+	height: calc(60px-30px);
+
+	flex: 1;
+}
+
+/*remove that ugly border after everything else */
+.tabbedPanel_navigationButton:last-child {
+	border-right: none;
+}
+
+.tabbedPanel_contentPanel {
+	padding: 25px;
+	width: calc(100% - 50px);
+	/* further 60px from the height of the navigation bar*/
+	height: calc(100% - 50px - 60px);
+}
+
+/* only for immediate children, ie the first divs */
+.tabbedPanel_contentPanel > div {
+	width: 100%;
+	height: 100%;
+}
