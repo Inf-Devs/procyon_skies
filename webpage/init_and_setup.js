@@ -81,6 +81,7 @@ function setup_game() {
 	//IMPORTANT in mobile 
 	toggleFullScreen();
 	ingame = true;
+	mobile = window.mobilecheck();
     //set up our event listeners
     // KEYS!
 	addEventListener("keyup", keyup_handler);
