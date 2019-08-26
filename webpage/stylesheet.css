@@ -3,10 +3,20 @@ body {
 	background: url("sprites/landing_page.png") no-repeat center fixed;
 	background-size: cover; /* Resize the background image to cover the entire container */
     color: white;
-
+	
+	margin: 0;
+	padding: 0;
+	
 	font-family: "VT323";
 }
 
+/* for da mobile testing! */
+.ingame {
+	overflow-x: hidden;
+	overflow-y: hidden;
+	position: relative;
+	touch-action: none;
+}
 /*
 	Framework
  */
@@ -191,6 +201,14 @@ button {
 #join_form
 {
 	display: block;
+	width: 40em;
+	height: 2em;
+}
+
+#join_form input 
+{
+	font-size: 2em;
+	width: 6em;
 }
 
 #join_form p,
@@ -199,14 +217,19 @@ button {
 	display: inline-block;
 }
 
+#join_form p
+{
+	font-size: 3em;
+}
+
 #join button {
     font-family: "VT323";
-    font-size: 20px;
+    font-size: 4em;
     background-color: transparent;
     color: white;
     border: 1px solid white;
-    width: 100px;
-    height: 50px;
+    width: 8em;
+    height: 2em;
 }
 /*
 	Individual elements
@@ -216,6 +239,9 @@ canvas {
     top: 0px; left: 0px;
     background-color: black;
     text-align: center;
+	
+	margin: 0;
+	padding: 0;
 }
 
 canvas#mini_map {
@@ -404,20 +430,22 @@ div#infos {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 2;
+    z-index: 200;
 }
 
 #orbit_screen {
 	display: flex;
-	visibility: hidden; 
+	visibility: hidden; /*HIDE*/ 
     align-items: center;
     justify-content: center;
     height: 100vh;
     width: 100vw;
-
+	
     position: absolute;
     top: 0;
     left: 0;
+	
+	z-index: 100;
 }
 
 #restart_box {

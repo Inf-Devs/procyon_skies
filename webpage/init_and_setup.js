@@ -51,6 +51,20 @@ function init_game(data)
     
 }
 
+function toggleFullScreen() {
+	var document = window.document;
+	var documentElement = document.documentElement;
+	
+	var requestFullScreen = documentElement.requestFullscreen || documentElement.mozRequestFullScreen || documentElement.webkitRequestFullScreen || documentElement.msRequestFullscreen;
+	var cancelFullScreen = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
+
+	if(!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+	requestFullScreen.call(documentElement);
+	}
+	else {
+	cancelFullScreen.call(document);
+	}
+}
 //game setup
 // moved this here because it makes no sense that setup isn't in init_and_setup.js 
 function setup_game() {
@@ -58,13 +72,26 @@ function setup_game() {
     socket = io();
     
     document.body.style.color = get_colour(Game.colour);
-    
+	// for da mobile testing!
+    document.body.classList.add('ingame');
+	
     send_update();
     //socket.emit("client_update", { name: Game.name, id: Game.id, keys: Game.keys, colour: Game.colour});
     
+	//IMPORTANT in mobile 
+	toggleFullScreen();
+	ingame = true;
     //set up our event listeners
-    addEventListener("keyup", keyup_handler);
+    // KEYS!
+	addEventListener("keyup", keyup_handler);
     addEventListener("keydown", keydown_handler);
+	
+	// TOUCH!
+	addEventListener("touchstart",handleTouchStart,{passive: false});
+	addEventListener("touchend",handleTouchEnd,{passive: false});
+	addEventListener("touchcancel",handleTouchCancel,{passive: false});
+	addEventListener("touchmove",handleTouchMove,{passive: false});
+	
     socket.on("initialize", initialize);
     socket.on("server_update", receive_update);
     socket.on("notification", receive_notification);

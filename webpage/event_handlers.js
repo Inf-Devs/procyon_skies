@@ -2,6 +2,8 @@ var key_codes = {};
 
 var need_update = true;
 var playing = false;
+var mobile = true;
+
 function animate() {
     if (playing) {
         Camera.draw_frame(context);
@@ -55,7 +57,7 @@ function form_submit(event) {
     key_codes[40] = "down";
     key_codes[90] = "weapon1";
     key_codes[88] = "weapon2";
-
+	
     //get the submitted name
     var name = form.name_field.value;
     log("submitted name: " + name);
@@ -100,11 +102,31 @@ function keyup_handler(e) {
         socket.emit("toggle orbit");
         return;
     }
-
+	
+	if (e.keyCode === 70)
+	{
+		toggleFullScreen();
+	}
+	
     Game.keys[key_codes[e.keyCode]] = false;
 }
 
 function send_update() {
+	/*
+		We're going to do something just a LITTLE perverse here, by monkeying around with controls when handling touch events.
+		That's right folks! Input monkey is input monkey!
+		
+		key_codes[87] = "up";
+		key_codes[65] = "left";
+		key_codes[83] = "down";
+		key_codes[68] = "right";
+		key_codes[188] = "weapon1";
+		key_codes[190] = "weapon2";
+	 */
+	if(mobile)
+	{
+		handle_touches();
+	}
     socket.emit("client_update", {
         name: Game.name,
         id: Game.id,
@@ -113,6 +135,119 @@ function send_update() {
         viewport: { width: Camera.width, height: Camera.height },
         time: new Date().getTime(),
     });
+}
+
+var orbit_prevention_cooldown = 0;
+
+function handle_touches()
+{
+	/* using da quadrant system!*/
+	// N to up, S to down, etc...
+	// weapons are any secondary touch 
+	
+	if(touchesPressed.length > 0)
+	{
+		var touch = touchesPressed[0];
+		
+		// Y increases FROM TOP TO BOTTOM!!! THETA CHANGES ACCORDINGLY!
+		var delta_x = touch.currentX - touch.clientX;
+		var delta_y = touch.clientY - touch.currentY;
+		
+		// because we're not sensitive!
+		if(ingame)
+		{
+			if(Math.hypot(delta_x,delta_y) < 80)
+			{
+				return;
+			}
+		}
+		else 
+		{
+			if(Math.hypot(delta_x,delta_y) < 300)
+			{
+				return;
+			}
+		}
+		
+		// angling quadrants.
+		var angle = Math.atan2(delta_y, delta_x);
+		if(angle < 0) angle += 2*Math.PI;
+		console.log(angle);
+		
+		// right -> 0
+		// top -> PI/2
+		// left -> PI 
+		// bottom -> 3PI/2
+		
+		if(angle > Math.PI/6 && angle < Math.PI*5/6)
+		{
+			Game.keys["up"] = true;
+		}
+		else 
+		{
+			Game.keys["up"] = false;
+		}
+		
+		if((angle < Math.PI*2/6) || (angle > Math.PI*10/6))
+		{
+			Game.keys["right"] = true;
+		}
+		else 
+		{
+			Game.keys["right"] = false;
+		}
+		
+		if(angle > Math.PI*4/6 && angle < Math.PI*8/6)
+		{
+			Game.keys["left"] = true;
+		}
+		else 
+		{
+			Game.keys["left"] = false;
+		}
+		
+		if(angle > Math.PI*8/6 && angle < Math.PI*10/6)
+		{
+			if(orbit_prevention_cooldown <= 0)
+			{
+				socket.emit("toggle orbit");
+				orbit_prevention_cooldown = 2000;
+			}
+			// orbitto!
+			
+			
+			// cooldown to prevent any accidenttos!
+			
+		}
+		
+	}
+	else 
+	{
+		Game.keys["up"] = false;
+		Game.keys["right"] = false;
+		Game.keys["left"] = false;
+	}
+}
+
+
+/**
+	Just a LITTLE bit stupid, we're registering any SECONDARY touch as a weapons touch.
+	Differentiated based on halves.
+ */
+function handle_touchEnd(touch)
+{
+	var centerX = canvas.width / 2;
+	
+	Game.keys["weapon1"] = false;
+	Game.keys["weapon2"] = false;
+	if(touch.clientX > centerX)
+	{
+		Game.keys["weapon2"] = true;
+	}
+	else if(touch.clientX < centerX)
+	{
+		Game.keys["weapon1"] = true;
+	}
 }
 
 // for minor requests
@@ -136,13 +271,23 @@ function receive_update(data) {
         //var player = data.player;
         //Upgrades_display.init(player.current_upgrades);
     }
-
+	else 
+	{
+		orbit_prevention_cooldown -= data.time - last_update;
+	}
+	if(mobile)
+	{
+		Game.keys["weapon1"] = false;
+		Game.keys["weapon2"] = false;
+	}
     if (data.time < last_update && last_update !== null) {
         //we got an earlier update, so just ignore it.
         return;
     }
     last_update = data.time;
-
+	
+	// for touch events 
+	
     //update the camera
     Camera.players  = data.players;
     Camera.objects  = data.objects;
@@ -223,11 +368,18 @@ function toggle_orbit(state)
 	{
 		case "enter":
 			document.getElementById("orbit_screen").style.visibility = "visible";
+			// also changes default touch handling, because we need to 
+			document.body.classList.remove('ingame');
+			ingame = false;
 			break;
 		case "exit":
 			document.getElementById("orbit_screen").style.visibility = "hidden";
+			// restore to default
+			document.body.classList.add('ingame');
+			ingame = true;
 			break;
 		default:
+			ingame = true;
 	}
 }
 
