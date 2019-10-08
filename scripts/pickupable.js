@@ -18,9 +18,9 @@ function Resource_item(x, y, resources) {
 
 Resource_item.prototype.flash_delay  = 100;
 Resource_item.prototype.start_flash  = 5000;
-Resource_item.prototype.max_lifetime = 1e4;
+Resource_item.prototype.max_lifetime = 5e4;
 
-Resource_item.prototype.attraction_radius = 25;
+Resource_item.prototype.attraction_radius = 50;
 Resource_item.prototype.rotation_speed    = 0.004;
 
 Resource_item.prototype.speed  = 0.007;
