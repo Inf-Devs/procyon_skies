@@ -110,11 +110,12 @@ Asteroid_rock.prototype.explode = function() {
     while (resource_count > 0) {
         var angle  = Math.random() * Math.PI * 2;
         var radius = Math.random() * this.radius * 2;
+        var resource_amount = Misc_math.random_number(5,15)
 
         Universe.objects.push(new Pickupable.Resource_item(
             Math.cos(angle) * radius + this.x,
             Math.sin(angle) * radius + this.y,
-            Misc_math.random_number(1,5)
+            resource_amount
         ));
         resource_count--;
     }
