@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "description": "a real time game. with socket.io",
     "dependencies": {
-        "express": "^4.16.4",
+        "express": "^4.18.2",
         "socket.io": "^1.7.4"
     },
     "scripts": {
